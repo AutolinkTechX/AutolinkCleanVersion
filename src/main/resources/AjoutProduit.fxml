@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.pidev.controllers.AjoutArticleController"
+      stylesheets="@styles/Article/ajout.css"
+      spacing="15"
+      alignment="TOP_CENTER">
+
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
+
+    <!-- Header Section -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Label text="📦 Gestion des Produits" styleClass="header-label"/>
+        <Button fx:id="toggleFormButton" text="➕ Ajouter un Produit" onAction="#handleAddProduct"/>
+    </HBox>
+
+    <!-- Product Cards Scrollable Area -->
+    <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+        <VBox spacing="10">
+            <!-- Product Cards Grid -->
+            <GridPane fx:id="cardsContainer" hgap="10" vgap="10" alignment="TOP_CENTER">
+                <padding>
+                    <Insets top="5" right="5" bottom="5" left="5"/>
+                </padding>
+                <!-- Les cartes seront ajoutées dynamiquement ici -->
+            </GridPane>
+        </VBox>
+    </ScrollPane>
+
+    <!-- Pagination Controls -->
+    <HBox fx:id="paginationContainer" alignment="CENTER" spacing="5">
+        <padding>
+            <Insets top="10" bottom="5"/>
+        </padding>
+        <!-- Les contrôles de pagination seront ajoutés dynamiquement ici -->
+    </HBox>
+</VBox>

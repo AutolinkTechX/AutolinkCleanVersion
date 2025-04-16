@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.6"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.pidev.controllers.Panier"
+            stylesheets="@styles/Panier/Panier.css">
+
+    <!-- Left - Sidebar -->
+    <left>
+        <VBox fx:id="sidebar" spacing="10" styleClass="sidebar">
+            <Label styleClass="sidebar-title" text="Rechercher" />
+            <TextField fx:id="searchField" promptText="Recherche..." styleClass="search-field" />
+            <Button styleClass="filter-button" text="Filtrer" textAlignment="CENTER" />
+
+            <Separator styleClass="sidebar-separator" />
+        </VBox>
+    </left>
+
+    <!-- Center - Main Content -->
+    <center>
+        <VBox spacing="20">
+            <!-- Conteneur principal -->
+            <VBox fx:id="mainContainer" styleClass="cart-page-container">
+                <!-- En-tête du panier -->
+                <VBox spacing="5">
+                    <Label text="Mon Panier" styleClass="cart-title"/>
+                </VBox>
+
+                <!-- Liste des articles - Nouvelle disposition en grille -->
+                <GridPane fx:id="cartGrid" styleClass="cart-grid" hgap="15" vgap="15">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="33"/>
+                        <ColumnConstraints percentWidth="33"/>
+                        <ColumnConstraints percentWidth="33"/>
+                    </columnConstraints>
+                </GridPane>
+
+                <!-- Pagination -->
+                <HBox alignment="CENTER" spacing="20">
+                    <Button fx:id="prevButton" text="Précédent" styleClass="pagination-button"/>
+                    <Label fx:id="pageLabel" text="Page 1/1" styleClass="page-label"/>
+                    <Button fx:id="nextButton" text="Suivant" styleClass="pagination-button"/>
+                </HBox>
+
+                <!-- Pied de page avec total et bouton sur la même ligne -->
+                <VBox styleClass="cart-summary" spacing="15">
+                    <HBox styleClass="cart-summary-row">
+                        <Label text="Sous-total:" styleClass="cart-summary-label"/>
+                        <Label fx:id="subtotalLabel" styleClass="cart-summary-value" text="0.00 DT"/>
+                    </HBox>
+                    <HBox styleClass="cart-summary-row">
+                        <Label text="Livraison:" styleClass="cart-summary-label"/>
+                        <Label fx:id="shippingLabel" styleClass="cart-summary-value" text="0.00 DT"/>
+                    </HBox>
+                    <Separator styleClass="cart-total-separator"/>
+                    <HBox styleClass="total-row" alignment="CENTER_RIGHT" spacing="30">
+                        <HBox alignment="CENTER_RIGHT" spacing="15">
+                            <Label text="Total:" styleClass="cart-total-label"/>
+                            <Label fx:id="totalLabel" styleClass="cart-total-value" text="0.00 DT"/>
+                        </HBox>
+                        <Button fx:id="passerCommandeButton" text="Passer la commande"
+                                styleClass="checkout-button" onAction="#handlePasserCommande"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+
+            <!-- Message vide si panier vide -->
+            <VBox fx:id="emptyCartMessage" alignment="CENTER" spacing="20.0" visible="false"
+                  styleClass="empty-cart-message">
+                <ImageView fitWidth="150" fitHeight="150">
+                    <Image url="@images/logo.jpg"/>
+                </ImageView>
+                <Label text="Votre panier est vide" styleClass="empty-cart-title"/>
+                <Label text="Parcourez nos produits et ajoutez des articles à votre panier" styleClass="empty-cart-subtitle"/>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

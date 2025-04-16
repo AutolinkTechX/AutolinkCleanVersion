@@ -1,0 +1,63 @@
+/* Titres */
+.title-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+    -fx-padding: 0 0 20 0;
+}
+
+/* Conteneurs de graphiques */
+.chart-container {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+}
+
+.chart-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #444444;
+}
+
+/* Boutons */
+.side-menu-btn {
+    -fx-background-radius: 5;
+    -fx-background-color: #4a90e2;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 10;
+}
+
+.side-menu-btn:hover {
+    -fx-background-color: #3a7bc8;
+}
+
+.refresh-btn {
+    -fx-background-radius: 5;
+    -fx-background-color: #f0f0f0;
+    -fx-text-fill: #333333;
+    -fx-font-size: 14px;
+    -fx-padding: 8 15;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+}
+
+.refresh-btn:hover {
+    -fx-background-color: #e0e0e0;
+}
+
+/* Graphiques */
+.chart {
+    -fx-padding: 10;
+}
+
+.chart-legend {
+    -fx-background-color: transparent;
+}
+
+.chart-legend-item-symbol {
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 1.2;
+}

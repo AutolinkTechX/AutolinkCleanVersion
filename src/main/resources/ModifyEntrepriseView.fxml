@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox spacing="10" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controllers.ModifyEntrepriseViewController">
+    <padding>
+        <Insets bottom="20" left="20" right="20" top="20" />
+    </padding>
+
+    <Label style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: rgb(202,138,98);" text="Modify Entreprise" />
+
+    <GridPane hgap="10" vgap="10">
+        <Label text="Company Name:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+        <TextField fx:id="companyNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+        <Label text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+        <TextField fx:id="emailField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+        <Label text="Phone:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+        <TextField fx:id="phoneField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+        <Label text="Tax Code:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+        <TextField fx:id="taxCodeField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+        <Label text="Field:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+        <TextField fx:id="fieldField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+        <Label text="Supplier:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+        <CheckBox fx:id="supplierCheckBox" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="cancelButton" text="Cancel" style="-fx-background-color: #ff4444; -fx-text-fill: white; -fx-background-radius: 5px;" />
+        <Button fx:id="saveButton" text="Save" style="-fx-background-color: rgb(202,138,98); -fx-text-fill: white; -fx-background-radius: 5px;" />
+    </HBox>
+</VBox> 

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:id="mainBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+            minWidth="-Infinity" prefHeight="718.0" prefWidth="1300.0" styleClass="borderPane"
+            stylesheets="@styles/style.css" xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controllers.AdminDashboardController">
+    <left>
+        <VBox fx:id="sideBar" prefHeight="890.0" prefWidth="235.0" BorderPane.alignment="CENTER">
+            <children>
+                <HBox alignment="CENTER" prefHeight="100.0" prefWidth="235.0">
+                    <children>
+                        <ImageView fitHeight="105.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" translateY="30.0">
+                            <image>
+                                <Image url="@images/logo.jpg" />
+                            </image>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                        </ImageView>
+                    </children>
+                    <VBox.margin>
+                        <Insets bottom="20.0" />
+                    </VBox.margin>
+                    <opaqueInsets>
+                        <Insets />
+                    </opaqueInsets>
+                </HBox>
+                <VBox alignment="CENTER" prefHeight="311.0" prefWidth="260.0" spacing="15.0" translateY="30.0">
+                    <children>
+                        <Button fx:id="DashboardButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="40.0" prefWidth="236.0" style="-fx-background-color: rgb(202,138,98); -fx-background-radius: 5px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0), 2, 0, 0, 1);" text=" Dashboard" textFill="WHITE">
+                            <VBox.margin>
+                                <Insets />
+                            </VBox.margin>
+                            <graphic>
+                                <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@icons/Dashboard.png" />
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                            <font>
+                                <Font size="20.0" />
+                            </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                        </Button>
+                  <Line endX="100.0" startX="-100.0" stroke="#ffffff61" />
+                        <MenuButton fx:id="ProductsMenuButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="39.0" prefWidth="240.0" style="-fx-background-color: transparent;" text=" Products" textFill="WHITE" translateY="10.0">
+                            <graphic>
+                                <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@icons/Products.png" />
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                            <font>
+                                <Font size="20.0" />
+                            </font>
+                            <items>
+                                <MenuItem fx:id="ForRecyclingButton" mnemonicParsing="false" onAction="#handleRecyclingProducts" styleClass="menu-button" text="For Recycling" />
+                                <MenuItem fx:id="ForSaleButton" mnemonicParsing="false" onAction="#handleSaleProducts" styleClass="menu-button" text="For Sale" />
+                            </items>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                        </MenuButton>
+                        <MenuButton fx:id="UsersMenuButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="40.0" prefWidth="234.0" style="-fx-background-color: transparent;" text=" Users" textFill="WHITE" translateY="10.0">
+                            <graphic>
+                                <ImageView fitHeight="27.0" fitWidth="34.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@icons/Users.png" />
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                            <font>
+                                <Font size="20.0" />
+                            </font>
+                            <items>
+                                <MenuItem fx:id="AdminsMenuItem" mnemonicParsing="false" onAction="#handleAdmins" styleClass="menu-button" text="Admins" />
+                                <MenuItem fx:id="ClientsMenuItem" mnemonicParsing="false" onAction="#handleClients" styleClass="menu-button" text="Clients" />
+                                <MenuItem fx:id="EntreprisesMenuItem" mnemonicParsing="false" onAction="#handleEntreprises" styleClass="menu-button" text="Entreprises" />
+                            </items>
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </MenuButton>
+                        <Button fx:id="OrdersButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="39.0" prefWidth="237.0" text=" Orders" textFill="WHITE" translateY="10.0">
+                            <graphic>
+                                <ImageView fitHeight="25.0" fitWidth="39.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@icons/Orders.png" />
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                            <font>
+                                <Font size="20.0" />
+                            </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                        </Button>
+                        <Button fx:id="PartnersButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="40.0" prefWidth="236.0" text=" Partners" textFill="WHITE" translateY="10.0">
+                            <graphic>
+                                <ImageView fitHeight="24.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@icons/Partners.png" />
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                            <font>
+                                <Font size="20.0" />
+                            </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                        </Button>
+                        <Button fx:id="BlogsButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="39.0" prefWidth="259.0" text=" Blogs" textFill="WHITE" translateY="10.0">
+                            <graphic>
+                                <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@icons/Blogs.png" />
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                            <font>
+                                <Font size="20.0" />
+                            </font>
+                            <VBox.margin>
+                                <Insets left="1.0" />
+                            </VBox.margin>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                        </Button>
+                  <Line endX="100.0" startX="-100.0" stroke="#ffffff61" translateY="10.0" />
+                    </children>
+                    <VBox.margin>
+                        <Insets />
+                    </VBox.margin>
+                </VBox>
+            <Pane prefHeight="191.0" prefWidth="236.0" translateY="50.0">
+               <children>
+                        <Button fx:id="accountBtn" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="52.0" prefWidth="236.0" text="  Profile" textFill="WHITE">
+                            <graphic>
+                                <ImageView fx:id="accountImg" fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@icons/compte.png" />
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                            <font>
+                                <Font size="20.0" />
+                            </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                        </Button>
+                  <Button fx:id="LogoutButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="52.0" prefWidth="82.0" text="Logout" textFill="WHITE" translateX="70.0" translateY="100.0">
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>
+               </children>
+            </Pane>
+            </children>
+            <BorderPane.margin>
+                <Insets bottom="10.0" left="10.0" />
+            </BorderPane.margin>
+        </VBox>
+    </left>
+    <center>
+        <VBox fx:id="contentArea" prefHeight="718.0" prefWidth="1065.0" />
+    </center>
+</BorderPane>

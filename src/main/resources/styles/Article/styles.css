@@ -1,0 +1,185 @@
+
+/* ========== PRODUCT CARD STYLES ========== */
+.product-card {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 5, 0, 1, 2);
+    -fx-pref-width: 240px;
+    -fx-max-width: 240px;
+    -fx-min-width: 240px;
+    -fx-cursor: hand;
+    -fx-transition: all 0.2s ease;
+}
+
+.product-card:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 8, 0, 2, 3);
+    -fx-translate-y: -2px;
+    -fx-border-color: #db966b;
+}
+
+/* Image Container */
+.product-card .stack-pane {
+    -fx-background-color: #f8f8f8;
+    -fx-border-radius: 8 8 0 0;
+    -fx-background-radius: 8 8 0 0;
+    -fx-pref-height: 160px;
+    -fx-min-height: 160px;
+}
+
+.product-card .image-view {
+    -fx-border-radius: 8 8 0 0;
+    -fx-background-radius: 8 8 0 0;
+}
+
+/* Card Content Container */
+.product-card .vbox {
+    -fx-spacing: 8px;
+    -fx-padding: 12px;
+    -fx-alignment: TOP_CENTER;
+}
+
+/* ========== TEXT STYLES ========== */
+.product-name {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-fill: #333333;
+    -fx-font-family: 'Segoe UI Semibold', Arial, sans-serif;
+    -fx-wrapping-width: 200px;
+    -fx-text-alignment: CENTER;
+}
+
+.product-price {
+    -fx-font-size: 16px;
+    -fx-fill: #e74c3c;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Segoe UI Semibold', Arial, sans-serif;
+}
+
+.product-description {
+    -fx-font-size: 12px;
+    -fx-fill: #555555;
+    -fx-wrapping-width: 200px;
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+    -fx-line-spacing: 1.2;
+}
+
+/* ========== BUTTON STYLES ========== */
+.card-button-edit {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-background-radius: 15;
+    -fx-padding: 5 12;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.card-button-edit:hover {
+    -fx-background-color: #2980b9;
+    -fx-translate-y: -1px;
+}
+
+.card-button-delete {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-background-radius: 15;
+    -fx-padding: 5 12;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.card-button-delete:hover {
+    -fx-background-color: #c0392b;
+    -fx-translate-y: -1px;
+}
+
+.card-button .image-view {
+    -fx-fit-height: 14px;
+    -fx-fit-width: 14px;
+}
+
+/* ========== PAGINATION STYLES ========== */
+.pagination-arrow {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 5 8;
+    -fx-opacity: 0.8;
+}
+
+.pagination-arrow:hover {
+    -fx-opacity: 1;
+    -fx-background-color: rgba(0,0,0,0.05);
+    -fx-background-radius: 20;
+}
+
+.pagination-arrow .image-view {
+    -fx-fit-height: 18px;
+    -fx-fit-width: 18px;
+}
+
+.page-indicator {
+    -fx-cursor: hand;
+    -fx-padding: 0 5;
+}
+
+.page-number {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-font-family: 'Segoe UI Semibold', Arial, sans-serif;
+}
+
+/* ========== SCROLL PANE STYLES ========== */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical,
+.scroll-pane .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb,
+.scroll-pane .scroll-bar:horizontal .thumb {
+    -fx-background-color: rgba(0,0,0,0.1);
+    -fx-background-radius: 10;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb:hover,
+.scroll-pane .scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: rgba(0,0,0,0.15);
+}
+
+/* ========== HEADER STYLES ========== */
+.header-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+    -fx-font-family: 'Segoe UI Semibold', Arial, sans-serif;
+}
+
+/* ========== ADD PRODUCT BUTTON ========== */
+#toggleFormButton {
+    -fx-background-color: linear-gradient(to right, #db966b, #e8a35d);
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+    -fx-padding: 8 16;
+    -fx-font-size: 13px;
+    -fx-font-family: 'Segoe UI Semibold', Arial, sans-serif;
+    -fx-cursor: hand;
+}
+
+#toggleFormButton:hover {
+    -fx-background-color: linear-gradient(to right, #e8a35d, #fdc847);
+    -fx-effect: dropshadow(gaussian, rgba(219,150,107,0.4), 5, 0, 0, 2);
+}
+
+

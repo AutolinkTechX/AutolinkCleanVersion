@@ -1,0 +1,101 @@
+/* Appliquer un fond clair à la scène */
+.root {
+    -fx-background-color: #f8f8f8;
+    -fx-padding: 20px;
+}
+
+/* Titre principal */
+.label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333;
+}
+
+/* Style du titre "Détails du Matériau" */
+#titleLabel {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #a05a2c;
+}
+
+
+/* Champs de texte et zones de texte */
+.text-field, .text-area {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 5px;
+    -fx-padding: 8px;
+    -fx-font-size: 14px;
+}
+
+/* Zone de texte */
+.text-area {
+    -fx-pref-height: 60px;
+}
+
+/* ComboBox */
+.combo-box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 5px;
+    -fx-padding: 5px;
+    -fx-font-size: 14px;
+}
+
+/* Bouton "Choisir un fichier" */
+.button {
+
+
+    -fx-font-weight: bold;
+    -fx-border-radius: 5px;
+    -fx-padding: 8px 12px;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #8c4e25;
+}
+
+/* Label du fichier sélectionné */
+#imageLabel {
+    -fx-text-fill: #666;
+    -fx-font-size: 12px;
+}
+
+/* Bouton de sauvegarde */
+#saveButton {
+    -fx-background-color: #a05a2c;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-padding: 10px;
+    -fx-border-radius: 5px;
+}
+
+#saveButton:hover {
+    -fx-background-color: #8c4e25;
+}
+#btnChooseFile {
+    -fx-background-color: #d3c7c3;
+    -fx-text-fill: black;
+    -fx-font-size: 14px;
+    -fx-padding: 5px 10px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+#lblFileName {
+    -fx-background-color: #f5f5f5;
+    -fx-padding: 5px;
+    -fx-border-color: #d3c7c3;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-min-width: 150px;
+}
+
+#imagePreview {
+    -fx-border-color: #d3c7c3;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-padding: 5px;
+}

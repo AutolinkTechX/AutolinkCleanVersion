@@ -1,0 +1,76 @@
+/* Dialog styling */
+.dialog-pane {
+    -fx-background-color: white;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-pref-width: 300;
+    -fx-pref-height: 150;
+}
+
+.dialog-pane .button-bar {
+    -fx-background-color: transparent;
+}
+
+.dialog-pane .button {
+    -fx-cursor: hand;
+}
+
+.dialog-pane .button.logout-button {
+    -fx-background-color: #ff4444;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.dialog-pane .button.cancel-button {
+    -fx-background-color: #f0f0f0;
+    -fx-text-fill: black;
+}
+
+/* Menu button styling */
+.menu-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+.menu-button:hover {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+}
+
+.menu-button .arrow {
+    -fx-background-color: transparent;
+}
+
+/* Menu item styling */
+.menu-item {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+    -fx-padding: 10px;
+    -fx-pref-width: 240px;
+}
+
+.menu-item:hover {
+    -fx-background-color: #f0f0f0;
+}
+
+/* Popup menu styling */
+.context-menu {
+    -fx-background-color: white;
+    -fx-pref-width: 240px;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1px;
+}
+
+/* Logout button styling */
+.logout-button {
+    -fx-background-color: transparent;
+    -fx-border-color: white;
+    -fx-border-radius: 5px;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+.logout-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+} 

@@ -1,0 +1,363 @@
+/* ========== MAIN CONTAINER STYLES ========== */
+.borderPane {
+    -fx-background-color: #f9f6f3;
+    -fx-background-radius: 11;
+    -fx-border-radius: 11;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 2);
+}
+
+/* ========== SIDEBAR STYLES ========== */
+#sideBar {
+    -fx-background-color: linear-gradient(to bottom, #db966b, #c5784a);
+    -fx-background-radius: 11 0 0 11;
+    -fx-padding: 20 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 2, 0);
+}
+
+#sideBar .button {
+    -fx-font-size: 15px;
+    -fx-font-weight: 500;
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: transparent;
+    -fx-border-width: 1;
+    -fx-padding: 12 15;
+    -fx-text-fill: white;
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+    -fx-alignment: CENTER_LEFT;
+    -fx-graphic-text-gap: 12;
+    -fx-cursor: hand;
+    -fx-transition: all 0.2s ease;
+}
+
+#sideBar .button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+    -fx-border-color: rgba(253, 200, 71, 0.3);
+    -fx-translate-x: 3;
+}
+
+#sideBar .button:pressed {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-translate-x: 0;
+}
+
+/* ========== PRODUCT CARD STYLES ========== */
+.product-card {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 5, 0, 1, 2);
+    -fx-pref-width: 240px;
+    -fx-max-width: 240px;
+    -fx-min-width: 240px;
+    -fx-cursor: hand;
+    -fx-transition: all 0.2s ease;
+}
+
+.product-card:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 8, 0, 2, 3);
+    -fx-translate-y: -2px;
+    -fx-border-color: #db966b;
+}
+
+/* Image Container */
+.product-card .stack-pane {
+    -fx-background-color: #f8f8f8;
+    -fx-border-radius: 8 8 0 0;
+    -fx-background-radius: 8 8 0 0;
+    -fx-pref-height: 160px;
+    -fx-min-height: 160px;
+}
+
+.product-card .image-view {
+    -fx-border-radius: 8 8 0 0;
+    -fx-background-radius: 8 8 0 0;
+}
+
+/* Card Content Container */
+.product-card .vbox {
+    -fx-spacing: 8px;
+    -fx-padding: 12px;
+    -fx-alignment: TOP_CENTER;
+}
+
+/* ========== TEXT STYLES ========== */
+.product-name {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-fill: #333333;
+    -fx-font-family: 'Segoe UI Semibold', Arial, sans-serif;
+    -fx-wrapping-width: 200px;
+    -fx-text-alignment: CENTER;
+}
+
+.product-price {
+    -fx-font-size: 16px;
+    -fx-fill: #e74c3c;
+    -fx-font-weight: bold;
+    -fx-font-family: 'Segoe UI Semibold', Arial, sans-serif;
+}
+
+.product-description {
+    -fx-font-size: 12px;
+    -fx-fill: #555555;
+    -fx-wrapping-width: 200px;
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+    -fx-line-spacing: 1.2;
+}
+
+/* ========== BUTTON STYLES ========== */
+.card-button-edit {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-background-radius: 15;
+    -fx-padding: 5 12;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.card-button-edit:hover {
+    -fx-background-color: #2980b9;
+    -fx-translate-y: -1px;
+}
+
+.card-button-delete {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-background-radius: 15;
+    -fx-padding: 5 12;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.card-button-delete:hover {
+    -fx-background-color: #c0392b;
+    -fx-translate-y: -1px;
+}
+
+.card-button .image-view {
+    -fx-fit-height: 14px;
+    -fx-fit-width: 14px;
+}
+
+/* ========== PAGINATION STYLES ========== */
+.pagination-arrow {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 5 8;
+    -fx-opacity: 0.8;
+}
+
+.pagination-arrow:hover {
+    -fx-opacity: 1;
+    -fx-background-color: rgba(0,0,0,0.05);
+    -fx-background-radius: 20;
+}
+
+.pagination-arrow .image-view {
+    -fx-fit-height: 18px;
+    -fx-fit-width: 18px;
+}
+
+.page-indicator {
+    -fx-cursor: hand;
+    -fx-padding: 0 5;
+}
+
+.page-number {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-font-family: 'Segoe UI Semibold', Arial, sans-serif;
+}
+
+/* ========== SCROLL PANE STYLES ========== */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical,
+.scroll-pane .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb,
+.scroll-pane .scroll-bar:horizontal .thumb {
+    -fx-background-color: rgba(0,0,0,0.1);
+    -fx-background-radius: 10;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb:hover,
+.scroll-pane .scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: rgba(0,0,0,0.15);
+}
+
+/* ========== HEADER STYLES ========== */
+.header-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+    -fx-font-family: 'Segoe UI Semibold', Arial, sans-serif;
+}
+
+/* ========== ADD PRODUCT BUTTON ========== */
+#toggleFormButton {
+    -fx-background-color: linear-gradient(to right, #db966b, #e8a35d);
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+    -fx-padding: 8 16;
+    -fx-font-size: 13px;
+    -fx-font-family: 'Segoe UI Semibold', Arial, sans-serif;
+    -fx-cursor: hand;
+}
+
+#toggleFormButton:hover {
+    -fx-background-color: linear-gradient(to right, #e8a35d, #fdc847);
+    -fx-effect: dropshadow(gaussian, rgba(219,150,107,0.4), 5, 0, 0, 2);
+}
+
+/* ========== FORM CONTAINER ========== */
+.form-container {
+    -fx-background-color: #f9f9f9;
+    -fx-padding: 25 30;
+    -fx-spacing: 20;
+}
+
+.form-title {
+    -fx-text-fill: #3a3a3a;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+/* ========== FORM CONTENT ========== */
+.form-content {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 10, 0, 0, 2);
+    -fx-padding: 20;
+}
+
+.form-label {
+    -fx-text-fill: #555;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+/* ========== FORM INPUTS ========== */
+.form-textfield, .form-textarea, .form-datepicker {
+    -fx-background-color: #f5f5f5;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-border-color: #ddd;
+    -fx-border-width: 1;
+    -fx-padding: 8 12;
+    -fx-font-size: 14px;
+}
+
+.form-textfield:focused, .form-textarea:focused, .form-datepicker:focused {
+    -fx-border-color: #db966b;
+    -fx-effect: innershadow(gaussian, rgba(219,150,107,0.2), 5, 0, 0, 2);
+}
+
+.form-textarea {
+    -fx-pref-height: 80;
+}
+
+.form-datepicker .arrow-button {
+    -fx-background-color: #db966b;
+    -fx-background-radius: 0 5 5 0;
+}
+
+.form-datepicker .arrow {
+    -fx-background-color: white;
+}
+
+/* ========== IMAGE SECTION ========== */
+.form-image-button {
+    -fx-background-color: #e8e8e8;
+    -fx-text-fill: #555;
+    -fx-background-radius: 5;
+    -fx-padding: 8 15;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 3, 0, 0, 1);
+}
+
+.form-image-button:hover {
+    -fx-background-color: #dbdbdb;
+}
+
+.form-image-preview {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 1);
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
+}
+
+/* ========== FORM BUTTONS ========== */
+.form-buttons-container {
+    -fx-padding: 15 0 0 0;
+}
+
+.form-submit-button {
+    -fx-background-color: linear-gradient(to right, #4CAF50, #2E7D32);
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+    -fx-padding: 10 25;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(76,175,80,0.3), 5, 0, 0, 2);
+}
+
+.form-submit-button:hover {
+    -fx-background-color: linear-gradient(to right, #43A047, #1B5E20);
+    -fx-effect: dropshadow(gaussian, rgba(76,175,80,0.4), 8, 0, 0, 3);
+}
+
+.form-cancel-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #666;
+    -fx-border-color: #999;
+    -fx-border-width: 1;
+    -fx-border-radius: 20;
+    -fx-padding: 10 25;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.form-cancel-button:hover {
+    -fx-background-color: rgba(0,0,0,0.05);
+    -fx-text-fill: #444;
+}
+
+/* ========== ERROR STATES ========== */
+/*.error-field {
+    -fx-border-color: #e74c3c !important;
+    -fx-border-width: 1.5 !important;
+    -fx-background-color: #fff0f0 !important;
+}
+*/
+.error-field {
+    -fx-border-color: #ff0000 !important;
+    -fx-border-width: 1.5 !important;
+    -fx-background-color: #fff0f0 !important;
+}
+
+.form-image-button.error-field {
+    -fx-border-color: #ff0000 !important;
+    -fx-border-width: 2 !important;
+    -fx-border-radius: 5 !important;
+}

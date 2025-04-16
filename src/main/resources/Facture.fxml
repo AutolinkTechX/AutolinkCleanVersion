@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane fx:id="mainBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+            minWidth="-Infinity"
+            prefHeight="718.0" prefWidth="1300.0" styleClass="border-pane"
+            stylesheets="@styles/Facture/Facture.css"
+            xmlns="http://javafx.com/javafx/17.0.6"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.pidev.controllers.FactureController">
+
+    <!-- Left - Sidebar -->
+    <left>
+        <VBox fx:id="sidebar" spacing="10" styleClass="sidebar">
+            <Label styleClass="bold-label" text="Rechercher" />
+            <TextField fx:id="searchField" promptText="Numéro ou montant..." styleClass="search-field" />
+            <Button styleClass="filter-button" text="Rechercher" textAlignment="CENTER" />
+
+            <Separator styleClass="separator" />
+
+            <Label styleClass="bold-label" text="Filtrer par date" />
+            <DatePicker fx:id="datePicker" promptText="Sélectionner une date" styleClass="search-field" />
+            <Button styleClass="filter-button" text="Appliquer" textAlignment="CENTER" onAction="#filterByDate" />
+        </VBox>
+    </left>
+
+    <!-- Center - Facture Cards -->
+    <center>
+        <VBox spacing="20">
+            <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+                <FlowPane fx:id="facturesContainer" hgap="20" prefWrapLength="1200" styleClass="factures-container" vgap="20" />
+            </ScrollPane>
+
+            <!-- Pagination controls -->
+            <HBox alignment="CENTER" spacing="10" styleClass="pagination-container">
+                <Button fx:id="prevPageBtn" styleClass="pagination-button" text="◀" />
+                <HBox fx:id="pageIndicatorsContainer" styleClass="page-indicator-container" />
+                <Button fx:id="nextPageBtn" styleClass="pagination-button" text="▶" />
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

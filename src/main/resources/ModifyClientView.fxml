@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="org.example.pidev.controllers.ModifyClientViewController" spacing="20" style="-fx-background-color: white;">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Modify Client" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: rgb(202,138,98);"/>
+
+    <GridPane vgap="10" hgap="10">
+        <Label text="First Name:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" prefWidth="200"/>
+
+        <Label text="Last Name:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" prefWidth="200"/>
+
+        <Label text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <TextField fx:id="emailField" GridPane.columnIndex="1" GridPane.rowIndex="2" prefWidth="200"/>
+
+        <Label text="Phone:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+        <TextField fx:id="phoneField" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="200"/>
+
+        <Label text="New Password (leave empty to keep current):" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+        <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="4" prefWidth="200"/>
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="cancelButton" text="Cancel" onAction="#handleCancel" style="-fx-background-color: #ff4444; -fx-text-fill: white; -fx-background-radius: 5px;"/>
+        <Button fx:id="saveButton" text="Save" onAction="#handleSave" style="-fx-background-color: rgb(202,138,98); -fx-text-fill: white; -fx-background-radius: 5px;"/>
+    </HBox>
+</VBox> 

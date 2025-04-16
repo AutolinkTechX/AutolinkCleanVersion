@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="10" stylesheets="@styles/MaterielRecyclable/style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controllers.ShowMaterielRecyclable">
+    <ScrollPane fitToWidth="true">
+        <!-- Use spaces (no commas or Insets()) -->
+        <FlowPane fx:id="materielContainer" hgap="20" vgap="20">
+            <padding>
+                <Insets bottom="10" left="10" right="10" top="10" />
+            </padding>
+        </FlowPane>
+
+    </ScrollPane>
+</VBox>

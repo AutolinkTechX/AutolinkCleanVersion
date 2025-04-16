@@ -1,0 +1,341 @@
+/* Base Styles */
+.root {
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* ScrollPane Configuration */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .corner {
+    -fx-background-color: transparent;
+}
+
+/* Hero Section */
+.hero-title {
+    -fx-text-fill: white;
+    -fx-font-size: 42px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 8, 0, 0, 2);
+    -fx-font-family: 'Segoe UI Semibold', Arial, sans-serif;
+}
+
+.hero-subtitle {
+    -fx-text-fill: rgba(255,255,255,0.9);
+    -fx-font-size: 24px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 4, 0, 0, 1);
+    -fx-font-family: 'Segoe UI Light', Arial, sans-serif;
+}
+
+/* Buttons */
+.primary-btn {
+    -fx-background-color: #ca8a62;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 12 30;
+    -fx-background-radius: 30px;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 8, 0, 0, 3);
+    -fx-transition: all 0.3s;
+}
+
+.primary-btn:hover {
+    -fx-background-color: #b87a52;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 4);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+.secondary-btn {
+    -fx-background-color: rgba(28,28,28,0.8);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 12 30;
+    -fx-background-radius: 30px;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 8, 0, 0, 3);
+    -fx-border-color: white;
+    -fx-border-width: 2px;
+    -fx-border-radius: 30px;
+    -fx-transition: all 0.3s;
+}
+
+.secondary-btn:hover {
+    -fx-background-color: rgba(51,51,51,0.9);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 4);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+/* Section Titles */
+.section-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+    -fx-padding: 0 0 15px 0;
+    -fx-font-family: 'Segoe UI Semibold', Arial, sans-serif;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.05), 0, 0, 0, 1);
+}
+
+.section-description {
+    -fx-font-size: 16px;
+    -fx-text-fill: #666666;
+    -fx-line-spacing: 1.5em;
+    -fx-alignment: center;
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* Dynamic Category Cards */
+.category-card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-padding: 25px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 12, 0, 0, 6);
+    -fx-transition: all 0.3s ease;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER;
+    -fx-spacing: 15px;
+    -fx-pref-width: 250px;
+}
+
+.category-card:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 15, 0, 0, 8);
+    -fx-translate-y: -8px;
+    -fx-border-color: #ca8a62;
+    -fx-background-color: #fafafa;
+}
+
+.category-image {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 4);
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-fit-width: 200px;
+    -fx-fit-height: 150px;
+    -fx-preserve-ratio: true;
+}
+
+.category-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+    -fx-font-family: 'Segoe UI Semibold', Arial, sans-serif;
+    -fx-padding: 10px 0 5px 0;
+    -fx-alignment: CENTER;
+    -fx-wrap-text: true;
+    -fx-max-width: 200px;
+}
+
+.category-btn {
+    -fx-background-color: #ca8a62;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 24;
+    -fx-background-radius: 20px;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+    -fx-transition: all 0.2s;
+}
+
+.category-btn:hover {
+    -fx-background-color: #b87a52;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 8, 0, 0, 3);
+}
+
+/* Service Cards - Version améliorée */
+.service-card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 16px;
+    -fx-background-radius: 16px;
+    -fx-padding: 25px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);
+    -fx-transition: all 0.3s ease;
+    -fx-alignment: CENTER;
+    -fx-spacing: 15px;
+    -fx-pref-width: 280px;
+    -fx-min-width: 280px;
+    -fx-max-width: 280px;
+    -fx-pref-height: 320px;
+    -fx-min-height: 320px;
+    -fx-max-height: 320px;
+}
+
+.service-card:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 15, 0, 0, 8);
+    -fx-border-color: #ca8a62;
+    -fx-background-color: #fafafa;
+    -fx-translate-y: -8px;
+}
+
+.service-icon {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+    -fx-opacity: 0.9;
+    -fx-fit-width: 70px;
+    -fx-fit-height: 70px;
+}
+
+.service-card:hover .service-icon {
+    -fx-effect: dropshadow(three-pass-box, rgba(202,138,98,0.4), 10, 0, 0, 4);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.service-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+    -fx-padding: 10px 0 8px 0;
+    -fx-font-family: 'Segoe UI Semibold', Arial, sans-serif;
+    -fx-alignment: CENTER;
+    -fx-text-alignment: CENTER;
+    -fx-wrap-text: true;
+    -fx-max-width: 240px;
+}
+
+.service-description {
+    -fx-font-size: 14px;
+    -fx-text-fill: #666666;
+    -fx-line-spacing: 1.5em;
+    -fx-wrap-text: true;
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+    -fx-alignment: CENTER;
+    -fx-text-alignment: CENTER;
+    -fx-max-width: 240px;
+    -fx-padding: 0 0 15px 0;
+}
+
+.service-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #ca8a62;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 24px;
+    -fx-border-color: #ca8a62;
+    -fx-border-width: 2px;
+    -fx-border-radius: 24px;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-transition: all 0.2s;
+    -fx-content-display: center;
+}
+
+.service-btn:hover {
+    -fx-background-color: linear-gradient(to right, #ca8a62, #e0a582);
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(202,138,98,0.3), 8, 0, 0, 3);
+    -fx-border-color: transparent;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.service-btn:pressed {
+    -fx-background-color: #b87a52;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+/* Section Backgrounds */
+.section-background {
+    -fx-background-color: #ffffff;
+    -fx-padding: 60px 0;
+}
+
+/* Navigation Arrows (Solution sans images) */
+.nav-arrow-button {
+    -fx-background-color: transparent;
+    -fx-border-color: #ca8a62;
+    -fx-border-width: 2px;
+    -fx-border-radius: 50%;
+    -fx-background-radius: 50%;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ca8a62;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 1);
+    -fx-transition: all 0.3s;
+    -fx-padding: 0;
+}
+
+.nav-arrow-button:hover {
+    -fx-background-color: rgba(202, 138, 98, 0.1);
+    -fx-border-color: #b87a52;
+    -fx-text-fill: #b87a52;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);
+}
+
+.nav-arrow-button:pressed {
+    -fx-background-color: rgba(202, 138, 98, 0.2);
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+
+.nav-arrow-button:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* Responsive Adjustments */
+@media screen and (max-width: 1024px) {
+    .hero-title {
+        -fx-font-size: 36px;
+    }
+
+    .hero-subtitle {
+        -fx-font-size: 20px;
+    }
+
+    .section-title {
+        -fx-font-size: 28px;
+    }
+
+    .category-card, .service-card {
+        -fx-pref-width: 100%;
+        -fx-margin: 0 0 20px 0;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .hero-title {
+        -fx-font-size: 28px;
+    }
+
+    .hero-subtitle {
+        -fx-font-size: 18px;
+    }
+
+    .section-title {
+        -fx-font-size: 24px;
+    }
+
+    .primary-btn, .secondary-btn {
+        -fx-padding: 10 20;
+        -fx-font-size: 14px;
+    }
+
+    .service-card {
+        -fx-padding: 20px;
+    }
+
+    .nav-arrow-button {
+        -fx-min-width: 35px;
+        -fx-min-height: 35px;
+        -fx-font-size: 20px;
+    }
+}

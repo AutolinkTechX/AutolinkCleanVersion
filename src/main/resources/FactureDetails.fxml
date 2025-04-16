@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      fx:controller="org.example.pidev.controllers.FactureDetailsController"
+      styleClass="borderPane"
+      stylesheets="@styles/Facture/Facture.css"
+      xmlns:fx="http://javafx.com/fxml/1" spacing="10"
+      alignment="TOP_LEFT" style="-fx-padding: 20;">
+    <Label fx:id="idLabel" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
+    <Separator/>
+    <Label fx:id="montantLabel" style="-fx-font-size: 14;"/>
+    <Label fx:id="dateLabel" style="-fx-font-size: 14;"/>
+    <Label fx:id="clientLabel" style="-fx-font-size: 14;"/>
+    <Label fx:id="commandeLabel" style="-fx-font-size: 14;"/>
+</VBox>

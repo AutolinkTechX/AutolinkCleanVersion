@@ -1,0 +1,442 @@
+package org.example.pidev.controllers;
+
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import org.example.pidev.entities.User;
+import org.example.pidev.services.FavorieService;
+import org.example.pidev.services.PanierService;
+import org.example.pidev.utils.AlertUtils;
+import org.example.pidev.utils.MyDatabase;
+import org.example.pidev.utils.SessionManager;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class ClientDashboardController {
+    @FXML private VBox contentArea;
+    @FXML private Button homeBtn;
+    @FXML private Button productsBtn;
+    @FXML private MenuButton pagesBtn;
+    @FXML private Button blogBtn;
+    @FXML private Button contactBtn;
+    @FXML private Button businessBtn;
+    @FXML private Button favoriteIconButton;
+    @FXML private Button cartIconButton;
+    @FXML private Button invoiceIconButton;
+    @FXML private Button userIconButton;
+    @FXML private Label favoriteBadge;
+    @FXML private Label cartBadge;
+    @FXML private MenuButton userMenuBtn;
+    @FXML private ImageView userImage;
+    @FXML private MenuItem profileMenuItem;
+    @FXML private MenuItem logoutMenuItem;
+
+    private User currentUser;
+
+    @FXML
+    public void initialize() {
+        setupUserMenu();
+        initializeBadges();
+        setupIconButtons();
+        loadDefaultView();
+    }
+
+    private void loadDefaultView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Home.fxml"));
+            Node homeView = loader.load();
+
+            Home homeController = loader.getController();
+            homeController.setCurrentUser(this.currentUser);
+            homeController.setDashboardController(this); // Important: passer la référence
+
+            contentArea.getChildren().clear();
+            contentArea.getChildren().add(homeView);
+        } catch (IOException e) {
+            showError("Error", "Failed to load home view");
+            loadProductsView();
+        }
+    }
+
+    private void setupIconButtons() {
+        // Position badges
+        favoriteBadge.setTranslateX(10);
+        favoriteBadge.setTranslateY(-10);
+        cartBadge.setTranslateX(10);
+        cartBadge.setTranslateY(-10);
+
+        // Set button actions
+        favoriteIconButton.setOnAction(this::handleFavoritesButton);
+        cartIconButton.setOnAction(this::handleCartButton);
+        productsBtn.setOnAction(this::handleProductsButton);
+    }
+
+    @FXML
+    private void handleProductsButton(ActionEvent event) {
+        loadProductsView();
+    }
+
+    @FXML
+    private void handleFavoritesButton(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Favorie.fxml"));
+            Parent favoritesView = loader.load();
+
+            Favorie favorieController = loader.getController();
+            favorieController.setUserData(currentUser);
+            favorieController.setClientDashboardController(this); // Ceci est crucial
+
+            contentArea.getChildren().clear();
+            contentArea.getChildren().add(favoritesView);
+
+        } catch (IOException e) {
+            AlertUtils.showErrorAlert("Erreur", "Impossible de charger les favoris", e.getMessage());
+        }
+    }
+
+    // Dans ClientDashboardController
+    public void showFavorites() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Favorie.fxml"));
+            Parent root = loader.load();
+
+            Favorie favorieController = loader.getController();
+            favorieController.setClientDashboardController(this); // Passer la référence
+            favorieController.setUserData(SessionManager.getCurrentUser());
+
+            // Créer une nouvelle scène ou remplacer le contenu actuel
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Méthode pour revenir à l'accueil
+    public void showHome() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Home.fxml"));
+            Parent homeView = loader.load();
+            contentArea.getChildren().clear();
+            contentArea.getChildren().add(homeView);
+        } catch (IOException e) {
+            showAlert("Erreur", "Impossible de charger la page d'accueil", Alert.AlertType.ERROR);
+        }
+    }
+
+    @FXML
+    public void handleCartButton(ActionEvent event) {
+        try {
+            // Charger le panier dans la zone de contenu
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Panier.fxml"));
+            Parent panierView = loader.load();
+
+            // Configurer le contrôleur du panier
+            Panier panierController = loader.getController();
+            panierController.setCurrentUser(this.currentUser);
+            panierController.setDashboardController(this);
+
+            // Effacer le contenu précédent et afficher le panier
+            contentArea.getChildren().clear();
+            contentArea.getChildren().add(panierView);
+
+        } catch (IOException e) {
+            showAlert("Erreur", "Impossible d'ouvrir le panier", Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
+    }
+
+    private void showAlert(String title, String message, Alert.AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void setupUserMenu() {
+        profileMenuItem.setOnAction(e -> loadProfileView());
+        logoutMenuItem.setOnAction(e -> handleLogout());
+    }
+
+    private void initializeBadges() {
+        favoriteBadge.setVisible(false);
+        cartBadge.setVisible(false);
+    }
+
+    private void loadProfileView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Profile.fxml"));
+            Node view = loader.load();
+            contentArea.getChildren().setAll(view);
+        } catch (IOException e) {
+            showError("Error", "Failed to load profile view");
+        }
+    }
+
+    private void loadFavorisView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Favorie.fxml"));
+            Node view = loader.load();
+
+            Favorie controller = loader.getController();
+            controller.setCurrentUser(currentUser);
+            controller.setClientDashboardController(this);
+
+            contentArea.getChildren().setAll(view);
+        } catch (IOException e) {
+            showError("Error", "Failed to load favorites view: " + e.getMessage());
+        }
+    }
+
+    private void loadPanierView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Panier.fxml"));
+            Node view = loader.load();
+
+            Panier controller = loader.getController();
+            controller.setCurrentUser(currentUser);
+            controller.setDashboardController(this);
+
+            contentArea.getChildren().setAll(view);
+        } catch (IOException e) {
+            showError("Error", "Failed to load cart view: " + e.getMessage());
+        }
+    }
+
+    private void loadProductsView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ListeArticle.fxml"));
+            Node view = loader.load();
+
+            ListeArticle controller = loader.getController();
+            controller.setCurrentUser(currentUser);
+            controller.setDashboardController(this);
+
+            contentArea.getChildren().setAll(view);
+        } catch (IOException e) {
+            showError("Error", "Failed to load products view: " + e.getMessage());
+        }
+    }
+
+    private void handleLogout() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/DashboardLogin.fxml"));
+            Stage stage = (Stage) contentArea.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            showError("Logout Error", "Failed to logout: " + e.getMessage());
+        }
+    }
+
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
+        SessionManager.setCurrentUser(user); // Stocke l'utilisateur dans la session
+        updateUserProfile();
+        updateBadges();
+    }
+
+    private void updateUserProfile() {
+        if (currentUser != null) {
+            try {
+                String imagePath = currentUser.getImage_path();
+                Image image;
+
+                if (imagePath != null && !imagePath.isEmpty()) {
+                    if (imagePath.startsWith("file:")) {
+                        image = new Image(imagePath);
+                    } else {
+                        image = new Image(getClass().getResourceAsStream("/" + imagePath));
+                    }
+                } else {
+                    image = new Image(getClass().getResourceAsStream("/images/logo.jpg"));
+                }
+
+                userImage.setImage(image);
+                userMenuBtn.setText(currentUser.getName() + " " + currentUser.getLastName());
+            } catch (Exception e) {
+                System.err.println("Error loading user image: " + e.getMessage());
+                userImage.setImage(new Image(getClass().getResourceAsStream("/images/logo.jpg")));
+            }
+        }
+    }
+
+    public void updateBadges() {
+        if (currentUser != null) {
+            try {
+                FavorieService favorieService = new FavorieService();
+                int favCount = favorieService.getFavorisCountForUser(currentUser.getId());
+                updateBadge(favoriteBadge, favCount);
+
+                PanierService panierService = new PanierService(MyDatabase.getInstance().getConnection());
+                int cartCount = panierService.getPanierCountForUser(currentUser.getId());
+                updateBadge(cartBadge, cartCount);
+            } catch (Exception e) {
+                System.err.println("Error updating badges: " + e.getMessage());
+            }
+        }
+    }
+
+    public void updateFavoritesBadge() {
+        if (currentUser != null) {
+            try {
+                FavorieService favorieService = new FavorieService();
+                int favCount = favorieService.getFavorisCountForUser(currentUser.getId());
+                updateBadge(favoriteBadge, favCount);
+            } catch (Exception e) {
+                System.err.println("Error updating favorites badge: " + e.getMessage());
+            }
+        }
+    }
+
+    public void updateCartBadge() {
+        if (currentUser != null) {
+            try {
+                PanierService panierService = new PanierService(MyDatabase.getInstance().getConnection());
+                int cartCount = panierService.getPanierCountForUser(currentUser.getId());
+                updateBadge(cartBadge, cartCount);
+            } catch (Exception e) {
+                System.err.println("Error updating cart badge: " + e.getMessage());
+            }
+        }
+    }
+
+    public void decrementFavorisBadge() {
+        updateBadgeValue(favoriteBadge, -1);
+    }
+
+    private void updateBadgeValue(Label badge, int change) {
+        try {
+            int current = badge.isVisible() ? Integer.parseInt(badge.getText()) : 0;
+            int newValue = current + change;
+
+            if (newValue > 0) {
+                badge.setText(String.valueOf(newValue));
+                badge.setVisible(true);
+            } else {
+                badge.setVisible(false);
+            }
+        } catch (NumberFormatException e) {
+            badge.setVisible(false);
+        }
+    }
+
+    private void updateBadge(Label badge, int count) {
+        if (count > 0) {
+            badge.setText(String.valueOf(count));
+            badge.setVisible(true);
+        } else {
+            badge.setVisible(false);
+        }
+    }
+
+    public void refreshCurrentView() {
+        if (!contentArea.getChildren().isEmpty()) {
+            Node currentView = contentArea.getChildren().get(0);
+            if (currentView.getId() != null) {
+                switch (currentView.getId()) {
+                    case "listeArticleView": loadProductsView(); break;
+                    case "favorieView": loadFavorisView(); break;
+                    case "panierView": loadPanierView(); break;
+                    default: loadProductsView();
+                }
+            } else {
+                loadProductsView();
+            }
+        } else {
+            loadProductsView();
+        }
+    }
+
+    private void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    public User getCurrentUser() {
+        return this.currentUser;
+    }
+
+    public void showArticlesByCategory(String category) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ListeArticle.fxml"));
+            Node articleView = loader.load();
+
+            ListeArticle controller = loader.getController();
+            controller.setCurrentUser(currentUser);
+            controller.setDashboardController(this);
+            controller.filterByCategory(category);
+
+            contentArea.getChildren().clear();
+            contentArea.getChildren().add(articleView);
+        } catch (IOException e) {
+            Logger.getLogger(ClientDashboardController.class.getName()).log(Level.SEVERE, null, e);
+            showErrorAlert("Erreur", "Impossible de charger les articles");
+        }
+    }
+
+    public void showAllArticles() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ListeArticle.fxml"));
+            Node articleView = loader.load();
+
+            ListeArticle controller = loader.getController();
+            controller.setCurrentUser(currentUser);
+            controller.setDashboardController(this);
+            controller.loadArticles();
+
+            contentArea.getChildren().clear();
+            contentArea.getChildren().add(articleView);
+        } catch (IOException e) {
+            Logger.getLogger(ClientDashboardController.class.getName()).log(Level.SEVERE, null, e);
+            showErrorAlert("Erreur", "Impossible de charger les articles");
+        }
+    }
+
+    private void showErrorAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    @FXML
+    private void handleInvoiceClick(ActionEvent event) {
+        loadFactureView();
+    }
+
+    private void loadFactureView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Facture.fxml"));
+            Parent factureView = loader.load();
+
+            FactureController controller = loader.getController();
+            controller.setCurrentUser(SessionManager.getCurrentUser());
+            controller.setDashboardController(this);
+
+            contentArea.getChildren().setAll(factureView);
+        } catch (IOException e) {
+            AlertUtils.showErrorAlert("Erreur", "Impossible de charger les factures",
+                    "Veuillez réessayer ou contacter l'administrateur.");
+        }
+    }
+
+
+
+}
