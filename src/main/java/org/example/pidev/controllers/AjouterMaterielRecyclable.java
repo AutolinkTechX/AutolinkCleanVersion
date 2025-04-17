@@ -65,6 +65,13 @@ public class AjouterMaterielRecyclable implements Initializable {
 
     private File selectedImageFile;
 
+    @FXML private Label nameErrorLabel;
+    @FXML private Label descriptionErrorLabel;
+    @FXML private Label entrepriseErrorLabel;
+    @FXML private Label typeErrorLabel;
+    @FXML private Label imageErrorLabel;
+
+
     private ServiceMaterielRecyclable m = new ServiceMaterielRecyclable();
     private EntrepriseService serviceEntreprise = new EntrepriseService();
     private ServiceAccord serviceAccord = new ServiceAccord();
@@ -129,55 +136,76 @@ public class AjouterMaterielRecyclable implements Initializable {
 
     @FXML
     private void saveMateriel(ActionEvent event) {
+        // Réinitialiser tous les messages d'erreur
+        nameErrorLabel.setVisible(false);
+        descriptionErrorLabel.setVisible(false);
+        entrepriseErrorLabel.setVisible(false);
+        typeErrorLabel.setVisible(false);
+        imageErrorLabel.setVisible(false);
+
+        boolean hasErrors = false;
+
+        // Validation du nom
+        String name = nameField.getText();
+        if (name == null || name.trim().isEmpty()) {
+            nameErrorLabel.setText("Le nom est obligatoire");
+            nameErrorLabel.setVisible(true);
+            hasErrors = true;
+        } else if (name.trim().length() < 4) {
+            nameErrorLabel.setText("Le nom doit contenir au moins 4 caractères");
+            nameErrorLabel.setVisible(true);
+            hasErrors = true;
+        }
+
+        // Validation de la description
+        String description = descriptionField.getText();
+        if (description == null || description.trim().isEmpty()) {
+            descriptionErrorLabel.setText("La description est obligatoire");
+            descriptionErrorLabel.setVisible(true);
+            hasErrors = true;
+        } else if (description.trim().length() < 7) {
+            descriptionErrorLabel.setText("La description doit contenir au moins 7 caractères");
+            descriptionErrorLabel.setVisible(true);
+            hasErrors = true;
+        }
+
+        // Validation de l'entreprise
+        String company_name = entrepriseComboBox.getValue();
+        if (company_name == null) {
+            entrepriseErrorLabel.setText("Veuillez sélectionner une entreprise");
+            entrepriseErrorLabel.setVisible(true);
+            hasErrors = true;
+        }
+
+        // Validation du type de matériel
+        Type_materiel selectedType = typeMaterielComboBox.getValue();
+        if (selectedType == null) {
+            typeErrorLabel.setText("Veuillez sélectionner un type de matériel");
+            typeErrorLabel.setVisible(true);
+            hasErrors = true;
+        }
+
+        // Validation de l'image
+        if (selectedImageFile == null) {
+            imageErrorLabel.setText("Veuillez sélectionner une image");
+            imageErrorLabel.setVisible(true);
+            hasErrors = true;
+        }
+
+        // Si des erreurs sont présentes, ne pas continuer
+        if (hasErrors) {
+            return;
+        }
+
         try {
-            // 🔹 1. Récupérer les valeurs des champs
-            String name = nameField.getText();
-            String description = descriptionField.getText();
-            String company_name = entrepriseComboBox.getValue();
-            Type_materiel selectedType = typeMaterielComboBox.getValue();
-
-            // 🔒 Contrôle de saisie amélioré sans style rouge
-            if (name == null || name.trim().isEmpty()) {
-                showAlert("Champ manquant", "Veuillez entrer un nom pour le matériel.", Alert.AlertType.WARNING);
-                return;
-            }
-            if (name.trim().length() < 4) {
-                showAlert("Nom invalide", "Le nom doit contenir au moins 4 caractères.", Alert.AlertType.WARNING);
-                return;
-            }
-
-            if (description == null || description.trim().isEmpty()) {
-                showAlert("Champ manquant", "Veuillez entrer une description pour le matériel.", Alert.AlertType.WARNING);
-                return;
-            }
-            if (description.trim().length() < 7) {
-                showAlert("Description invalide", "La description doit contenir au moins 7 caractères.", Alert.AlertType.WARNING);
-                return;
-            }
-
-            if (company_name == null) {
-                showAlert("Champ manquant", "Veuillez sélectionner une entreprise.", Alert.AlertType.WARNING);
-                return;
-            }
-
-            if (selectedType == null) {
-                showAlert("Champ manquant", "Veuillez sélectionner un type de matériel.", Alert.AlertType.WARNING);
-                return;
-            }
-
-            if (selectedImageFile == null) {
-                showAlert("Champ manquant", "Veuillez sélectionner une image pour le matériel.", Alert.AlertType.WARNING);
-                return;
-            }
-
-            // 🔹 2. Trouver l'entreprise correspondante
+            // Le reste du code existant pour sauvegarder le matériel
             Entreprise entrepriseObj = serviceEntreprise.getEntrepriseByName(company_name);
             if (entrepriseObj == null) {
                 showAlert("Erreur", "Entreprise non trouvée.", Alert.AlertType.ERROR);
                 return;
             }
 
-            // 3️⃣ Sauvegarde de l'image
+            // Sauvegarde de l'image
             String imagePath = "";
             if (selectedImageFile != null) {
                 File destinationDir = new File("src/main/resources/img/materiels");
@@ -201,16 +229,16 @@ public class AjouterMaterielRecyclable implements Initializable {
                 }
             }
 
-            // 4️⃣ Créer l'objet MaterielRecyclable
+            // Créer l'objet MaterielRecyclable
             MaterielRecyclable materiel = new MaterielRecyclable(
                     name, description, LocalDateTime.now(),
                     selectedType, imagePath, StatutEnum.en_attente,
                     entrepriseObj
             );
             User loggedInUser = showMaterielRecyclableController.getCurrentUser();
-            materiel.setUser(loggedInUser); // Associer l'utilisateur statique au matériel
+            materiel.setUser(loggedInUser);
 
-            // 5️⃣ Ajouter à la base de données
+            // Ajouter à la base de données
             m.ajouter(materiel);
 
             // Récupérer tous les matériaux et trouver celui qui vient d'être ajouté
@@ -225,23 +253,23 @@ public class AjouterMaterielRecyclable implements Initializable {
                 return;
             }
 
-            // 6️⃣ Créer un accord pour ce matériel
+            // Créer un accord pour ce matériel
             Accord accord = new Accord();
             accord.setDateCreation(LocalDateTime.now());
-            accord.setQuantity(0.0f); // Quantité initiale à 0
-            accord.setOutput("output"); // Utiliser le statut du matériel
+            accord.setQuantity(0.0f);
+            accord.setOutput("output");
             accord.setMaterielRecyclable(materielAvecId);
             accord.setEntreprise(entrepriseObj);
 
             serviceAccord.ajouter(accord);
 
-            // 7️⃣ Afficher un message de succès
+            // Afficher un message de succès
             showAlert("Succès", "Matériau ajouté avec succès et accord créé!", Alert.AlertType.INFORMATION);
 
-            // 8️⃣ Fermer la fenêtre d'ajout
+            // Fermer la fenêtre d'ajout
             closeWindow();
 
-            // 9️⃣ Mettre à jour le statut du matériel recyclable dans la base de données
+            // Mettre à jour le statut du matériel recyclable dans la base de données
             m.modifier(materielAvecId);
 
         } catch (SQLException e) {

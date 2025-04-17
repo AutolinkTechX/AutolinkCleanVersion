@@ -50,6 +50,12 @@ public class ModifierMaterielRecyclable {
     @FXML
     private Button cancelButton;
 
+    @FXML private Label nameErrorLabel;
+    @FXML private Label descriptionErrorLabel;
+    @FXML private Label entrepriseErrorLabel;
+    @FXML private Label typeErrorLabel;
+    @FXML private Label imageErrorLabel;
+
     private File selectedImageFile;
     private MaterielRecyclable materielToEdit;
     private ServiceMaterielRecyclable materielService = new ServiceMaterielRecyclable();
@@ -163,42 +169,61 @@ public class ModifierMaterielRecyclable {
 
     @FXML
     private void saveMateriel(ActionEvent event) {
+        // Réinitialiser tous les messages d'erreur
+        nameErrorLabel.setVisible(false);
+        descriptionErrorLabel.setVisible(false);
+        entrepriseErrorLabel.setVisible(false);
+        typeErrorLabel.setVisible(false);
+        imageErrorLabel.setVisible(false);
+
+        boolean hasErrors = false;
+
+        // Validation du nom
+        String name = nameField.getText();
+        if (name == null || name.trim().isEmpty()) {
+            nameErrorLabel.setText("Le nom est obligatoire");
+            nameErrorLabel.setVisible(true);
+            hasErrors = true;
+        } else if (name.trim().length() < 4) {
+            nameErrorLabel.setText("Le nom doit contenir au moins 4 caractères");
+            nameErrorLabel.setVisible(true);
+            hasErrors = true;
+        }
+
+        // Validation de la description
+        String description = descriptionField.getText();
+        if (description == null || description.trim().isEmpty()) {
+            descriptionErrorLabel.setText("La description est obligatoire");
+            descriptionErrorLabel.setVisible(true);
+            hasErrors = true;
+        } else if (description.trim().length() < 7) {
+            descriptionErrorLabel.setText("La description doit contenir au moins 7 caractères");
+            descriptionErrorLabel.setVisible(true);
+            hasErrors = true;
+        }
+
+        // Validation de l'entreprise
+        String companyName = entrepriseComboBox.getValue();
+        if (companyName == null) {
+            entrepriseErrorLabel.setText("Veuillez sélectionner une entreprise");
+            entrepriseErrorLabel.setVisible(true);
+            hasErrors = true;
+        }
+
+        // Validation du type de matériel
+        Type_materiel selectedType = typeMaterielComboBox.getValue();
+        if (selectedType == null) {
+            typeErrorLabel.setText("Veuillez sélectionner un type de matériel");
+            typeErrorLabel.setVisible(true);
+            hasErrors = true;
+        }
+
+        // Si des erreurs sont présentes, ne pas continuer
+        if (hasErrors) {
+            return;
+        }
+
         try {
-            // Récupérer les valeurs des champs
-            String name = nameField.getText();
-            String description = descriptionField.getText();
-            String companyName = entrepriseComboBox.getValue();
-            Type_materiel selectedType = typeMaterielComboBox.getValue();
-
-            // 🔒 Contrôle de saisie amélioré sans style rouge
-            if (name == null || name.trim().isEmpty()) {
-                showAlert("Champ manquant", "Veuillez entrer un nom pour le matériel.", Alert.AlertType.WARNING);
-                return;
-            }
-            if (name.trim().length() < 4) {
-                showAlert("Nom invalide", "Le nom doit contenir au moins 4 caractères.", Alert.AlertType.WARNING);
-                return;
-            }
-
-            if (description == null || description.trim().isEmpty()) {
-                showAlert("Champ manquant", "Veuillez entrer une description pour le matériel.", Alert.AlertType.WARNING);
-                return;
-            }
-            if (description.trim().length() < 7) {
-                showAlert("Description invalide", "La description doit contenir au moins 7 caractères.", Alert.AlertType.WARNING);
-                return;
-            }
-
-            if (companyName == null) {
-                showAlert("Champ manquant", "Veuillez sélectionner une entreprise.", Alert.AlertType.WARNING);
-                return;
-            }
-
-            if (selectedType == null) {
-                showAlert("Champ manquant", "Veuillez sélectionner un type de matériel.", Alert.AlertType.WARNING);
-                return;
-            }
-
             // Vérifier si l'entreprise a changé
             boolean entrepriseChanged = !materielToEdit.getEntreprise().getCompanyName().equals(companyName);
 
@@ -208,12 +233,12 @@ public class ModifierMaterielRecyclable {
             materielToEdit.setType_materiel(selectedType);
 
             // Si l'entreprise a changé, mettre à jour l'entreprise
-           /* if (entrepriseChanged) {
+            if (entrepriseChanged) {
                 Entreprise newEntreprise = entrepriseService.getEntrepriseByName(companyName);
                 if (newEntreprise != null) {
                     materielToEdit.setEntreprise(newEntreprise);
                 }
-            }*/
+            }
 
             // Gérer l'image si une nouvelle a été sélectionnée
             if (selectedImageFile != null) {
@@ -223,6 +248,9 @@ public class ModifierMaterielRecyclable {
 
             // Sauvegarder les modifications
             materielService.modifier(materielToEdit);
+
+            // Afficher un message de succès
+            showAlert("Succès", "Matériau modifié avec succès!", Alert.AlertType.INFORMATION);
 
             // Fermer la fenêtre de modification
             closeWindow();

@@ -9,42 +9,52 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controllers.AjouterMaterielRecyclable">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" stylesheets="@styles/MaterielRecyclable/style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controllers.AjouterMaterielRecyclable">
 
     <VBox layoutX="27.0" layoutY="14.0" spacing="10">
-        <!-- Section du matériel -->
-        <Label text="Détails du Matériau" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #a05a2c;" />
+        <!-- Titre -->
+        <HBox spacing="10">
+            <Label fx:id="titleLabel" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #a05a2c;" text="Ajouter un Matériau" />
+        </HBox>
 
         <!-- Nom -->
         <Label style="-fx-font-weight: bold;" text="Nom" />
         <TextField fx:id="nameField" promptText="Entrez le nom du matériau" />
+        <Label fx:id="nameErrorLabel" style="-fx-text-fill: red; -fx-font-weight: bold;" visible="false" />
 
         <!-- Description -->
         <Label style="-fx-font-weight: bold;" text="Description" />
         <TextArea fx:id="descriptionField" prefRowCount="3" promptText="Entrez la description du matériau" />
+        <Label fx:id="descriptionErrorLabel" style="-fx-text-fill: red; -fx-font-weight: bold;" visible="false" />
 
         <!-- Entreprise & Type de Matériau -->
         <HBox spacing="10">
             <VBox spacing="5">
                 <Label style="-fx-font-weight: bold;" text="Entreprise" />
                 <ComboBox fx:id="entrepriseComboBox" promptText="Sélectionnez une entreprise" />
+                <Label fx:id="entrepriseErrorLabel" style="-fx-text-fill: red; -fx-font-weight: bold;" visible="false" />
             </VBox>
 
             <VBox spacing="5">
                 <Label style="-fx-font-weight: bold;" text="Type de Matériau" />
                 <ComboBox fx:id="typeMaterielComboBox" promptText="Sélectionnez un type" />
+                <Label fx:id="typeErrorLabel" style="-fx-text-fill: red; -fx-font-weight: bold;" visible="false" />
             </VBox>
         </HBox>
 
         <!-- Image -->
         <Label style="-fx-font-weight: bold;" text="Image" />
         <HBox spacing="10">
-            <Button fx:id="chooseImageButton" text="choisir une image de materiel" onAction="#chooseImage"/>
+            <Button fx:id="chooseImageButton" text="Choisir une image" onAction="#chooseImage"/>
             <Label fx:id="imageLabel" contentDisplay="CENTER" graphicTextGap="8.0" text="Aucun fichier choisi" />
         </HBox>
+        <Label fx:id="imageErrorLabel" style="-fx-text-fill: red; -fx-font-weight: bold;" visible="false" />
 
-        <!-- Bouton Save -->
-        <Button fx:id="saveButton" prefWidth="560" style="-fx-background-color: #a05a2c; -fx-text-fill: white; -fx-font-weight: bold;" text="Save" onAction="#saveMateriel"/>
+        <!-- Boutons -->
+        <HBox spacing="10" alignment="CENTER">
+            <Button fx:id="saveButton" style="-fx-background-color: #a05a2c; -fx-text-fill: white; -fx-font-weight: bold;" text="Enregistrer" onAction="#saveMateriel"/>
+
+        </HBox>
     </VBox>
 
 </AnchorPane>
