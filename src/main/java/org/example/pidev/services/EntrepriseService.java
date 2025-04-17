@@ -213,4 +213,121 @@ public class EntrepriseService implements IService<Entreprise> {
 
         return entreprises;
     }
+
+
+    /***code farah**/
+
+    // 🔹 Récupérer toutes les entreprises qui sont des fournisseurs
+    public List<Entreprise> getSuppliers() {
+        // S'assurer que la connexion est valide
+       /* connection = MyDatabase.getInstance().getMyConnection();*/
+
+        List<Entreprise> suppliers = new ArrayList<>();
+        String query = "SELECT * FROM entreprise WHERE supplier = 1"; // SQL pour récupérer les fournisseurs
+
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            System.out.println("Exécution de la requête : " + query);
+            int count = 0;
+
+            while (rs.next()) {
+                Entreprise entreprise = new Entreprise(); // Créer un nouvel objet sans paramètres
+                entreprise.setId(rs.getInt("id"));
+                entreprise.setCompanyName(rs.getString("company_name"));
+                entreprise.setSupplier(rs.getBoolean("supplier"));
+                suppliers.add(entreprise);
+                count++;
+                System.out.println("Entreprise trouvée : " + entreprise.getCompanyName() + " (ID: " + entreprise.getId() + ")");
+            }
+
+            System.out.println("Nombre total d'entreprises trouvées : " + count);
+
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la récupération des fournisseurs : " + e.getMessage());
+            e.printStackTrace();
+        }
+        return suppliers;
+    }
+
+
+
+    // 🔹 Trouver une entreprise par son nom
+    public Entreprise getEntrepriseByName(String companyName) {
+        // S'assurer que la connexion est valide
+      /*  connection = MyDatabase.getInstance().getMyConnection();*/
+
+        String query = "SELECT * FROM entreprise WHERE company_name = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, companyName);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Entreprise entreprise = new Entreprise();
+                entreprise.setId(rs.getInt("id"));
+                entreprise.setCompanyName(rs.getString("company_name"));
+                entreprise.setEmail(rs.getString("email"));
+                entreprise.setPhone(rs.getString("phone"));
+                entreprise.setSupplier(rs.getBoolean("supplier"));
+                entreprise.setField(rs.getString("field"));
+                return entreprise;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    // 🔹 Récupérer toutes les entreprises qui sont des fournisseurs avec leur champ
+    public List<Entreprise> getSuppliersWithField() {
+        // S'assurer que la connexion est valide
+       /* connection = MyDatabase.getInstance().getMyConnection();*/
+
+        List<Entreprise> suppliers = new ArrayList<>();
+        String query = "SELECT * FROM entreprise WHERE supplier = 1";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            System.out.println("\n=== Récupération des fournisseurs ===");
+            System.out.println("Exécution de la requête : " + query);
+            int count = 0;
+
+            while (rs.next()) {
+                // Créer l'entreprise avec tous les champs nécessaires
+                Entreprise entreprise = new Entreprise();
+                entreprise.setId(rs.getInt("id"));
+                entreprise.setSupplier(rs.getBoolean("supplier"));
+
+                // Récupérer et définir le nom de l'entreprise
+                String companyName = rs.getString("company_name");
+                System.out.println("Récupération du nom de l'entreprise depuis la base de données : " + companyName);
+                entreprise.setCompanyName(companyName);
+
+                // Définir le champ d'activité
+                entreprise.setField(rs.getString("field"));
+
+                suppliers.add(entreprise);
+                count++;
+
+                System.out.println("Entreprise créée :");
+                System.out.println("  - ID: " + entreprise.getId());
+                System.out.println("  - Nom: '" + entreprise.getCompanyName() + "'");
+                System.out.println("  - Field: '" + entreprise.getField() + "'");
+                System.out.println("  - Supplier: " + entreprise.getSupplier());
+                System.out.println("------------------------");
+            }
+
+            System.out.println("Nombre total d'entreprises trouvées : " + count);
+            System.out.println("=== Fin de la récupération ===\n");
+
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération des fournisseurs avec champs : " + e.getMessage());
+            e.printStackTrace();
+        }
+        return suppliers;
+    }
+
+
+
 } 

@@ -1,7 +1,7 @@
 package org.example.pidev.Enum;
 
 public enum StatutEnum {
-    EN_ATTENTE,
+    en_attente,
     EN_COURS,
     valide,
     refuse;

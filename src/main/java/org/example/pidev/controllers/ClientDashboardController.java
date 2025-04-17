@@ -438,5 +438,24 @@ public class ClientDashboardController {
     }
 
 
+/**********code farah****/
+
+    @FXML
+    private void loadAddProductView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ShowMaterielRecyclable.fxml"));
+            Node view = loader.load();
+
+            ShowMaterielRecyclable controller = loader.getController();
+            controller.setCurrentUser(currentUser);
+            controller.setDashboardController(this);
+
+            contentArea.getChildren().setAll(view);
+        } catch (IOException e) {
+            showError("Erreur", "Échec du chargement de la vue Ajouter Produit : " + e.getMessage());
+        }
+    }
+
+
 
 }

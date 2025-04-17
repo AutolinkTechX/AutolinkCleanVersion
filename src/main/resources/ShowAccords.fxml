@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.Button?>
+
+
+<VBox spacing="15" stylesheets="@styles/MaterielRecyclable/style.css"
+      xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.pidev.controllers.ShowAccords"
+      prefWidth="1000" minWidth="800" prefHeight="700" minHeight="600"
+      VBox.vgrow="ALWAYS"
+      style="-fx-background-color: transparent;">
+
+    <padding>
+        <Insets top="15" right="20" bottom="15" left="20"/>
+    </padding>
+
+    <HBox alignment="CENTER">
+        <Label text="LISTE DES ACCORDS"
+               style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #a05a2c; -fx-padding: 0 0 10 0;" />
+    </HBox>
+
+    <ToolBar style="-fx-background-color: #f5f5f5; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #a05a2c; -fx-border-width: 1;">
+        <Label text="Recherche:" style="-fx-text-fill: #a05a2c; -fx-font-weight: bold;" />
+        <TextField fx:id="searchField" promptText="Rechercher par nom..."
+                   style="-fx-pref-width: 250; -fx-background-radius: 20; -fx-border-radius: 20; -fx-border-color: #a05a2c; -fx-padding: 5;" />
+        <Region prefWidth="20" />
+        <Label text="Trier par date:" style="-fx-text-fill: #a05a2c; -fx-font-weight: bold;" />
+        <ComboBox fx:id="dateSortComboBox" prefWidth="180"
+                  style="-fx-background-color: #f0f0f0; -fx-background-radius: 20; -fx-border-radius: 20; -fx-border-color: #a05a2c;" />
+        <Region prefWidth="20" />
+        <Label text="Statut:" style="-fx-text-fill: #a05a2c; -fx-font-weight: bold;" />
+        <ComboBox fx:id="statutFilter" prefWidth="180"
+                  style="-fx-background-color: #f0f0f0; -fx-background-radius: 20; -fx-border-radius: 20; -fx-border-color: #a05a2c;" />
+        <Region prefWidth="20" />
+        <Button fx:id="resetButton" text="Réinitialiser"
+                style="-fx-background-color: #f0f0f0; -fx-text-fill: #a05a2c; -fx-background-radius: 20; -fx-border-radius: 20; -fx-border-color: #a05a2c;" />
+    </ToolBar>
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+        <FlowPane fx:id="accordContainer" hgap="20" vgap="15" alignment="CENTER">
+            <padding>
+                <Insets top="15" right="20" bottom="15" left="20"/>
+            </padding>
+        </FlowPane>
+    </ScrollPane>
+</VBox>
+
