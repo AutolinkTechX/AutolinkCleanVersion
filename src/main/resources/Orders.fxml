@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17.0.2" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.pidev.controllers.Orders"
+      stylesheets="@styles/Orders/Details.css">
+
+    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: white; -fx-padding: 15;">
+        <Label text="Search by Date:" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+        <DatePicker fx:id="datePicker" />
+        <Button text="Search" onAction="#handleSearch" style="-fx-background-color: #ca8a62; -fx-text-fill: white;"/>
+        <Button text="Clear" onAction="#handleClearSearch" style="-fx-background-color: #cccccc;"/>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
+        <VBox fx:id="ordersContainer" spacing="20" style="-fx-padding: 20;">
+            <FlowPane fx:id="cardsContainer" hgap="20" vgap="20" prefWrapLength="1000"/>
+        </VBox>
+    </ScrollPane>
+
+    <HBox alignment="CENTER" spacing="10">
+        <Button fx:id="prevPageBtn" text="Previous" onAction="#handlePreviousPage" disable="true"/>
+        <Label fx:id="pageInfoLabel" text="Page 1 of 1"/>
+        <Button fx:id="nextPageBtn" text="Next" onAction="#handleNextPage" disable="true"/>
+    </HBox>
+</VBox>

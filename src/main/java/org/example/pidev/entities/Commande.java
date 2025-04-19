@@ -7,7 +7,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 
-@Entity
+
 public class Commande {
 
     @Id
@@ -23,6 +23,7 @@ public class Commande {
     @ManyToOne
     @JoinColumn(name = "client_id")
     private User client;
+
 
     @Column(name = "article_ids", columnDefinition = "LONGTEXT")
     private String articleIds; // Stocker les ids des articles sous forme de String (JSON)

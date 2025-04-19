@@ -693,7 +693,7 @@ public class Payement implements Initializable {
                 double totalCommande = panierService.calculerTotalPanier(currentUser.getId());
 
                 Commande commande = createCommande();
-                commande.setModePaiement("Carte bancaire");
+                commande.setModePaiement("card");
                 commande.setTotal(totalCommande);
 
                 Commande createdCommande = commandeService.createCommande(commande);
@@ -736,7 +736,7 @@ public class Payement implements Initializable {
 
                 // Création de la commande
                 Commande commande = createCommande();
-                commande.setModePaiement("Espèces à la livraison");
+                commande.setModePaiement("especes");
                 commande.setTotal(totalCommande);
 
                 // Enregistrement de la commande et de la facture

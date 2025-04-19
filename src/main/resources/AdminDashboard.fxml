@@ -98,7 +98,7 @@
                                 <Cursor fx:constant="HAND" />
                             </cursor>
                         </MenuButton>
-                        <Button fx:id="OrdersButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="39.0" prefWidth="237.0" text=" Orders" textFill="WHITE" translateY="10.0">
+                        <Button fx:id="OrdersButton" onAction="#handleOrders" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="39.0" prefWidth="237.0" text=" Orders" textFill="WHITE" translateY="10.0">
                             <graphic>
                                 <ImageView fitHeight="25.0" fitWidth="39.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
@@ -112,6 +112,21 @@
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor>
+                        </Button>
+                        <Button fx:id="StatistiqueButton" onAction="#handleStatistics" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="39.0" prefWidth="237.0" text=" Statistique" textFill="WHITE" translateY="10.0">
+                            <graphic>
+                                <ImageView fitHeight="25.0" fitWidth="39.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@icons/Stat.png" />
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                            <font>
+                                <Font size="20.0" />
+                            </font>
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
                         </Button>
                         <Button fx:id="PartnersButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="40.0" prefWidth="236.0" text=" Partners" textFill="WHITE" translateY="10.0">
                             <graphic>
