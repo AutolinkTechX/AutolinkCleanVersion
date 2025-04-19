@@ -1,5 +1,6 @@
 package org.example.pidev.controllers;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -316,6 +317,52 @@ public class AdminDashboardController {
             alert.setHeaderText("Impossible de charger la vue");
             alert.setContentText("Une erreur est survenue lors du chargement de la page des produits.");
             alert.showAndWait();
+        }
+    }
+
+
+    @FXML
+    private void handleOrders() {
+        try {
+            // Option 1 - Chemin absolu depuis src/main/resources
+            URL fxmlUrl = getClass().getResource("/Orders.fxml");
+
+            // Option 2 - Si dans le même package que le contrôleur
+            // URL fxmlUrl = getClass().getResource("orders_page.fxml");
+
+            if (fxmlUrl == null) {
+                throw new IOException("Fichier FXML non trouvé: orders_page.fxml");
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            VBox ordersPage = loader.load();
+            contentArea.getChildren().clear();
+            contentArea.getChildren().add(ordersPage);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible de charger la page des commandes",
+                    "Détails: " + e.getMessage());
+        }
+    }
+
+    private void showAlert(String title, String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    // Add this method to your AdminDashboardController
+    @FXML
+    private void handleStatistics(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Statistique.fxml"));
+            Parent root = loader.load();
+            contentArea.getChildren().clear();
+            contentArea.getChildren().add(root);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

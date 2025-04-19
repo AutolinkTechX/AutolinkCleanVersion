@@ -1,0 +1,149 @@
+/* Style général de la page */
+.orders-container {
+    -fx-background-color: #f8f9fa;
+    -fx-padding: 20px;
+}
+
+/* Barre de recherche */
+.search-bar {
+    -fx-background-color: white;
+    -fx-padding: 15px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);
+    -fx-background-radius: 8px;
+}
+
+.search-bar .label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #495057;
+}
+
+.date-picker {
+    -fx-font-size: 14px;
+    -fx-pref-width: 180px;
+}
+
+.search-button {
+    -fx-background-color: #ca8a62;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 5px;
+    -fx-padding: 8px 15px;
+    -fx-cursor: hand;
+}
+
+.search-button:hover {
+    -fx-background-color: #b07a52;
+}
+
+.clear-button {
+    -fx-background-color: #e9ecef;
+    -fx-text-fill: #495057;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 5px;
+    -fx-padding: 8px 15px;
+    -fx-cursor: hand;
+}
+
+.clear-button:hover {
+    -fx-background-color: #dee2e6;
+}
+
+/* Conteneur des cartes */
+.cards-container {
+    -fx-padding: 20px 0;
+}
+
+/* Style des cartes de commande */
+.order-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 2);
+    -fx-padding: 0;
+    -fx-border-radius: 10px;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
+    -fx-transition: all 0.3s ease;
+}
+
+.order-card:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 12, 0, 0, 4);
+    -fx-translate-y: -2px;
+}
+
+.order-card-image {
+    -fx-background-radius: 10px 10px 0 0;
+    -fx-border-radius: 10px 10px 0 0;
+    -fx-border-width: 0;
+}
+
+.order-card-content {
+    -fx-padding: 15px;
+    -fx-spacing: 8px;
+}
+
+.order-card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #212529;
+}
+
+.order-card-date {
+    -fx-font-size: 14px;
+    -fx-text-fill: #6c757d;
+}
+
+.order-card-total {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ca8a62;
+}
+
+.order-card-button {
+    -fx-background-color: #ca8a62;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5px;
+    -fx-padding: 8px 0;
+    -fx-pref-width: 100%;
+    -fx-cursor: hand;
+}
+
+.order-card-button:hover {
+    -fx-background-color: #b07a52;
+}
+
+/* Pagination */
+.pagination-bar {
+    -fx-padding: 20px 0;
+    -fx-alignment: center;
+}
+
+.page-button {
+    -fx-background-color: white;
+    -fx-text-fill: #495057;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5px;
+    -fx-border-color: #dee2e6;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-padding: 8px 15px;
+    -fx-cursor: hand;
+}
+
+.page-button:hover {
+    -fx-background-color: #f1f3f5;
+}
+
+.page-button:disabled {
+    -fx-opacity: 0.5;
+    -fx-cursor: default;
+}
+
+.page-info {
+    -fx-font-size: 14px;
+    -fx-text-fill: #495057;
+    -fx-padding: 0 15px;
+}

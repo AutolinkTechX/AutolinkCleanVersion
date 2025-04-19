@@ -3,9 +3,13 @@ package org.example.pidev.services;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.pidev.entities.Commande;
+import org.example.pidev.entities.User;
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CommandeService {
@@ -104,4 +108,123 @@ public class CommandeService {
             throw new SQLException("Erreur lors de la sérialisation des quantités : " + e.getMessage(), e);
         }
     }
+
+
+    public List<Commande> getAllCommandes(int page, int itemsPerPage) {
+        List<Commande> commandes = new ArrayList<>();
+        int offset = (page - 1) * itemsPerPage;
+
+        String query = "SELECT c.*, u.name, u.last_name FROM commande c " +
+                "JOIN user u ON c.client_id = u.id " +
+                "ORDER BY c.date_commande DESC LIMIT ? OFFSET ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, itemsPerPage);
+            stmt.setInt(2, offset);
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                commandes.add(mapResultSetToCommande(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return commandes;
+    }
+
+    public List<Commande> getCommandesByDate(LocalDate date, int page, int itemsPerPage) {
+        List<Commande> commandes = new ArrayList<>();
+        int offset = (page - 1) * itemsPerPage;
+
+        String query = "SELECT c.*, u.name, u.last_name FROM commande c " +
+                "JOIN user u ON c.client_id = u.id " +
+                "WHERE DATE(c.date_commande) = ? " +
+                "ORDER BY c.date_commande DESC LIMIT ? OFFSET ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setDate(1, Date.valueOf(date));
+            stmt.setInt(2, itemsPerPage);
+            stmt.setInt(3, offset);
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                commandes.add(mapResultSetToCommande(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return commandes;
+    }
+
+    public int getCommandesCount() {
+        String query = "SELECT COUNT(*) FROM commande";
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int getCommandesCountByDate(LocalDate date) {
+        String query = "SELECT COUNT(*) FROM commande WHERE DATE(date_commande) = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setDate(1, Date.valueOf(date));
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    private Commande mapResultSetToCommande(ResultSet rs) throws SQLException {
+        Commande commande = new Commande();
+        commande.setId(rs.getInt("id"));
+        commande.setDateCommande(rs.getTimestamp("date_commande").toLocalDateTime());
+        commande.setModePaiement(rs.getString("mode_paiement"));
+        commande.setTotal(rs.getDouble("total"));
+
+        User client = new User();
+        client.setId(rs.getInt("client_id"));
+        client.setName(rs.getString("name"));
+        client.setLastName(rs.getString("last_name"));
+        commande.setClient(client);
+
+        commande.setArticleIds(rs.getString("article_ids"));
+        commande.setQuantites(rs.getString("quantites"));
+
+        return commande;
+    }
+
+
+    public Map<String, Long> getPaymentMethodStatistics() throws SQLException {
+        Map<String, Long> paymentStats = new HashMap<>();
+        String query = "SELECT mode_paiement, COUNT(*) as count FROM commande GROUP BY mode_paiement";
+
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            while (rs.next()) {
+                paymentStats.put(rs.getString("mode_paiement"), rs.getLong("count"));
+            }
+        }
+
+        // Valeurs par défaut si la table est vide
+        if (paymentStats.isEmpty()) {
+            paymentStats.put("card", 65L);
+            paymentStats.put("espece", 35L);
+        }
+
+        return paymentStats;
+    }
+
+
+
+
 }

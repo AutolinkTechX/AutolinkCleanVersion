@@ -11,7 +11,9 @@ module pidev {
     requires kernel;    // pour kernel-7.2.5.jar
     requires layout;    // pour layout-7.2.5.jar
     requires io;
-    requires jbcrypt;        // pour io-7.2.5.jar
+    requires jbcrypt;
+    requires org.hibernate.orm.core;
+    requires org.slf4j;        // pour io-7.2.5.jar
 
     opens org.example.pidev to javafx.fxml;
     opens org.example.pidev.controllers to javafx.fxml;

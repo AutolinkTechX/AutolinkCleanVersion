@@ -1,0 +1,86 @@
+/* Main VBox styling */
+.statistics-container {
+    -fx-background-color: #f8f9fa;
+    -fx-padding: 20px;
+    -fx-spacing: 20px;
+}
+
+/* Title label styling */
+.title-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 0 0 20px 0;
+}
+
+/* HBox container for charts */
+.charts-container {
+    -fx-spacing: 50px;
+    -fx-alignment: center;
+    -fx-padding: 10px;
+}
+
+/* Individual chart containers */
+.chart-container {
+    -fx-spacing: 10px;
+    -fx-alignment: center;
+    -fx-padding: 15px;
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+}
+
+/* Chart title styling */
+.chart-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+/* Bar chart styling */
+.bar-chart {
+    -fx-font-size: 12px;
+    -fx-category-gap: 20px;
+}
+
+/* Pie chart styling */
+.pie-chart {
+    -fx-font-size: 12px;
+}
+
+/* Axis styling */
+.axis {
+    -fx-tick-label-fill: #2c3e50;
+    -fx-tick-label-font-size: 10px;
+}
+
+.axis-label {
+    -fx-text-fill: #2c3e50;
+    -fx-font-size: 12px;
+}
+
+/* Legend styling */
+.chart-legend {
+    -fx-background-color: transparent;
+    -fx-padding: 10px;
+}
+
+.chart-legend-item-symbol {
+    -fx-background-radius: 5px;
+}
+
+/* Pie slice colors */
+.data0.chart-pie { -fx-pie-color: #3498db; } /* Blue for card */
+.data1.chart-pie { -fx-pie-color: #2ecc71; } /* Green for cash */
+.data2.chart-pie { -fx-pie-color: #f39c12; } /* Orange for other */
+
+/* Hover label styling */
+.hover-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 8px 12px;
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-radius: 5px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);
+}

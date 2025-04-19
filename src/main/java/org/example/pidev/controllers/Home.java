@@ -15,6 +15,7 @@ import org.example.pidev.entities.User;
 import org.example.pidev.services.ArticleService;
 import org.example.pidev.utils.SessionManager;
 
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -160,7 +161,7 @@ public class Home {
         prevButton.setDisable(currentPage == 0);
         nextButton.setDisable(endIndex >= allCategories.size());
     }
-
+/*
     private VBox createCategoryCard(String categoryName) {
         VBox card = new VBox();
         card.setAlignment(Pos.CENTER);
@@ -213,6 +214,54 @@ public class Home {
         });
 
         card.setOnMouseClicked(e -> {
+            if (dashboardController != null) {
+                dashboardController.showArticlesByCategory(categoryName);
+            }
+        });
+
+        card.getChildren().addAll(imageView, label, button);
+        return card;
+    }
+*/
+
+    private VBox createCategoryCard(String categoryName) {
+        VBox card = new VBox();
+        card.setAlignment(Pos.CENTER);
+        card.setSpacing(10);
+        card.setPrefWidth(180);
+        card.setPrefHeight(220);
+        card.getStyleClass().add("category-card");
+        card.setUserData(categoryName);
+
+        // Styles pour hover
+        card.setOnMouseEntered(e -> card.getStyleClass().add("category-card-hover"));
+        card.setOnMouseExited(e -> card.getStyleClass().remove("category-card-hover"));
+
+        ImageView imageView = new ImageView();
+        try {
+            // Utilisez toujours la même image pour toutes les catégories
+            imageView.setImage(new Image(getClass().getResourceAsStream("/images/categories/Category.jpg")));
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Erreur de chargement de l'image de catégorie", e);
+            imageView.setImage(new Image(getClass().getResourceAsStream("/images/logo.jpg")));
+        }
+
+        imageView.setFitWidth(120);
+        imageView.setFitHeight(120);
+        imageView.setPreserveRatio(true);
+        imageView.setSmooth(true);
+        imageView.setCache(true);
+        imageView.getStyleClass().add("category-image");
+
+        Label label = new Label(categoryName);
+        label.getStyleClass().add("category-title");
+        label.setWrapText(true);
+        label.setMaxWidth(150);
+        label.setTextAlignment(TextAlignment.CENTER);
+
+        Button button = new Button("Voir + ");
+        button.getStyleClass().add("category-btn");
+        button.setOnAction(e -> {
             if (dashboardController != null) {
                 dashboardController.showArticlesByCategory(categoryName);
             }

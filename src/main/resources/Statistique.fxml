@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.pidev.controllers.Statistique"
+      alignment="CENTER" spacing="20" styleClass="statistics-container"
+      stylesheets="@styles/Stat/Statistique.css">
+
+    <Label text="Répartition des quantités des produits" styleClass="title-label"/>
+
+    <HBox styleClass="charts-container" alignment="CENTER" spacing="50">
+        <!-- Bar Chart for Product Sales -->
+        <VBox styleClass="chart-container">
+            <Label text="Nombre de ventes par produit" styleClass="chart-title"/>
+            <BarChart fx:id="productSalesChart" styleClass="bar-chart" legendVisible="false">
+                <xAxis>
+                    <CategoryAxis label="Produits" />
+                </xAxis>
+                <yAxis>
+                    <NumberAxis label="Nombre de ventes" />
+                </yAxis>
+            </BarChart>
+        </VBox>
+
+        <!-- Pie Chart for Payment Methods -->
+        <VBox styleClass="chart-container">
+            <Label text="Répartition des paiements" styleClass="chart-title"/>
+            <PieChart fx:id="paymentPieChart" styleClass="pie-chart" legendVisible="true" />
+        </VBox>
+    </HBox>
+
+    <!-- Chart for Out of Stock Products -->
+    <VBox styleClass="chart-container">
+        <Label text="Produits en rupture de stock" styleClass="chart-title"/>
+        <BarChart fx:id="outOfStockChart" styleClass="bar-chart" legendVisible="false">
+            <xAxis>
+                <CategoryAxis label="Produits" />
+            </xAxis>
+            <yAxis>
+                <NumberAxis label="Quantité manquante" />
+            </yAxis>
+        </BarChart>
+    </VBox>
+
+    <Label fx:id="hoverLabel" styleClass="hover-label"/>
+</VBox>

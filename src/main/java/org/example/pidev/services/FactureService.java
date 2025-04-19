@@ -1,5 +1,6 @@
 package org.example.pidev.services;
 
+import org.example.pidev.entities.Article;
 import org.example.pidev.entities.Facture;
 import org.example.pidev.entities.Commande;
 import org.example.pidev.entities.User;
@@ -8,7 +9,9 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FactureService {
 
@@ -226,6 +229,35 @@ public class FactureService {
             return statement.executeUpdate() > 0;
         }
     }
+
+
+    public Map<Article, Integer> getArticlesWithQuantitiesForCommande(int commandeId) {
+        String query = "SELECT a.*, ca.quantite FROM article a " +
+                "JOIN commande_article ca ON a.id = ca.article_id " +
+                "WHERE ca.commande_id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, commandeId);
+            ResultSet rs = stmt.executeQuery();
+
+            Map<Article, Integer> articles = new HashMap<>();
+            while (rs.next()) {
+                Article article = new Article();
+                article.setId(rs.getInt("id"));
+                article.setNom(rs.getString("nom"));
+                article.setPrix(rs.getDouble("prix"));
+                // ... autres propriétés ...
+
+                int quantite = rs.getInt("quantite");
+                articles.put(article, quantite);
+            }
+            return articles;
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la récupération des articles de la commande", e);
+        }
+    }
+
+
 
 
 }

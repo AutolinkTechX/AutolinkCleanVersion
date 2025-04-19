@@ -5,17 +5,21 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.colors.DeviceGray;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.draw.SolidLine;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.Style;
 import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import javafx.animation.FadeTransition;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -29,6 +33,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Table;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
@@ -37,13 +45,14 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.example.pidev.entities.*;
-import org.example.pidev.services.ArticleService;
-import org.example.pidev.services.FactureService;
-import org.example.pidev.services.FavorieService;
-import org.example.pidev.services.PanierService;
+import org.example.pidev.services.*;
 import org.example.pidev.utils.AlertUtils;
 import org.example.pidev.utils.MyDatabase;
 import org.example.pidev.utils.SessionManager;
+import org.hibernate.service.spi.ServiceException;
+
+import java.awt.*;
+import java.util.logging.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -69,6 +78,7 @@ public class FactureController implements Initializable {
     private static final double VGAP = 30;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
+    private static final Logger logger = Logger.getLogger(FactureController.class.getName());
 
     @FXML private FlowPane facturesContainer;
     @FXML private TextField searchField;
@@ -111,7 +121,6 @@ public class FactureController implements Initializable {
         }
     }
 
-
     private void navigateToLogin() {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/LoginDashboard.fxml"));
@@ -127,8 +136,6 @@ public class FactureController implements Initializable {
             AlertUtils.showErrorAlert("Erreur", "Impossible de charger la page de connexion", e.getMessage());
         }
     }
-
-
 
     private void setupUIComponents() {
         facturesContainer.setHgap(HGAP);
@@ -348,7 +355,7 @@ public class FactureController implements Initializable {
         downloadBtn.setOnAction(e -> {
             try {
                 downloadFacture(facture.getId());
-            } catch (SQLException ex) {
+            } catch (Exception ex) {
                 AlertUtils.showErrorAlert("Erreur", "Erreur lors du téléchargement", ex.getMessage());
             }
         });
@@ -418,7 +425,7 @@ public class FactureController implements Initializable {
         alert.showAndWait();
     }
 
-
+    /*
     private byte[] generatePdfContent(Facture facture) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ObjectMapper mapper = new ObjectMapper();
@@ -427,7 +434,7 @@ public class FactureController implements Initializable {
              PdfDocument pdf = new PdfDocument(writer);
              Document document = new Document(pdf)) {
 
-            // 1. En-tête avec logo et informations de l'entreprise
+            // 1. Header with logo and company info
             Table headerTable = new Table(new float[]{1, 3});
             headerTable.setWidth(UnitValue.createPercentValue(100));
 
@@ -452,16 +459,16 @@ public class FactureController implements Initializable {
             headerTable.addCell(companyInfoCell);
             document.add(headerTable);
 
-            // Séparateur
+            // Separator
             document.add(new Paragraph("\n"));
             document.add(new LineSeparator(new SolidLine()).setMarginBottom(10));
 
-            // 2. Titre "FACTURE" et informations principales
+            // 2. "FACTURE" title and main info
             document.add(createParagraph("FACTURE", true, 18)
                     .setTextAlignment(TextAlignment.CENTER)
                     .setMarginBottom(20));
 
-            // Tableau d'informations client/facture
+            // Client/invoice info table
             float[] infoWidths = {2, 3};
             Table infoTable = new Table(infoWidths);
             infoTable.setMarginBottom(20);
@@ -488,60 +495,54 @@ public class FactureController implements Initializable {
 
             document.add(infoTable);
 
-            // 3. Détails des articles
+
+            // 3. Article details
+            // 3. Article details
+            // 3. Article details
             if (facture.getCommande() != null) {
                 Commande commande = facture.getCommande();
                 ArticleService articleService = new ArticleService();
 
+                // Section titre
+                document.add(createParagraph("Détails des articles", true, 14)
+                        .setTextAlignment(TextAlignment.LEFT)
+                        .setMarginTop(15)
+                        .setMarginBottom(10));
+
                 try {
+                    // Gestion sécurisée des articleIds
                     List<Integer> articleIds = new ArrayList<>();
+                    try {
+                        if (commande.getArticleIds() != null && !commande.getArticleIds().trim().isEmpty()) {
+                            articleIds = mapper.readValue(commande.getArticleIds(),
+                                    new TypeReference<List<Integer>>() {});
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Erreur conversion articleIds: " + e.getMessage());
+                    }
+
+                    // Gestion sécurisée des quantités
                     Map<Integer, Integer> quantitesMap = new HashMap<>();
-
-                    // Récupération des IDs d'articles
-                    if (commande.getArticleIds() != null && !commande.getArticleIds().isEmpty()) {
-                        try {
-                            // Solution alternative pour format {"articles": [1,2,3]}
-                            JsonNode rootNode = mapper.readTree(commande.getArticleIds());
-                            if (rootNode.has("articles")) {
-                                articleIds = mapper.convertValue(rootNode.get("articles"), new TypeReference<List<Integer>>() {});
-                            } else {
-                                // Fallback au format simple [1,2,3]
-                                articleIds = mapper.readValue(commande.getArticleIds(), new TypeReference<List<Integer>>() {});
-                            }
-                        } catch (Exception e) {
-                            document.add(createParagraph("Erreur de format pour les IDs d'articles", false, 10)
-                                    .setTextAlignment(TextAlignment.CENTER));
-                            // Essayez une méthode alternative de parsing
-                            articleIds = parseSimpleArticleIds(commande.getArticleIds());
+                    try {
+                        if (commande.getQuantites() != null && !commande.getQuantites().trim().isEmpty()) {
+                            quantitesMap = mapper.readValue(commande.getQuantites(),
+                                    new TypeReference<Map<Integer, Integer>>() {});
                         }
+                    } catch (Exception e) {
+                        System.err.println("Erreur conversion quantites: " + e.getMessage());
                     }
 
-                    // Récupération des quantités
-                    if (commande.getQuantites() != null && !commande.getQuantites().isEmpty()) {
-                        try {
-                            // Solution alternative pour format {"quantities": {"1":2, "3":1}}
-                            JsonNode rootNode = mapper.readTree(commande.getQuantites());
-                            if (rootNode.has("quantities")) {
-                                quantitesMap = mapper.convertValue(rootNode.get("quantities"), new TypeReference<Map<Integer, Integer>>() {});
-                            } else {
-                                // Fallback au format simple {"1":2, "3":1}
-                                quantitesMap = mapper.readValue(commande.getQuantites(), new TypeReference<Map<Integer, Integer>>() {});
-                            }
-                        } catch (Exception e) {
-                            document.add(createParagraph("Erreur de format pour les quantités", false, 10)
-                                    .setTextAlignment(TextAlignment.CENTER));
-                            // Essayez une méthode alternative de parsing
-                            quantitesMap = parseSimpleQuantites(commande.getQuantites());
-                        }
-                    }
-
-                    if (!articleIds.isEmpty()) {
+                    if (articleIds.isEmpty()) {
+                        document.add(createParagraph("Aucun article trouvé dans cette commande.", false, 12)
+                                .setTextAlignment(TextAlignment.CENTER)
+                                .setFontColor(ColorConstants.GRAY));
+                    } else {
+                        // Création du tableau
                         float[] columnWidths = {3, 1, 1, 1};
                         Table articlesTable = new Table(columnWidths);
                         articlesTable.setWidth(UnitValue.createPercentValue(100));
-                        articlesTable.setMarginTop(20).setMarginBottom(20);
 
-                        // En-têtes du tableau
+                        // En-têtes
                         articlesTable.addHeaderCell(createHeaderCell("Article"));
                         articlesTable.addHeaderCell(createHeaderCell("Prix Unitaire"));
                         articlesTable.addHeaderCell(createHeaderCell("Quantité"));
@@ -549,31 +550,26 @@ public class FactureController implements Initializable {
 
                         double totalHT = 0;
 
-                        // Remplissage des articles
+                        // Remplissage
                         for (Integer articleId : articleIds) {
-                            try {
-                                Article article = articleService.getArticleById(articleId);
-                                if (article != null) {
-                                    Integer quantite = quantitesMap.getOrDefault(articleId, 0);
-                                    if (quantite > 0) {
-                                        double prixUnitaire = article.getPrix();
-                                        double totalArticle = prixUnitaire * quantite;
-                                        totalHT += totalArticle;
+                            Article article = articleService.getArticleById(articleId);
+                            if (article == null) continue;
 
-                                        articlesTable.addCell(createContentCell(article.getNom()));
-                                        articlesTable.addCell(createContentCell(String.format("%.2f dt", prixUnitaire)));
-                                        articlesTable.addCell(createContentCell(String.valueOf(quantite)));
-                                        articlesTable.addCell(createContentCell(String.format("%.2f dt", totalArticle)));
-                                    }
-                                }
-                            } catch (Exception e) {
-                                document.add(createParagraph("Erreur avec l'article ID " + articleId, false, 10));
-                            }
+                            Integer quantite = quantitesMap.getOrDefault(articleId, 0);
+                            Double prixUnitaire = article.getPrix() != null ? article.getPrix() : 0.0;
+                            Double totalArticle = prixUnitaire * quantite;
+                            totalHT += totalArticle;
+
+                            articlesTable.addCell(createContentCell(article.getNom()));
+                            articlesTable.addCell(createContentCell(String.format("%.2f dt", prixUnitaire)));
+                            articlesTable.addCell(createContentCell(quantite.toString()));
+                            articlesTable.addCell(createContentCell(String.format("%.2f dt", totalArticle)));
                         }
 
                         document.add(articlesTable);
 
-                        // Tableau des totaux
+
+                        // Totals table
                         float[] totalWidths = {3, 1};
                         Table totalTable = new Table(totalWidths);
                         totalTable.setWidth(UnitValue.createPercentValue(50));
@@ -593,21 +589,17 @@ public class FactureController implements Initializable {
                         totalTable.addCell(createTotalCell(String.format("%.2f dt", totalTTC), false));
 
                         document.add(totalTable);
-                    } else {
-                        document.add(createParagraph("Aucun article trouvé dans cette commande.", false, 12)
-                                .setTextAlignment(TextAlignment.CENTER));
                     }
                 } catch (Exception e) {
-                    document.add(createParagraph("Erreur lors du traitement des articles: " + e.getMessage(), false, 12)
+                    document.add(createParagraph("Erreur technique lors de la récupération des articles", false, 12)
                             .setTextAlignment(TextAlignment.CENTER));
+                    System.err.println("Erreur récupération articles commande " + commande.getId());
                     e.printStackTrace();
                 }
-            } else {
-                document.add(createParagraph("Aucune commande associée à cette facture.", false, 12)
-                        .setTextAlignment(TextAlignment.CENTER));
             }
 
-            // Pied de page
+
+            // Footer
             document.add(new Paragraph("\n\n"));
             document.add(new LineSeparator(new SolidLine()));
 
@@ -623,140 +615,563 @@ public class FactureController implements Initializable {
 
         return outputStream.toByteArray();
     }
+*/
 
-    // Méthodes utilitaires
-    private List<Integer> parseSimpleArticleIds(String articleIdsJson) {
-        List<Integer> result = new ArrayList<>();
-        if (articleIdsJson == null || articleIdsJson.trim().isEmpty()) {
-            return result;
-        }
-
+    // Méthode utilitaire pour convertir les articleIds en liste d'entiers
+    private List<Integer> convertArticleIdsToIntList(String articleIdsJson) {
         try {
-            String cleaned = articleIdsJson.replace("[", "").replace("]", "").replace("{", "").replace("}", "").trim();
-            if (!cleaned.isEmpty()) {
-                String[] parts = cleaned.split(",");
-                for (String part : parts) {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(articleIdsJson, new TypeReference<List<Integer>>() {});
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la conversion des articleIds: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+/*
+    private byte[] generatePdfContent(Facture facture) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ObjectMapper mapper = new ObjectMapper();
+
+        // Initialisation du service Article (ajoutez cette ligne si articleService n'est pas déjà déclaré)
+        ArticleService articleService = new ArticleService();
+
+        try (PdfWriter writer = new PdfWriter(outputStream);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf)) {
+
+            // 1. En-tête avec logo
+            try {
+                URL logoUrl = getClass().getResource("/images/logo.jpg");
+                if (logoUrl != null) {
+                    ImageData logoData = ImageDataFactory.create(logoUrl.toURI().toString());
+                    com.itextpdf.layout.element.Image pdfImage = new com.itextpdf.layout.element.Image(logoData)
+                            .setWidth(80)
+                            .setHeight(80)
+                            .setHorizontalAlignment(HorizontalAlignment.RIGHT);
+                    document.add(pdfImage);
+                }
+            } catch (Exception e) {
+                System.err.println("Erreur de logo: " + e.getMessage());
+            }
+
+            // 2. Informations société
+            document.add(new Paragraph("Autol.Ink")
+                    .setFontSize(16)
+                    .setBold());
+            document.add(new Paragraph("123 Rue de l'Innovation\nTunis, Tunisie")
+                    .setFontSize(10));
+            document.add(new Paragraph("Tél: +216 48 004 881\nEmail: contact@autolink.com")
+                    .setFontSize(10)
+                    .setMarginBottom(20));
+
+            // 3. Titre Facture
+            document.add(new Paragraph("FACTURE")
+                    .setFontSize(18)
+                    .setBold()
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setMarginBottom(30));
+
+            // 4. Informations client
+            float[] infoWidths = {2, 3};
+            Table infoTable = new Table(infoWidths);
+
+            infoTable.addCell(createCell("Client:", true));
+            infoTable.addCell(createCell(facture.getClient().getName() + " " + facture.getClient().getLastName(), false));
+
+            System.out.println(facture.getClient().getName());
+
+            infoTable.addCell(createCell("N° Facture:", true));
+            infoTable.addCell(createCell(String.valueOf(facture.getId()), false));
+
+            infoTable.addCell(createCell("Date:", true));
+            infoTable.addCell(createCell(facture.getDatetime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), false));
+
+            document.add(infoTable.setMarginBottom(30));
+
+
+            // 5. Détails articles
+            //Commande commande = facture.getCommande();
+            CommandeService commandeService = new CommandeService(MyDatabase.getInstance().getMyConnection());
+            Commande commande =commandeService.getCommandeById(facture.getId());
+            System.out.println(commande);
+
+            Map<String,Double> articles = new HashMap<>();
+            articles= articleService.getArticleByCommande(commande.getId());
+
+            List<Integer> articleIds = parseArticleIds(commande.getArticleIds());
+            Map<Integer, Integer> quantites = parseQuantites(commande.getQuantites());
+
+            System.out.println(commande.getTotal());
+
+            if (!articleIds.isEmpty()) {
+                document.add(new Paragraph("Détails des articles")
+                        .setBold()
+                        .setMarginBottom(10));
+
+                float[] columnWidths = {3, 1, 1, 1};
+                Table articlesTable = new Table(columnWidths);
+
+                // En-têtes
+                articlesTable.addHeaderCell(createHeaderCell("Article"));
+                articlesTable.addHeaderCell(createHeaderCell("Prix Unitaire"));
+                articlesTable.addHeaderCell(createHeaderCell("Quantité"));
+                articlesTable.addHeaderCell(createHeaderCell("Total"));
+
+                double totalHT = 0;
+
+                for (Integer articleId : articleIds) {
                     try {
-                        result.add(Integer.parseInt(part.trim()));
-                    } catch (NumberFormatException e) {
-                        // Ignorer les entrées invalides
-                    }
-                }
-            }
-        } catch (Exception e) {
-            // Si le parsing échoue, retourner une liste vide
-        }
-        return result;
-    }
+                        Article article = articleService.getArticleById(articleId);
+                        if (article != null) {
+                            int quantite = quantites.getOrDefault(articleId, 1);
+                            double prix = article.getPrix();
+                            double totalArticle = prix * quantite;
+                            totalHT += totalArticle;
 
-    private Map<Integer, Integer> parseSimpleQuantites(String quantitesJson) {
-        Map<Integer, Integer> result = new HashMap<>();
-        if (quantitesJson == null || quantitesJson.trim().isEmpty()) {
-            return result;
-        }
-
-        try {
-            String cleaned = quantitesJson.replace("{", "").replace("}", "").trim();
-            if (!cleaned.isEmpty()) {
-                String[] entries = cleaned.split(",");
-                for (String entry : entries) {
-                    String[] keyValue = entry.split(":");
-                    if (keyValue.length == 2) {
-                        try {
-                            int key = Integer.parseInt(keyValue[0].replace("\"", "").trim());
-                            int value = Integer.parseInt(keyValue[1].trim());
-                            result.put(key, value);
-                        } catch (NumberFormatException e) {
-                            // Ignorer les entrées invalides
+                            articlesTable.addCell(createContentCell(article.getNom()));
+                            articlesTable.addCell(createContentCell(String.format("%.2f dt", prix)));
+                            articlesTable.addCell(createContentCell(String.valueOf(quantite)));
+                            articlesTable.addCell(createContentCell(String.format("%.2f dt", totalArticle)));
                         }
+                    } catch (Exception e) {
+                        System.err.println("Erreur article ID " + articleId + ": " + e.getMessage());
                     }
                 }
-            }
-        } catch (Exception e) {
-            // Si le parsing échoue, retourner une map vide
-        }
-        return result;
-    }
 
-    private Paragraph createParagraph(String text, boolean bold, int fontSize) {
-        String safeText = text != null ? text : "";
-        Paragraph paragraph = new Paragraph(safeText);
-        paragraph.setFontSize(fontSize);
-        if (bold) {
-            paragraph.setBold();
+                document.add(articlesTable);
+
+                // 6. Totaux
+                float[] totalWidths = {3, 1};
+                Table totalTable = new Table(totalWidths);
+                totalTable.setWidth(UnitValue.createPercentValue(40));
+                totalTable.setHorizontalAlignment(HorizontalAlignment.RIGHT);
+
+                double tva = totalHT * 0.2;
+                double totalTTC = totalHT + tva;
+
+                totalTable.addCell(createTotalCell("Total HT:", true));
+                totalTable.addCell(createTotalCell(String.format("%.2f dt", totalHT), false));
+
+                totalTable.addCell(createTotalCell("TVA (20%):", true));
+                totalTable.addCell(createTotalCell(String.format("%.2f dt", tva), false));
+
+                totalTable.addCell(createTotalCell("Total TTC:", true));
+                totalTable.addCell(createTotalCell(String.format("%.2f dt", totalTTC), false));
+
+                document.add(totalTable.setMarginTop(20));
+            }
+
+            // 7. Pied de page
+            document.add(new Paragraph("\n\nMerci pour votre confiance !")
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setItalic());
+
+        } catch (Exception e) {
+            throw new IOException("Erreur lors de la génération du PDF", e);
         }
-        return paragraph;
+
+        return outputStream.toByteArray();
     }
 
     private Cell createCell(String text, boolean bold) {
-        String safeText = text != null ? text : "";
-        Paragraph paragraph = new Paragraph(safeText);
-        if (bold) {
-            paragraph.setBold();
-        }
-        return new Cell().add(paragraph)
-                .setPadding(5)
-                .setBorder(Border.NO_BORDER);
+        Paragraph p = new Paragraph(text);
+        if (bold) p.setBold();
+        return new Cell().add(p).setBorder(Border.NO_BORDER);
     }
 
     private Cell createHeaderCell(String text) {
-        String safeText = text != null ? text : "";
-        return new Cell()
-                .add(new Paragraph(safeText).setBold())
+        return new Cell().add(new Paragraph(text).setBold())
                 .setBackgroundColor(new DeviceRgb(240, 240, 240))
-                .setPadding(5)
                 .setTextAlignment(TextAlignment.CENTER);
     }
 
     private Cell createContentCell(String text) {
-        String safeText = text != null ? text : "";
-        return new Cell()
-                .add(new Paragraph(safeText))
-                .setPadding(5)
+        return new Cell().add(new Paragraph(text))
                 .setTextAlignment(TextAlignment.CENTER);
     }
 
     private Cell createTotalCell(String text, boolean isLabel) {
-        String safeText = text != null ? text : "";
-        Paragraph paragraph = new Paragraph(safeText);
-        if (isLabel) {
-            paragraph.setBold();
-        }
-        return new Cell()
-                .add(paragraph)
-                .setPadding(5)
-                .setBorder(Border.NO_BORDER)
-                .setTextAlignment(isLabel ? TextAlignment.LEFT : TextAlignment.RIGHT);
+        Cell cell = new Cell().add(new Paragraph(text));
+        if (isLabel) cell.setTextAlignment(TextAlignment.RIGHT);
+        return cell;
     }
 
-    public boolean downloadFacture(int factureId) throws SQLException {
+    private List<Integer> parseArticleIds(String json) {
         try {
+            if (json.startsWith("[") && json.endsWith("]")) {
+                return new ObjectMapper().readValue(json, new TypeReference<List<Integer>>() {});
+            }
+            // Cas particulier pour le format "[1]" mal formé
+            String cleaned = json.replace("[", "").replace("]", "").trim();
+            if (!cleaned.isEmpty()) {
+                return Arrays.stream(cleaned.split(","))
+                        .map(String::trim)
+                        .map(Integer::parseInt)
+                        .collect(Collectors.toList());
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur parsing article IDs: " + e.getMessage());
+        }
+        return new ArrayList<>();
+    }
+
+    private Map<Integer, Integer> parseQuantites(String json) {
+        try {
+            if (json.startsWith("{") && json.endsWith("}")) {
+                return new ObjectMapper().readValue(json, new TypeReference<Map<Integer, Integer>>() {});
+            }
+            // Cas particulier pour le format "(\"1\":2)" mal formé
+            String cleaned = json.replace("(", "").replace(")", "")
+                    .replace("\"", "").trim();
+            if (cleaned.contains(":")) {
+                Map<Integer, Integer> map = new HashMap<>();
+                String[] pairs = cleaned.split(",");
+                for (String pair : pairs) {
+                    String[] kv = pair.split(":");
+                    map.put(Integer.parseInt(kv[0].trim()), Integer.parseInt(kv[1].trim()));
+                }
+                return map;
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur parsing quantités: " + e.getMessage());
+        }
+        return new HashMap<>();
+    }
+*/
+
+
+    private byte[] generatePdfContent(Facture facture) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ObjectMapper mapper = new ObjectMapper();
+        ArticleService articleService = new ArticleService();
+
+        try (PdfWriter writer = new PdfWriter(outputStream);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf)) {
+
+            // Style général
+            document.setMargins(50, 50, 50, 50);
+
+            // 1. En-tête avec coordonnées et logo
+            float[] headerWidths = {3, 1};
+            Table headerTable = new Table(headerWidths);
+
+            // Coordonnées de l'entreprise à gauche
+            Paragraph companyInfo = new Paragraph()
+                    .add(new Text("Autol.Ink\n").setBold().setFontSize(14))
+                    .add("123 Rue de l'Innovation\n")
+                    .add("Tunis, Tunisie\n")
+                    .add("Tél: +216 12 345 678\n")
+                    .add("Email: contact@autol.ink.com\n")
+                    .add("Site: www.autol.ink.com");
+
+            headerTable.addCell(new Cell().add(companyInfo).setBorder(Border.NO_BORDER));
+
+            // Logo à droite
+            try {
+                URL logoUrl = getClass().getResource("/images/logo.jpg");
+                if (logoUrl != null) {
+                    ImageData logoData = ImageDataFactory.create(logoUrl.toURI().toString());
+                    com.itextpdf.layout.element.Image pdfImage = new com.itextpdf.layout.element.Image(logoData)
+                            .setWidth(80)
+                            .setHeight(80);
+                    headerTable.addCell(new Cell().add(pdfImage).setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.RIGHT));
+                }
+            } catch (Exception e) {
+                System.err.println("Erreur de logo: " + e.getMessage());
+                headerTable.addCell(new Cell().add(new Paragraph("")).setBorder(Border.NO_BORDER));
+            }
+
+            document.add(headerTable);
+            document.add(new Paragraph().setMarginBottom(20));
+
+            // 2. Titre Facture centré avec ligne de séparation
+            document.add(new Paragraph("Facture")
+                    .setFontSize(18)
+                    .setBold()
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setMarginBottom(5));
+
+            // Ligne de séparation après le titre
+            document.add(new LineSeparator(new SolidLine()).setMarginBottom(20));
+
+            // 3. Informations facture alignées à gauche
+            Paragraph infoParagraph = new Paragraph()
+                    .add(new Text("Date: ").setBold())
+                    .add(facture.getDatetime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + "\n")
+                    .add(new Text("Client: ").setBold())
+                    .add(facture.getClient().getName() + "\n")
+                    .add(new Text("N° Facture: ").setBold())
+                    .add(String.valueOf(facture.getId()) + "\n")
+                    .add(new Text("Montant total: ").setBold())
+                    .add(String.format("%.0f dt", facture.getMontant()))
+                    .setMarginBottom(30);
+
+            document.add(infoParagraph);
+
+            // 4. Section Articles
+            document.add(new Paragraph("Articles")
+                    .setBold()
+                    .setMarginBottom(10));
+
+            // 5. Tableau des articles avec style amélioré
+            CommandeService commandeService = new CommandeService(MyDatabase.getInstance().getMyConnection());
+            Commande commande = commandeService.getCommandeById(facture.getId());
+            List<Integer> articleIds = parseArticleIds(commande.getArticleIds());
+            Map<Integer, Integer> quantites = parseQuantites(commande.getQuantites());
+
+            if (!articleIds.isEmpty()) {
+                float[] columnWidths = {3, 1, 1, 1};
+                Table articlesTable = new Table(columnWidths);
+                articlesTable.setHorizontalAlignment(HorizontalAlignment.CENTER);
+                articlesTable.setMarginBottom(20);
+
+                // Couleurs définies comme DeviceRgb
+                DeviceRgb headerBgColor = new DeviceRgb(70, 130, 180); // Bleu acier
+                DeviceRgb whiteColor = new DeviceRgb(255, 255, 255);
+                DeviceRgb lightBlueColor = new DeviceRgb(240, 248, 255);
+
+                // En-têtes du tableau avec style amélioré
+                articlesTable.addHeaderCell(
+                        new Cell().add(new Paragraph("Nom").setBold())
+                                .setBackgroundColor(headerBgColor)
+                                .setFontColor(whiteColor)
+                                .setTextAlignment(TextAlignment.CENTER)
+                                .setPadding(5));
+
+                articlesTable.addHeaderCell(
+                        new Cell().add(new Paragraph("Prix unitaire").setBold())
+                                .setBackgroundColor(headerBgColor)
+                                .setFontColor(whiteColor)
+                                .setTextAlignment(TextAlignment.CENTER)
+                                .setPadding(5));
+
+                articlesTable.addHeaderCell(
+                        new Cell().add(new Paragraph("Quantité").setBold())
+                                .setBackgroundColor(headerBgColor)
+                                .setFontColor(whiteColor)
+                                .setTextAlignment(TextAlignment.CENTER)
+                                .setPadding(5));
+
+                articlesTable.addHeaderCell(
+                        new Cell().add(new Paragraph("Total").setBold())
+                                .setBackgroundColor(headerBgColor)
+                                .setFontColor(whiteColor)
+                                .setTextAlignment(TextAlignment.CENTER)
+                                .setPadding(5));
+
+                double totalHT = 0;
+
+                // Alternance de couleurs pour les lignes
+                boolean alternate = false;
+
+                for (Integer articleId : articleIds) {
+                    try {
+                        Article article = articleService.getArticleById(articleId);
+                        if (article != null) {
+                            int quantite = quantites.getOrDefault(articleId, 1);
+                            double prix = article.getPrix();
+                            double totalArticle = prix * quantite;
+                            totalHT += totalArticle;
+
+                            DeviceRgb rowColor = alternate ? lightBlueColor : whiteColor;
+                            alternate = !alternate;
+
+                            articlesTable.addCell(
+                                    new Cell().add(new Paragraph(article.getNom()))
+                                            .setBackgroundColor(rowColor)
+                                            .setPadding(5)
+                                            .setTextAlignment(TextAlignment.LEFT));
+
+                            articlesTable.addCell(
+                                    new Cell().add(new Paragraph(String.format("%.0f dt", prix)))
+                                            .setBackgroundColor(rowColor)
+                                            .setPadding(5)
+                                            .setTextAlignment(TextAlignment.CENTER));
+
+                            articlesTable.addCell(
+                                    new Cell().add(new Paragraph(String.valueOf(quantite)))
+                                            .setBackgroundColor(rowColor)
+                                            .setPadding(5)
+                                            .setTextAlignment(TextAlignment.CENTER));
+
+                            articlesTable.addCell(
+                                    new Cell().add(new Paragraph(String.format("%.0f dt", totalArticle)))
+                                            .setBackgroundColor(rowColor)
+                                            .setPadding(5)
+                                            .setTextAlignment(TextAlignment.CENTER));
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Erreur article ID " + articleId + ": " + e.getMessage());
+                    }
+                }
+
+                document.add(articlesTable);
+
+                // 6. Totaux sous forme de paragraphes
+                Paragraph totalsParagraph = new Paragraph()
+                        .add(new Text("Total des produits (HT): ").setBold())
+                        .add(String.format("%.0f dt\n", totalHT))
+                        .add(new Text("TVA (20%): ").setBold())
+                        .add(String.format("%.0f dt\n", totalHT * 0.2))
+                        .add(new Text("Montant total TTC: ").setBold())
+                        .add(String.format("%.0f dt", totalHT * 1.2))
+                        .setMarginTop(15)
+                        .setMarginBottom(30);
+
+                document.add(totalsParagraph);
+            }
+
+            // Ligne horizontale avant le pied de page
+            document.add(new LineSeparator(new SolidLine()).setMarginTop(20).setMarginBottom(20));
+
+            // 7. Pied de page centré
+            document.add(new Paragraph("Merci pour votre confiance !")
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setItalic());
+
+            document.add(new Paragraph("Pour toute question, contactez-nous à contact@Autol.Ink.com")
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setFontSize(10));
+
+        } catch (Exception e) {
+            throw new IOException("Erreur lors de la génération du PDF", e);
+        }
+
+        return outputStream.toByteArray();
+    }
+
+    // Méthodes utilitaires existantes conservées telles quelles
+    private Cell createCell(String text, boolean bold) {
+        Paragraph p = new Paragraph(text);
+        if (bold) p.setBold();
+        return new Cell().add(p).setBorder(Border.NO_BORDER);
+    }
+
+    private Cell createHeaderCell(String text) {
+        return new Cell().add(new Paragraph(text).setBold())
+                .setBackgroundColor(new DeviceRgb(240, 240, 240))
+                .setTextAlignment(TextAlignment.CENTER);
+    }
+
+    private Cell createContentCell(String text) {
+        return new Cell().add(new Paragraph(text))
+                .setTextAlignment(TextAlignment.CENTER);
+    }
+
+    private Cell createTotalCell(String text, boolean isLabel) {
+        Cell cell = new Cell().add(new Paragraph(text));
+        if (isLabel) cell.setTextAlignment(TextAlignment.RIGHT);
+        return cell;
+    }
+
+    private List<Integer> parseArticleIds(String json) {
+        try {
+            if (json.startsWith("[") && json.endsWith("]")) {
+                return new ObjectMapper().readValue(json, new TypeReference<List<Integer>>() {});
+            }
+            String cleaned = json.replace("[", "").replace("]", "").trim();
+            if (!cleaned.isEmpty()) {
+                return Arrays.stream(cleaned.split(","))
+                        .map(String::trim)
+                        .map(Integer::parseInt)
+                        .collect(Collectors.toList());
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur parsing article IDs: " + e.getMessage());
+        }
+        return new ArrayList<>();
+    }
+
+    private Map<Integer, Integer> parseQuantites(String json) {
+        try {
+            if (json.startsWith("{") && json.endsWith("}")) {
+                return new ObjectMapper().readValue(json, new TypeReference<Map<Integer, Integer>>() {});
+            }
+            String cleaned = json.replace("(", "").replace(")", "")
+                    .replace("\"", "").trim();
+            if (cleaned.contains(":")) {
+                Map<Integer, Integer> map = new HashMap<>();
+                String[] pairs = cleaned.split(",");
+                for (String pair : pairs) {
+                    String[] kv = pair.split(":");
+                    map.put(Integer.parseInt(kv[0].trim()), Integer.parseInt(kv[1].trim()));
+                }
+                return map;
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur parsing quantités: " + e.getMessage());
+        }
+        return new HashMap<>();
+    }
+
+    private Paragraph createParagraph(String text, boolean bold, int fontSize) {
+        Paragraph paragraph = new Paragraph(text);
+        paragraph.setFontSize(fontSize);
+        if (bold) paragraph.setBold();
+        return paragraph;
+    }
+
+    public boolean downloadFacture(int factureId) {
+        try {
+            // 1. Get invoice data
             Facture facture = factureService.getFactureById(factureId);
             if (facture == null) {
-                AlertUtils.showErrorAlert("Erreur", "La facture #" + factureId , " n'existe pas");
+                AlertUtils.showErrorAlert("Erreur", "Facture introuvable",
+                        "La facture #" + factureId + " n'existe pas dans la base de données.");
                 return false;
             }
 
+            // 2. Generate PDF
             byte[] pdfContent = generatePdfContent(facture);
-            String fileName = "facture_" + factureId + ".pdf";
-            Path downloadsPath = Paths.get(System.getProperty("user.home"), "Downloads");
 
-            if (!Files.exists(downloadsPath)) {
-                Files.createDirectories(downloadsPath);
+            // 3. Save to downloads folder
+            String fileName = "facture_" + factureId + "_" +
+                    LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE) + ".pdf";
+            Path downloadsPath = Paths.get(System.getProperty("user.home"), "Downloads", fileName);
+
+            // Création du fichier avec vérification
+            if (Files.exists(downloadsPath)) {
+                Files.delete(downloadsPath);
+            }
+            Files.write(downloadsPath, pdfContent);
+
+            // 4. Ouverture du fichier
+            if (Desktop.isDesktopSupported()) {
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(1000); // Attente pour permettre l'écriture complète
+                        Desktop.getDesktop().open(downloadsPath.toFile());
+                    } catch (Exception e) {
+                        Platform.runLater(() ->
+                                AlertUtils.showErrorAlert("Erreur", "Impossible d'ouvrir le PDF",
+                                        "Le PDF a été généré mais n'a pas pu s'ouvrir automatiquement.\n" +
+                                                "Emplacement: " + downloadsPath));
+                    }
+                }).start();
             }
 
-            Path filePath = downloadsPath.resolve(fileName);
-            Files.write(filePath, pdfContent, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-
-            // Solution 1 (2 arguments)
-            AlertUtils.showInformationAlert("Succès", "La facture a été sauvegardée dans:\n" + filePath);
+            // 5. Notification
+            Platform.runLater(() -> {
+                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                successAlert.setTitle("Téléchargement réussi");
+                successAlert.setHeaderText(null);
+                successAlert.setContentText("La facture a été sauvegardée dans:\n" + downloadsPath);
+                successAlert.showAndWait();
+            });
 
             return true;
+
         } catch (Exception e) {
-            AlertUtils.showErrorAlert("Erreur", "Échec du téléchargement: " , e.getMessage());
-            throw new SQLException("Erreur de téléchargement", e);
+            Platform.runLater(() ->
+                    AlertUtils.showErrorAlert("Erreur", "Erreur technique",
+                            "Erreur lors de la génération du PDF:\n" + e.getMessage()));
+            e.printStackTrace();
+            return false;
         }
     }
+
 
     @FXML
     private void filterByDate() {
@@ -778,5 +1193,4 @@ public class FactureController implements Initializable {
             updateDisplayedFactures();
         }
     }
-
 }
