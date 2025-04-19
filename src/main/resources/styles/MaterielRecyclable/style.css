@@ -17,6 +17,15 @@
     -fx-text-fill: #a05a2c;
 }
 
+/* Style pour la toolbar */
+.tool-bar {
+    -fx-background-color: #f5f5f5;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #a05a2c;
+    -fx-border-width: 1;
+    -fx-alignment: CENTER;
+}
 
 /* Champs de texte et zones de texte */
 .text-field, .text-area {
@@ -43,8 +52,6 @@
 
 /* Bouton "Choisir un fichier" */
 .button {
-
-
     -fx-font-weight: bold;
     -fx-border-radius: 5px;
     -fx-padding: 8px 12px;

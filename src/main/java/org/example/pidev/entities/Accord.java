@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public class Accord {
 
-    private Integer id;
+    private int id;
     private LocalDateTime dateCreation;
     private LocalDateTime dateReception;
     private Float quantity;
