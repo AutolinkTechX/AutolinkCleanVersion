@@ -280,6 +280,7 @@ public class Panier implements Initializable {
         return new Image(getClass().getResourceAsStream("/images/logo.jpg"));
     }
 
+
     private Label createItemNameLabel(List_article item) {
         Label label = new Label(item.getArticle().getNom());
         label.getStyleClass().add("cart-item-name");
@@ -379,7 +380,6 @@ public class Panier implements Initializable {
             showAlert("Erreur", "Échec d'enregistrement", Alert.AlertType.ERROR);
         }
     }
-
 
     private void showPaymentPopup() {
         try {
