@@ -53,7 +53,7 @@ public class DashboardEntreprise {
             }
         });
 
-       /* statBtn.setOnAction(event -> {
+        statBtn.setOnAction(event -> {
             try {
                 loadStatistiquesInMainPane();
             } catch (IOException e) {
@@ -62,7 +62,7 @@ public class DashboardEntreprise {
             }
         });
 
-        calendarBtn.setOnAction(event -> {
+       /* calendarBtn.setOnAction(event -> {
             try {
                 loadCalendrierInMainPane();
             } catch (IOException e) {
@@ -105,6 +105,33 @@ public class DashboardEntreprise {
         }
     }
 
+
+
+    private void loadStatistiquesInMainPane() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/StatistiquesView.fxml"));
+        Parent statView = loader.load();
+
+        // Passer l'entreprise si nécessaire
+        StatistiqueMaterielController controller = loader.getController();
+        controller.setEntreprise(SessionManager.getCurrentEntreprise()); // à implémenter dans le controller statistiques si besoin
+
+        mainBorderPane.setCenter(statView);
+
+        // Gestion du redimensionnement (comme pour les autres vues)
+        if (statView instanceof Region) {
+            Region region = (Region) statView;
+            region.setPrefWidth(mainBorderPane.getWidth() - 235);
+            region.setPrefHeight(mainBorderPane.getHeight());
+
+            mainBorderPane.widthProperty().addListener((obs, oldWidth, newWidth) -> {
+                region.setPrefWidth(newWidth.doubleValue() - 235);
+            });
+
+            mainBorderPane.heightProperty().addListener((obs, oldHeight, newHeight) -> {
+                region.setPrefHeight(newHeight.doubleValue());
+            });
+        }
+    }
 
 
 
