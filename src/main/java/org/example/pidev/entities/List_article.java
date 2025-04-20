@@ -51,4 +51,15 @@ public class List_article {
     public void setUser(User user) {
         this.user = user;
     }
+
+    @Override
+    public String toString() {
+        return "List_article{" +
+                "id=" + id +
+                ", quantite=" + quantite +
+                ", prixUnitaire=" + prixUnitaire +
+                ", article=" + article +
+                ", user=" + user +
+                '}';
+    }
 }

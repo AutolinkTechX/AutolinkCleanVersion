@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.pidev.entities.Commande;
 import org.example.pidev.entities.User;
+import org.example.pidev.utils.MyDatabase;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -225,6 +227,79 @@ public class CommandeService {
     }
 
 
+    public Map<LocalDate, List<String>> getCommandesGroupedByDateWithClientNames() throws SQLException {
+        Map<LocalDate, List<String>> commandesByDate = new HashMap<>();
+
+        String sql = "SELECT DATE(c.date_commande) as commande_date, " +
+                "CONCAT(cl.last_name, ' ', cl.name) as client_name " +
+                "FROM commande c " +
+                "JOIN user cl ON c.client_id = cl.id " +
+                "ORDER BY c.date_commande DESC";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                LocalDate date = rs.getDate("commande_date").toLocalDate();
+                String clientName = rs.getString("client_name");
+
+                commandesByDate.computeIfAbsent(date, k -> new ArrayList<>()).add(clientName);
+            }
+        }
+
+        return commandesByDate;
+    }
 
 
+    public List<Commande> getAllCommandees() {
+        try {
+            List<Commande> commandes = new ArrayList<>();
+            String query = "SELECT c.id, c.date_commande, c.total, u.name as client_name, u.last_name " +
+                    "FROM commande c " +
+                    "JOIN user u ON c.client_id = u.id ";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query);
+                 ResultSet resultSet = preparedStatement.executeQuery()) {
+
+                while (resultSet.next()) {
+                    Commande commande = new Commande();
+                    commande.setId(resultSet.getInt("id"));
+
+                    Timestamp timestamp = resultSet.getTimestamp("date_commande");
+                    if (timestamp != null) {
+                        commande.setDateCommande(timestamp.toLocalDateTime());
+                    }
+
+                    User client = new User();
+                    client.setName(resultSet.getString("client_name"));
+                    client.setLastName(resultSet.getString("last_name"));
+                    commande.setClient(client);
+
+                    commande.setTotal(resultSet.getDouble("total"));
+
+                    commandes.add(commande);
+                }
+            }
+            return commandes;
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to retrieve commandes", e);
+        }
+    }
+
+    private Commande mapResultSetToCommandee(ResultSet resultSet) throws SQLException {
+        Commande commande = new Commande();
+        commande.setId(resultSet.getInt("id"));
+
+        Timestamp timestamp = resultSet.getTimestamp("date_commande");
+        LocalDateTime dateCommande = timestamp != null ? timestamp.toLocalDateTime() : null;
+        commande.setDateCommande(dateCommande);
+
+        User client = new User();
+        client.setName(resultSet.getString("client_name"));
+        commande.setClient(client);
+
+        commande.setTotal(resultSet.getDouble("total"));
+
+        return commande;
+    }
 }

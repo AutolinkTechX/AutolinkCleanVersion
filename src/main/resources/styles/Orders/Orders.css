@@ -147,3 +147,28 @@
     -fx-text-fill: #495057;
     -fx-padding: 0 15px;
 }
+
+
+/* Style pour le bouton icône */
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 5;
+}
+
+.icon-button:hover {
+    -fx-background-color: #f0f0f0;
+    -fx-cursor: hand;
+}
+
+/* Style pour les dates avec commandes */
+.date-cell-with-orders {
+    -fx-background-color: #ffcccc;
+    -fx-border-color: #ff9999;
+}
+
+.date-cell-with-orders:hover {
+    -fx-background-color: #ffaaaa;
+}

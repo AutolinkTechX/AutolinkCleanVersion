@@ -50,6 +50,11 @@ public class AdminDashboardController {
     private VBox contentArea;
     @FXML private StackPane contentPane;
 
+    @FXML private MenuButton ServicesMenuButton;
+    @FXML private MenuItem OrdersMenuItem;
+    @FXML private MenuItem CalendarMenuItem;
+    @FXML private MenuItem StatisticsMenuItem;
+
     @FXML
     private void initialize() {
         System.out.println("AdminDashboardController initialized");
@@ -121,6 +126,37 @@ public class AdminDashboardController {
         // Set the custom graphic as the button's graphic
         UsersMenuButton.setGraphic(usersCustomGraphic);
         UsersMenuButton.setText(""); // Clear the text since we're using a custom graphic
+
+        // Add CSS class to the ServicesMenuButton
+        ServicesMenuButton.getStyleClass().add("menu-button");
+
+        // Apply styling to the Services menu items
+        OrdersMenuItem.getStyleClass().add("menu-item");
+        CalendarMenuItem.getStyleClass().add("menu-item");
+        StatisticsMenuItem.getStyleClass().add("menu-item");
+
+
+        // Create a custom graphic for the Services menu button
+        HBox servicesCustomGraphic = new HBox(5);
+        servicesCustomGraphic.setStyle("-fx-alignment: center-left;");
+
+        // Create the Services icon
+        ImageView servicesIcon = new ImageView();
+        servicesIcon.setImage(new Image(getClass().getResourceAsStream("/icons/Orders.png")));
+        servicesIcon.setFitHeight(25.0);
+        servicesIcon.setFitWidth(39.0);
+        servicesIcon.setPreserveRatio(true);
+
+        // Create the "Services" text label
+        Label servicesLabel = new Label("Services");
+        servicesLabel.setStyle("-fx-text-fill: white; -fx-font-size: 20px;");
+
+        // Add elements to the HBox
+        servicesCustomGraphic.getChildren().addAll(servicesIcon, servicesLabel);
+
+        // Set the custom graphic
+        ServicesMenuButton.setGraphic(servicesCustomGraphic);
+        ServicesMenuButton.setText(""); // Clear the text since we're using a custom graphic
     }
 
     @FXML
@@ -320,6 +356,19 @@ public class AdminDashboardController {
         }
     }
 
+    public void handleCalendrier(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/CalendarView.fxml"));
+            Parent calendarView = loader.load();
+
+            contentArea.getChildren().clear();
+            contentArea.getChildren().add(calendarView);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Gérer l'erreur (peut-être afficher un message à l'utilisateur)
+        }
+    }
 
     @FXML
     private void handleOrders() {

@@ -103,4 +103,20 @@ public class Article {
     public void setFavories(List<Favorie> favories) {
         this.favories = favories;
     }
+
+    @Override
+    public String toString() {
+        return "Article{" +
+                "id=" + id +
+                ", description='" + description + '\'' +
+                ", nom='" + nom + '\'' +
+                ", category='" + category + '\'' +
+                ", image='" + image + '\'' +
+                ", datecreation=" + datecreation +
+                ", prix=" + prix +
+                ", quantitestock=" + quantitestock +
+                ", listarticles=" + listarticles +
+                ", favories=" + favories +
+                '}';
+    }
 }
