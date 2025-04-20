@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controllers.UserCommentController">
+    <!-- Label for blog title -->
+    <Label fx:id="blogTitle" style="-fx-font-weight: bold; -fx-font-size: 18px;"/>
+
+    <!-- Text area for adding new comments -->
+    <TextArea fx:id="commentTextArea" promptText="Ajouter un commentaire" />
+
+    <!-- Button for adding a new comment -->
+    <Button text="Ajouter le commentaire" onAction="#handleAddComment" />
+
+    <!-- VBox to hold all the comments -->
+    <VBox fx:id="commentList"/>
+</VBox>

@@ -17,6 +17,8 @@ import org.example.pidev.services.PanierService;
 import org.example.pidev.utils.AlertUtils;
 import org.example.pidev.utils.MyDatabase;
 import org.example.pidev.utils.SessionManager;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import java.io.IOException;
 import java.net.URL;
@@ -43,6 +45,8 @@ public class ClientDashboardController {
     @FXML private MenuItem logoutMenuItem;
 
     private User currentUser;
+    private static final Logger logger = Logger.getLogger(ClientDashboardController.class.getName());
+
 
     @FXML
     public void initialize() {
@@ -75,6 +79,7 @@ public class ClientDashboardController {
         favoriteBadge.setTranslateY(-10);
         cartBadge.setTranslateX(10);
         cartBadge.setTranslateY(-10);
+        blogBtn.setOnAction(this::handleBlogButton);
 
         // Set button actions
         favoriteIconButton.setOnAction(this::handleFavoritesButton);
@@ -85,6 +90,30 @@ public class ClientDashboardController {
     @FXML
     private void handleProductsButton(ActionEvent event) {
         loadProductsView();
+    }
+
+
+    @FXML
+    private void handleBlogButton(ActionEvent event) {
+        try {
+            // Load the blog view FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/UserBlogView.fxml"));
+            Node blogView = loader.load();
+
+            // Get the controller and set the current user
+            UserBlogController blogController = loader.getController();
+            blogController.setCurrentUser(this.currentUser);
+
+            // Clear the content area and add the blog view
+            contentArea.getChildren().clear();
+            contentArea.getChildren().add(blogView);
+
+        } catch (IOException e) {
+            // Show error message if loading fails
+            AlertUtils.showErrorAlert("Error", "Failed to load blog",
+                    "Could not load the blog view. Please try again.");
+            logger.log(Level.SEVERE, "Failed to load blog view", e);
+        }
     }
 
     @FXML

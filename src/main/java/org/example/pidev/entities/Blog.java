@@ -1,29 +1,55 @@
 package org.example.pidev.entities;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Date;
+import java.util.Objects;
 
 public class Blog {
 
-    private Long id;
+    private int id;
     private String title;
     private String content;
-    private java.time.LocalDate publishedDate;
-    private List<Comment> comments = new ArrayList<>();
+    private Date publishedDate;
     private String image;
-    private int likes = 0;
-    private int dislikes = 0;
+    private int likes;
+    private int dislikes;
 
-    // Constructor
-    public Blog() {
+
+
+
+    // Default constructor
+    public Blog() {}
+
+    // Constructor for the basic fields
+    public Blog(String title, String content, Date publishedDate) {
+        this.title = title;
+        this.content = content;
+        this.publishedDate = publishedDate;
+        this.image = ""; // Default empty string for image
+        this.likes = 0;  // Default 0 likes
+        this.dislikes = 0; // Default 0 dislikes
     }
 
-    // Getters and Setters
-    public Long getId() {
+    // Constructor with all fields (used for full data creation)
+    public Blog(int id, String title, String content, Date publishedDate, String image, int likes, int dislikes) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.publishedDate = publishedDate;
+        this.image = image;
+        this.likes = likes;
+        this.dislikes = dislikes;
+    }
+
+    // Getters and Setters for all fields
+    public int getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public String getImage() {
+        return image;
+    }
+
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -43,17 +69,15 @@ public class Blog {
         this.content = content;
     }
 
-    public java.time.LocalDate getPublishedDate() {
+    public Date getPublishedDate() {
         return publishedDate;
     }
 
-    public void setPublishedDate(java.time.LocalDate publishedDate) {
+    public void setPublishedDate(Date publishedDate) {
         this.publishedDate = publishedDate;
     }
 
-    public String getImage() {
-        return image;
-    }
+
 
     public void setImage(String image) {
         this.image = image;
@@ -75,15 +99,35 @@ public class Blog {
         this.dislikes = dislikes;
     }
 
-    public List<Comment> getComments() {
-        return comments;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Blog)) return false;
+        Blog blog = (Blog) o;
+        return id == blog.id &&
+                likes == blog.likes &&
+                dislikes == blog.dislikes &&
+                Objects.equals(title, blog.title) &&
+                Objects.equals(content, blog.content) &&
+                Objects.equals(publishedDate, blog.publishedDate) &&
+                Objects.equals(image, blog.image);
     }
 
-    public void addComment(Comment comment) {
-        comments.add(comment);
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, content, publishedDate, image, likes, dislikes);
     }
 
-    public void removeComment(Comment comment) {
-        comments.remove(comment);
+    @Override
+    public String toString() {
+        return "Blog{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", publishedDate=" + publishedDate +
+                ", image='" + image + '\'' +
+                ", likes=" + likes +
+                ", dislikes=" + dislikes +
+                '}';
     }
 }

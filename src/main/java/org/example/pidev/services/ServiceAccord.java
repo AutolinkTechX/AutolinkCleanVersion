@@ -10,7 +10,9 @@ import org.example.pidev.utils.MyDatabase;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ServiceAccord implements IService<Accord> {
 
@@ -210,5 +212,172 @@ public class ServiceAccord implements IService<Accord> {
         }
         return accords;
     }
+
+
+    public Accord getAccordById(String idAccord) {
+        Accord accord = null;
+        String query = "SELECT a.*, m.id as materiel_id, m.name as materiel_name, " +
+                "m.description as materiel_description, m.date_creation as materiel_datecreation, " +
+                "m.type_materiel as materiel_type, m.image as materiel_image, " +
+                "m.statut as materiel_statut, e.id as entreprise_id, " +
+                "e.company_name, e.email, e.phone " +
+                "FROM accord a " +
+                "JOIN materiel_recyclable m ON a.materiel_recyclable_id = m.id " +
+                "JOIN entreprise e ON a.entreprise_id = e.id " +
+                "WHERE a.id = ?";
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, idAccord);
+            ResultSet rs = statement.executeQuery();
+
+            if (rs.next()) {
+                accord = new Accord();
+                accord.setId(rs.getInt("id"));
+                accord.setDateCreation(rs.getTimestamp("date_creation").toLocalDateTime());
+
+                if (rs.getTimestamp("date_reception") != null) {
+                    accord.setDateReception(rs.getTimestamp("date_reception").toLocalDateTime());
+                }
+
+                // Créer l'objet MaterielRecyclable associé
+                MaterielRecyclable materiel = new MaterielRecyclable();
+                materiel.setId(rs.getInt("materiel_id"));
+                materiel.setName(rs.getString("materiel_name"));
+                materiel.setDescription(rs.getString("materiel_description"));
+                materiel.setDateCreation(rs.getTimestamp("materiel_datecreation").toLocalDateTime());
+                materiel.setType_materiel(Type_materiel.valueOf(rs.getString("materiel_type")));
+
+                // Récupération de l'image du matériel
+                String imagePath = rs.getString("materiel_image");
+                if (imagePath != null && !imagePath.isEmpty()) {
+                    materiel.setImage(imagePath);
+                }
+
+                String statutStr = rs.getString("materiel_statut");
+                if (statutStr != null) {
+                    materiel.setStatut(StatutEnum.valueOf(statutStr));
+                }
+
+                // Créer l'objet Entreprise associé
+                Entreprise entreprise = new Entreprise();
+                entreprise.setId(rs.getInt("entreprise_id"));
+                entreprise.setCompanyName(rs.getString("company_name"));
+                entreprise.setEmail(rs.getString("email"));
+                entreprise.setPhone(rs.getString("phone"));
+
+                materiel.setEntreprise(entreprise);
+                accord.setMaterielRecyclable(materiel);
+                accord.setEntreprise(entreprise);
+            }
+
+            rs.close();
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return accord;
+    }
+
+    public Map<String, Integer> getNombreDemandesParClient(int entrepriseId) throws SQLException {
+        Map<String, Integer> demandesParClient = new HashMap<>();
+        String sql = "SELECT u.name, u.last_name, COUNT(*) as nombre_demandes " +
+                "FROM accord a " +
+                "JOIN materiel_recyclable m ON a.materiel_recyclable_id = m.id " +
+                "JOIN user u ON m.user_id = u.id " +
+                "WHERE m.entreprise_id = ? " +
+                "GROUP BY u.name, u.last_name";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, entrepriseId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                String clientName = rs.getString("name") + " " + rs.getString("last_name");
+                int nombreDemandes = rs.getInt("nombre_demandes");
+                demandesParClient.put(clientName, nombreDemandes);
+            }
+        }
+        return demandesParClient;
+    }
+
+    public double getTempsMoyenTraitement(int entrepriseId) throws SQLException {
+        String sql = "SELECT AVG(TIMESTAMPDIFF(HOUR, a.date_creation, a.date_reception)) as temps_moyen " +
+                "FROM accord a " +
+                "JOIN materiel_recyclable m ON a.materiel_recyclable_id = m.id " +
+                "WHERE m.entreprise_id = ? " +
+                "AND a.date_reception IS NOT NULL " +
+                "AND m.statut IN ('valide', 'refuse')";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, entrepriseId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getDouble("temps_moyen");
+            }
+        }
+        return 0.0;
+    }
+
+    public Map<String, Long> getMateriauxEnAttenteLongue(int entrepriseId) throws SQLException {
+        Map<String, Long> materiauxEnAttente = new HashMap<>();
+        String sql = "SELECT m.name, TIMESTAMPDIFF(HOUR, m.datecreation, NOW()) as temps_attente " +
+                "FROM materiel_recyclable m " +
+                "WHERE m.entreprise_id = ? " +
+                "AND m.statut = 'en_attente' " +
+                "AND TIMESTAMPDIFF(HOUR, m.datecreation, NOW()) > 24 " + // Plus de 24h en attente
+                "ORDER BY temps_attente DESC " +
+                "LIMIT 10"; // Limiter aux 10 plus longs temps d'attente
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, entrepriseId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                String nomMateriel = rs.getString("name");
+                long tempsAttente = rs.getLong("temps_attente");
+                materiauxEnAttente.put(nomMateriel, tempsAttente);
+            }
+        }
+        return materiauxEnAttente;
+    }
+
+
+       public int getNombreDemandesParEntreprise(int entrepriseId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM accord WHERE entreprise_id = ?";
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        stmt.setInt(1, entrepriseId);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+        return 0;
+    }
+
+
+
+    public Map<String, Integer> getNombreDemandesParStatut(int idEntrepriseConnectee) throws SQLException {
+        Map<String, Integer> result = new HashMap<>();
+        String sql = "SELECT m.statut, COUNT(*) as total " +
+                "FROM materiel_recyclable m " +
+                "JOIN accord a ON a.materiel_recyclable_id  = m.id " +
+                "WHERE m.entreprise_id = ? " +
+                "GROUP BY m.statut";
+
+        PreparedStatement pstmt = connection.prepareStatement(sql);
+        pstmt.setInt(1, idEntrepriseConnectee);
+        ResultSet rs = pstmt.executeQuery();
+
+        while (rs.next()) {
+            result.put(rs.getString("statut"), rs.getInt("total"));
+        }
+
+        return result;
+    }
+
+
+
 }
 
