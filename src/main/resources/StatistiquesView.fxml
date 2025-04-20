@@ -19,8 +19,8 @@
             <padding>
                 <Insets top="5" right="8" bottom="5" left="8"/>
             </padding>
-            <Label text="Total des demandes" style="-fx-font-size: 14px; -fx-text-fill: #666666;"/>
-            <Label fx:id="totalDemandesLabel" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2196F3;"/>
+            <Label text="Total des demandes" style="-fx-font-size: 14px; -fx-text-fill: #b5602c;"/>
+            <Label fx:id="totalDemandesLabel" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #b5602c;"/>
         </VBox>
 
         <VBox style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 0);"
@@ -28,8 +28,8 @@
             <padding>
                 <Insets top="5" right="8" bottom="5" left="8"/>
             </padding>
-            <Label text="Temps moyen de traitement" style="-fx-font-size: 14px; -fx-text-fill: #666666;"/>
-            <Label fx:id="tempsMoyenLabel" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #4CAF50;"/>
+            <Label text="Temps moyen de traitement" style="-fx-font-size: 14px; -fx-text-fill: #b5602c;"/>
+            <Label fx:id="tempsMoyenLabel" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #b5602c;"/>
         </VBox>
     </HBox>
 
@@ -82,7 +82,7 @@
         <Button fx:id="telechargerButton"
                 text="📥 Télécharger les statistiques"
                 onAction="#telechargerCapture"
-                style="-fx-background-color: #1976D2; -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10 25 10 25; -fx-background-radius: 10;"/>
+                style="-fx-background-color: #b5602c; -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10 25 10 25; -fx-background-radius: 10;"/>
     </HBox>
 
 </AnchorPane>
