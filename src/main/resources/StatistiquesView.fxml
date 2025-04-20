@@ -10,79 +10,53 @@
 
 <AnchorPane fx:id="statistiquesPane" xmlns:fx="http://javafx.com/fxml"
             fx:controller="org.example.pidev.controllers.StatistiqueMaterielController"
-            style="-fx-background-color: #f5f5f5;">
+            style="-fx-background-color: #f5f5f5;"
+            stylesheets="@styles/Stat/statfarah.css">
 
-    <!-- Cartes statistiques réduites -->
-    <HBox spacing="30" layoutX="50" layoutY="30" alignment="CENTER">
+    <!-- Section supérieure : Cartes de statistiques -->
+    <HBox layoutX="50" layoutY="30" spacing="30" alignment="CENTER">
+        <!-- Carte Total des demandes -->
         <VBox style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 0);"
-              prefWidth="500" prefHeight="65" alignment="CENTER">
-            <padding>
-                <Insets top="5" right="8" bottom="5" left="8"/>
-            </padding>
-            <Label text="Total des demandes" style="-fx-font-size: 14px; -fx-text-fill: #b5602c;"/>
-            <Label fx:id="totalDemandesLabel" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #b5602c;"/>
+              prefWidth="400" prefHeight="80" alignment="CENTER">
+            <padding><Insets top="5" right="8" bottom="5" left="8"/></padding>
+            <Label text="Total des demandes" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #b5602c;"/>
+            <Label fx:id="totalDemandesLabel" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #d17942;"/>
         </VBox>
 
-        <VBox style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 0);"
-              prefWidth="450" prefHeight="65" alignment="CENTER">
-            <padding>
-                <Insets top="5" right="8" bottom="5" left="8"/>
-            </padding>
-            <Label text="Temps moyen de traitement" style="-fx-font-size: 14px; -fx-text-fill: #b5602c;"/>
-            <Label fx:id="tempsMoyenLabel" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #b5602c;"/>
-        </VBox>
+    <VBox style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 0);"
+          prefWidth="400" prefHeight="80">
+        <HBox.margin>
+            <Insets left="190"/> <!-- 👈 Décalage vers la droite -->
+        </HBox.margin>
+        <padding><Insets top="5" right="2" bottom="5" left="8"/></padding>
+        <Label text="Temps moyen de traitement" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #b5602c;"/>
+        <Label fx:id="tempsMoyenLabel" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #d17942;"/>
+    </VBox>
     </HBox>
 
-    <!-- Graphiques -->
-    <HBox spacing="30" layoutX="50" layoutY="120" alignment="CENTER">
-        <!-- Pie Chart agrandi -->
-        <VBox style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 0);"
-              prefWidth="500" prefHeight="280" alignment="CENTER">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </padding>
-            <PieChart fx:id="pieChartStatut" prefWidth="460" prefHeight="260"/>
+    <!-- PieChart décalé à droite -->
+    <VBox layoutX="300" layoutY="120" alignment="CENTER"> <!-- Augmenté de 200 à 300 -->
+        <VBox style="-fx-background-color: white; -fx-background-radius: 12;"
+              prefWidth="500" prefHeight="350">
+            <padding><Insets top="20" right="20" bottom="20" left="27"/></padding>
+            <PieChart fx:id="pieChartStatut" prefWidth="450" prefHeight="300" legendVisible="true" title="Répartition des demandes par statut"/>
         </VBox>
+    </VBox>
 
-        <!-- Bar Chart attente -->
-        <VBox style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 0);"
-              prefWidth="540" prefHeight="280" alignment="CENTER">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </padding>
-            <BarChart fx:id="barChartAttente" prefWidth="460" prefHeight="250">
-                <xAxis>
-                    <CategoryAxis label="Matériaux" style="-fx-font-size: 13px;"/>
-                </xAxis>
-                <yAxis>
-                    <NumberAxis label="Heures d'attente" style="-fx-font-size: 13px;"/>
-                </yAxis>
-            </BarChart>
-        </VBox>
-    </HBox>
-
-    <!-- Histogramme clients : plus bas, labels clairs -->
-    <VBox layoutX="50" layoutY="430" prefWidth="1000" prefHeight="270" alignment="CENTER"
+    <!-- Section inférieure : Histogramme compact -->
+    <VBox layoutX="50" layoutY="480" prefWidth="1000" prefHeight="200"
           style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 0);">
-        <padding>
-            <Insets top="10" right="10" bottom="10" left="10"/>
-        </padding>
-        <BarChart fx:id="barChartDemandes" prefWidth="940" prefHeight="250">
-            <xAxis>
-                <CategoryAxis label="Clients" style="-fx-font-size: 14px;"/>
-            </xAxis>
-            <yAxis>
-                <NumberAxis label="Nombre de demandes" style="-fx-font-size: 14px;"/>
-            </yAxis>
+        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+        <BarChart fx:id="barChartDemandes" prefWidth="960" prefHeight="430">
+            <xAxis><CategoryAxis label="Clients" style="-fx-font-size: 12px;"/></xAxis>
+            <yAxis><NumberAxis label="Nombre de demandes" style="-fx-font-size: 12px;"/></yAxis>
         </BarChart>
     </VBox>
 
-    <!-- Bouton téléchargement plus bas et à droite -->
-    <HBox layoutX="830" layoutY="720" alignment="CENTER_RIGHT" prefWidth="300">
-        <Button fx:id="telechargerButton"
-                text="📥 Télécharger les statistiques"
-                onAction="#telechargerCapture"
-                style="-fx-background-color: #b5602c; -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 10 25 10 25; -fx-background-radius: 10;"/>
-    </HBox>
-
+    <!-- Bouton Téléchargement -->
+    <Button fx:id="telechargerButton" layoutX="1050" layoutY="710"
+            text="📥 Télécharger les statistiques"
+            onAction="#telechargerCapture"
+            style="-fx-background-color: #b5602c; -fx-text-fill: white; -fx-font-size: 14px;
+                   -fx-font-weight: bold; -fx-padding: 8 8 8 8; -fx-background-radius: 8;"/>
 </AnchorPane>

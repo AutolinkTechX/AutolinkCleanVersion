@@ -1,5 +1,6 @@
 package org.example.pidev.controllers;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
@@ -69,11 +70,13 @@ public class StatistiqueMaterielController implements Initializable {
             afficherPieChartStatut();
             /*afficherPieChartType();*/
             afficherBarChartDemandes();
-            afficherBarChartAttente();
+           /* afficherBarChartAttente();*/
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
+
 
 
     private int getEntrepriseConnecteeId() {
@@ -110,7 +113,7 @@ public class StatistiqueMaterielController implements Initializable {
         tempsMoyenLabel.setText("Temps moyen de traitement : " + tempsFormate);
     }
 
-    private void afficherPieChartStatut() throws SQLException {
+    /*private void afficherPieChartStatut() throws SQLException {
         int idEntrepriseConnectee = getEntrepriseConnecteeId(); // méthode fictive à définir ou variable à utiliser
         Map<String, Integer> data = serviceA.getNombreDemandesParStatut(idEntrepriseConnectee);
 
@@ -123,7 +126,27 @@ public class StatistiqueMaterielController implements Initializable {
 
         pieChartStatut.setData(chartData);
         pieChartStatut.setTitle("Répartition par Statut");
+    }*/
+
+    private void afficherPieChartStatut() throws SQLException {
+        int idEntrepriseConnectee = getEntrepriseConnecteeId();
+        Map<String, Integer> data = serviceA.getNombreDemandesParStatut(idEntrepriseConnectee);
+
+        ObservableList<PieChart.Data> chartData = FXCollections.observableArrayList();
+
+        // Création des données du PieChart
+        for (Map.Entry<String, Integer> entry : data.entrySet()) {
+            String label = entry.getKey() + " (" + entry.getValue() + ")";
+            chartData.add(new PieChart.Data(label, entry.getValue()));
+        }
+
+        // Affecter les données sans redéfinir de couleurs
+        pieChartStatut.setData(chartData);
+
+        // ⚠️ Ne rien faire ici pour que JavaFX garde ses couleurs automatiques pour les slices et la légende
     }
+
+
 
    /* private void afficherPieChartType() throws SQLException {
         Map<String, Integer> data = service.getNombreDemandesParType();
@@ -157,7 +180,7 @@ public class StatistiqueMaterielController implements Initializable {
             // Personnalisation des couleurs des barres
             for (XYChart.Data<String, Number> data : series.getData()) {
                 Node node = data.getNode();
-                node.setStyle("-fx-bar-fill: #2196F3;");
+                node.setStyle("-fx-bar-fill: #d17942;");
             }
 
         } catch (SQLException e) {
@@ -171,7 +194,7 @@ public class StatistiqueMaterielController implements Initializable {
         }
     }
 
-    private void afficherBarChartAttente() {
+    /*private void afficherBarChartAttente() {
         try {
             Map<String, Long> materiauxEnAttente = serviceA.getMateriauxEnAttenteLongue(entreprise.getId());
 
@@ -202,7 +225,7 @@ public class StatistiqueMaterielController implements Initializable {
             alert.setContentText("Une erreur est survenue lors du chargement des données : " + e.getMessage());
             alert.showAndWait();
         }
-    }
+    }*/
 
    /*private void afficherEvolutionDemandesParMois() throws SQLException {
         Map<String, Integer> data = serviceA.getNombreDemandesParMois();
@@ -227,42 +250,44 @@ public class StatistiqueMaterielController implements Initializable {
         // Masquer le bouton avant de prendre la capture
         telechargerButton.setVisible(false);
 
-        // Prendre un snapshot de tout le conteneur de la page (sans le bouton)
+        // Prendre un snapshot de tout le conteneur (sans le bouton)
         WritableImage image = statistiquesPane.snapshot(new SnapshotParameters(), null);
 
-        // Générer le nom de fichier avec la date du jour
+        // Nom de base avec date
         String date = java.time.LocalDate.now().toString(); // format YYYY-MM-DD
-        String fileName = "statistiques-" + date + ".png";
+        String baseName = "statistiques-" + date;
+        String extension = ".png";
 
-        // Créer un objet FileChooser pour choisir l'emplacement d'enregistrement
+        // Configurer FileChooser
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Enregistrer les statistiques");
-        fileChooser.setInitialFileName(fileName);
+        fileChooser.setInitialFileName(baseName + extension);
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image PNG", "*.png"));
 
-        // Afficher la boîte de dialogue pour choisir l'emplacement
-        File file = fileChooser.showSaveDialog(statistiquesPane.getScene().getWindow());
+        // Afficher la boîte de dialogue de sauvegarde
+        File chosenFile = fileChooser.showSaveDialog(statistiquesPane.getScene().getWindow());
 
-        if (file != null) {
-            // Vérifier si un fichier avec le même nom existe déjà
-            File parentDirectory = file.getParentFile();
-            String baseName = file.getName();
-            int i = 1;
-            while (new File(parentDirectory, baseName).exists()) {
-                // Si le fichier existe déjà, ajouter un suffixe numérique au nom du fichier
-                baseName = fileName.substring(0, fileName.lastIndexOf("."))
-                        + "(" + i + ").png";
-                i++;
+        if (chosenFile != null) {
+            File parentDir = chosenFile.getParentFile();
+            String finalName = baseName + extension;
+            File finalFile = new File(parentDir, finalName);
+            int count = 1;
+
+            // Tant qu'un fichier existe déjà, on ajoute un suffixe (1), (2), etc.
+            while (finalFile.exists()) {
+                finalName = baseName + "(" + count + ")" + extension;
+                finalFile = new File(parentDir, finalName);
+                count++;
             }
 
-            // Enregistrer l'image avec le nom généré
+            // Enregistrer l'image
             try {
-                ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", new File(parentDirectory, baseName));
+                ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", finalFile);
 
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Téléchargement réussi");
                 alert.setHeaderText(null);
-                alert.setContentText("La page des statistiques a été enregistrée sous :\n" + baseName);
+                alert.setContentText("Statistiques enregistrées sous :\n" + finalFile.getName());
                 alert.showAndWait();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -274,7 +299,8 @@ public class StatistiqueMaterielController implements Initializable {
             }
         }
 
-        // Rendre le bouton visible après la capture
+        // Réafficher le bouton
         telechargerButton.setVisible(true);
     }
+
 }
