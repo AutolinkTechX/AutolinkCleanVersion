@@ -9,12 +9,12 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" stylesheets="@styles/MaterielRecyclable/style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controllers.AjouterMaterielRecyclable">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" stylesheets="@styles/MaterielRecyclable/style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controllers.ModifierMaterielRecyclable">
 
     <VBox layoutX="27.0" layoutY="14.0" spacing="10">
         <!-- Titre -->
         <HBox spacing="10">
-            <Label fx:id="titleLabel" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #a05a2c;" text="Ajouter un Matériau" />
+            <Label fx:id="titleLabel" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #a05a2c;" text="Modifier le Matériau" />
         </HBox>
 
         <!-- Nom -->
@@ -45,7 +45,7 @@
         <!-- Image -->
         <Label style="-fx-font-weight: bold;" text="Image" />
         <HBox spacing="10">
-            <Button fx:id="chooseImageButton" text="Choisir une image" onAction="#chooseImage"/>
+            <Button fx:id="chooseImageButton" text="Choisir une nouvelle image" onAction="#chooseImage"/>
             <Label fx:id="imageLabel" contentDisplay="CENTER" graphicTextGap="8.0" text="Aucun fichier choisi" />
         </HBox>
         <Label fx:id="imageErrorLabel" style="-fx-text-fill: red; -fx-font-weight: bold;" visible="false" />
@@ -53,7 +53,7 @@
         <!-- Boutons -->
         <HBox spacing="10" alignment="CENTER">
             <Button fx:id="saveButton" style="-fx-background-color: #a05a2c; -fx-text-fill: white; -fx-font-weight: bold;" text="Enregistrer" onAction="#saveMateriel"/>
-
+            <Button fx:id="cancelButton" style="-fx-background-color: #666666; -fx-text-fill: white; -fx-font-weight: bold;" text="Annuler" onAction="#cancel"/>
         </HBox>
     </VBox>
 

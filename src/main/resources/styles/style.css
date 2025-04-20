@@ -74,7 +74,7 @@
 
 /* Style du conteneur central */
 .container {
-    -fx-background-color: #ffffff;
+   /* -fx-background-color: #ffffff;*/
     -fx-background-radius: 20;
     -fx-border-color: #ccc;
     -fx-border-width: 1px;
@@ -88,7 +88,7 @@
 }
 
 .container {
-    -fx-border-color: blue;
+   /* -fx-border-color: blue;*/
     -fx-border-width: 2px;
 }
 /* Login Button Styling */

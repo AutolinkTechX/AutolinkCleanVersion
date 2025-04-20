@@ -4,10 +4,12 @@ import org.example.pidev.Enum.StatutEnum;
 import org.example.pidev.Enum.Type_materiel;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MaterielRecyclable {
 
-    private Integer id;
+    private int id;
     private String name;
     private String description;
     private LocalDateTime dateCreation;
@@ -16,6 +18,7 @@ public class MaterielRecyclable {
     private StatutEnum statut;
     private Entreprise entreprise;
     private User user;
+    /*   private List<MaterielRecyclable> materiels = new ArrayList<>();*/
 
 
 
@@ -28,18 +31,18 @@ public class MaterielRecyclable {
         this.dateCreation = dateCreation;
         this.type_materiel = type_materiel;
         this.image = image;
-        this.statut = StatutEnum.EN_ATTENTE;
+        this.statut = StatutEnum.en_attente;
         this.entreprise = entreprise;
-       /* this.user = user;*/
+        /* this.user = user;*/
     }
 
     public MaterielRecyclable(){}
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -71,8 +74,8 @@ public class MaterielRecyclable {
         return type_materiel;
     }
 
-    public void setType_materiel(String typeMateriel) {
-        this.type_materiel = type_materiel;
+    public void setType_materiel(Type_materiel typeMateriel) {
+        this.type_materiel = typeMateriel;
     }
 
     public String getImage() {
@@ -99,13 +102,13 @@ public class MaterielRecyclable {
         this.entreprise = entreprise;
     }
 
-   /* public User getUser() {
+    public User getUser() {
         return user;
     }
 
     public void setUser(User user) {
         this.user = user;
-    }*/
+    }
 
 
 

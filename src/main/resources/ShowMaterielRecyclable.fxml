@@ -4,15 +4,68 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.geometry.Pos?>
 
-<VBox spacing="10" stylesheets="@styles/MaterielRecyclable/style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controllers.ShowMaterielRecyclable">
-    <ScrollPane fitToWidth="true">
-        <!-- Use spaces (no commas or Insets()) -->
-        <FlowPane fx:id="materielContainer" hgap="20" vgap="20">
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.pidev.controllers.ShowMaterielRecyclable"
+            stylesheets="@styles/MaterielRecyclable/style.css"
+            prefWidth="1200" minWidth="800" prefHeight="700" minHeight="600">
+
+
+    <!-- ✅ CONTENU PRINCIPAL -->
+    <center>
+        <VBox spacing="15" alignment="TOP_CENTER" prefWidth="1500">
             <padding>
-                <Insets bottom="10" left="10" right="10" top="10" />
+                <Insets top="15" right="20" bottom="15" left="20"/>
             </padding>
-        </FlowPane>
 
-    </ScrollPane>
-</VBox>
+            <!-- Titre -->
+            <HBox alignment="CENTER">
+                <Label text="LISTE DES MATÉRIAUX RECYCLABLES"
+                       style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #a05a2c;" />
+            </HBox>
+
+            <!-- Barre de recherche et filtres -->
+            <VBox spacing="8" styleClass="search-section">
+                <ToolBar style="-fx-background-color: #f5f5f5; -fx-background-radius: 10; -fx-border-color: #a05a2c;">
+                    <Label text="Recherche:" style="-fx-text-fill: #a05a2c;" />
+                    <TextField fx:id="searchField" promptText="Rechercher par nom..."
+                               style="-fx-pref-width: 250; -fx-background-radius: 20;" />
+
+                    <Region HBox.hgrow="ALWAYS" />
+
+                    <Label text="Trier par date:" style="-fx-text-fill: #a05a2c;" />
+                    <ComboBox fx:id="dateSortComboBox" style="-fx-pref-width: 150;" />
+
+                    <Label text="Filtrer par statut:" style="-fx-text-fill: #a05a2c;" />
+                    <ComboBox fx:id="statusFilterComboBox" style="-fx-pref-width: 150;" />
+
+                    <Button fx:id="resetButton" text="Réinitialiser" style="-fx-background-color: #a05a2c; -fx-text-fill: white;" />
+                    <Button fx:id="addButton" text="Ajouter" style="-fx-background-color: #a05a2c; -fx-text-fill: white;" />
+                </ToolBar>
+            </VBox>
+
+            <!-- Liste des cartes -->
+            <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+                <FlowPane fx:id="materielContainer" hgap="20" vgap="15" alignment="CENTER">
+                    <padding>
+                        <Insets bottom="15" left="20" right="20" top="15" />
+                    </padding>
+                </FlowPane>
+            </ScrollPane>
+        </VBox>
+    </center>
+</BorderPane>
+
