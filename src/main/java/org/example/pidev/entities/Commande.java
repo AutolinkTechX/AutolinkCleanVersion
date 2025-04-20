@@ -105,4 +105,17 @@ public class Commande {
             throw new RuntimeException("Erreur lors de la conversion des quantités en Map : " + e.getMessage(), e);
         }
     }
+
+    @Override
+    public String toString() {
+        return "Commande{" +
+                "id=" + id +
+                ", dateCommande=" + dateCommande +
+                ", modePaiement='" + modePaiement + '\'' +
+                ", total=" + total +
+                ", client=" + client +
+                ", articleIds='" + articleIds + '\'' +
+                ", quantites='" + quantites + '\'' +
+                '}';
+    }
 }

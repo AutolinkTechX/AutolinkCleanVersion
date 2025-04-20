@@ -1,0 +1,183 @@
+/* Base styles */
+.root {
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+    -fx-base: #f5f5f5;
+    -fx-background-color: #f5f5f5;
+}
+
+/* Header styles */
+.header-box {
+    -fx-padding: 8px 15px;
+    -fx-background-color: #e5b394; /* Nouvelle couleur beige rosé */
+    -fx-background-radius: 0 0 15px 15px; /* Arrondi seulement en bas */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 0, 2, 0, 1);
+    -fx-max-height: 45px; /* Hauteur réduite */
+    -fx-border-color: #d49a73; /* Bordure légèrement plus foncée */
+    -fx-border-width: 0 0 1px 0; /* Bordure seulement en bas */
+    -fx-alignment: center;
+    -fx-spacing: 20px;
+    -fx-max-width: 1000px; /* Largeur réduite */
+}
+
+/* Pour centrer le header dans le BorderPane */
+BorderPane > .top {
+    -fx-alignment: center;
+    -fx-padding: 10px 0 0 0;
+    -fx-background-color: transparent;
+}
+
+/* Navigation buttons */
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #5D4037; /* Brun foncé */
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 5px 10px;
+    -fx-border-radius: 5px;
+}
+
+.nav-button:hover {
+    -fx-background-color: rgba(0,0,0,0.05);
+    -fx-text-fill: #3E2723; /* Brun plus foncé */
+}
+
+/* Today button */
+.today-button {
+    -fx-background-color: #d49a73; /* Ton légèrement plus foncé que le header */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 5px 15px;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 0, 2, 0, 1);
+}
+
+.today-button:hover {
+    -fx-background-color: #c08a6a;
+}
+
+/* Combo boxes */
+.combo-box {
+    -fx-background-color: white;
+    -fx-border-color: #BCAAA4; /* Brun très clair */
+    -fx-border-radius: 3px;
+    -fx-padding: 5px;
+    -fx-font-size: 14px;
+}
+
+.combo-box .list-cell {
+    -fx-padding: 5px 10px;
+    -fx-text-fill: #3E2723; /* Brun foncé */
+}
+
+.combo-box .arrow {
+    -fx-background-color: #5D4037; /* Brun moyen */
+}
+
+/* Month year label */
+.month-year-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #3E2723; /* Brun foncé */
+    -fx-padding: 10px 0;
+    -fx-alignment: center;
+}
+
+/* Calendar container */
+.calendar-container {
+    -fx-padding: 20px;
+    -fx-alignment: top-center;
+    -fx-background-color: transparent;
+}
+
+/* Calendar grid */
+.calendar-grid {
+    -fx-hgap: 5px;
+    -fx-vgap: 5px;
+    -fx-padding: 10px;
+    -fx-alignment: center;
+    -fx-background-color: white;
+    -fx-border-radius: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 1);
+}
+
+/* Calendar headers (day names) */
+.calendar-header {
+    -fx-font-weight: bold;
+    -fx-text-fill: #5D4037; /* Brun moyen */
+    -fx-font-size: 14px;
+    -fx-alignment: center;
+    -fx-pref-width: 100px;
+    -fx-pref-height: 40px;
+    -fx-background-color: #EFEBE9; /* Beige très clair */
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+}
+
+/* Calendar day cells */
+.calendar-day {
+    -fx-alignment: top-center;
+    -fx-pref-width: 100px;
+    -fx-pref-height: 80px;
+    -fx-background-color: white;
+    -fx-border-color: #EEEEEE;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+    -fx-padding: 5px;
+    -fx-border-width: 1px;
+}
+
+.calendar-day:hover {
+    -fx-background-color: #FAFAFA;
+}
+
+/* Current day highlight */
+.current-day {
+    -fx-background-color: #D7CCC8; /* Beige clair */
+    -fx-border-color: #5D4037; /* Brun moyen */
+    -fx-border-width: 2px;
+    -fx-text-fill: #3E2723; /* Brun foncé */
+}
+
+/* Day number indicator */
+.day-number {
+    -fx-font-size: 14px;
+    -fx-text-fill: #5D4037; /* Brun moyen */
+    -fx-font-weight: bold;
+}
+
+/* Event indicator */
+.event-indicator {
+    -fx-fill: #8D6E63; /* Brun moyen clair */
+    -fx-stroke: #5D4037; /* Brun moyen */
+    -fx-stroke-width: 1px;
+}
+
+/* Commande label */
+.commande-label {
+    -fx-font-size: 10px;
+    -fx-text-fill: #3E2723; /* Brun foncé */
+    -fx-padding: 2px 4px;
+    -fx-background-color: #EFEBE9; /* Beige très clair */
+    -fx-background-radius: 3px;
+    -fx-border-color: #D7CCC8; /* Beige clair */
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+    -fx-max-width: 90px;
+    -fx-wrap-text: true;
+    -fx-alignment: center;
+}
+
+/* Scroll bar styling */
+.scroll-bar:horizontal, .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #BCAAA4; /* Brun très clair */
+    -fx-background-radius: 5em;
+}

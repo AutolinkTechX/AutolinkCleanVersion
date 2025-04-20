@@ -196,18 +196,38 @@ public class Favorie implements Initializable {
 
     private ImageView createArticleImageView(Article article) {
         ImageView imageView = new ImageView();
+        Image image;
+
         try {
-            Image image;
-            if (article.getImage().startsWith("http")) {
+            if (article.getImage().startsWith("http") || article.getImage().startsWith("file:")) {
                 image = new Image(article.getImage(), true);
             } else {
-                InputStream imageStream = getClass().getResourceAsStream(article.getImage());
-                image = new Image(imageStream);
+                // Essayez de charger comme ressource interne
+                InputStream is = getClass().getResourceAsStream(article.getImage());
+                if (is != null) {
+                    image = new Image(is);
+                } else {
+                    // Essayez de charger comme fichier externe
+                    image = new Image("file:" + article.getImage(), true);
+                }
             }
+
+            image.errorProperty().addListener((obs, wasError, isNowError) -> {
+                if (isNowError) {
+                    // Charger l'image par défaut en cas d'erreur
+                    imageView.setImage(new Image(getClass().getResourceAsStream("/images/logo.jpg")));
+                }
+            });
+
             imageView.setImage(image);
         } catch (Exception e) {
-            imageView.setImage(new Image(getClass().getResourceAsStream("/images/logo.jpg")));
+            try {
+                imageView.setImage(new Image(getClass().getResourceAsStream("/images/logo.jpg")));
+            } catch (Exception ex) {
+                System.err.println("Erreur de chargement de l'image par défaut : " + ex.getMessage());
+            }
         }
+
         imageView.setFitWidth(120);
         imageView.setFitHeight(120);
         imageView.setPreserveRatio(true);

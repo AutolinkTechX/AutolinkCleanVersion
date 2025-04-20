@@ -3,6 +3,11 @@ package org.example.pidev.controllers;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.ColorConstants;
@@ -52,6 +57,7 @@ import org.example.pidev.utils.SessionManager;
 import org.hibernate.service.spi.ServiceException;
 
 import java.awt.*;
+import java.io.ByteArrayInputStream;
 import java.util.logging.Logger;
 
 import java.io.ByteArrayOutputStream;
@@ -210,8 +216,6 @@ public class FactureController implements Initializable {
             e.printStackTrace();
         }
     }
-
-
 
     private int getTotalCartQuantity() throws SQLException {
         List<List_article> panier = panierService.getPanierForUser(currentUser.getId());
@@ -841,6 +845,7 @@ public class FactureController implements Initializable {
 */
 
 
+
     private byte[] generatePdfContent(Facture facture) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ObjectMapper mapper = new ObjectMapper();
@@ -853,7 +858,7 @@ public class FactureController implements Initializable {
             // Style général
             document.setMargins(50, 50, 50, 50);
 
-            // 1. En-tête avec coordonnées et logo
+            // 1. En-tête avec logo et informations société
             float[] headerWidths = {3, 1};
             Table headerTable = new Table(headerWidths);
 
@@ -862,7 +867,7 @@ public class FactureController implements Initializable {
                     .add(new Text("Autol.Ink\n").setBold().setFontSize(14))
                     .add("123 Rue de l'Innovation\n")
                     .add("Tunis, Tunisie\n")
-                    .add("Tél: +216 12 345 678\n")
+                    .add("Tél: +216 48 004 881\n")
                     .add("Email: contact@autol.ink.com\n")
                     .add("Site: www.autol.ink.com");
 
@@ -887,7 +892,7 @@ public class FactureController implements Initializable {
             document.add(new Paragraph().setMarginBottom(20));
 
             // 2. Titre Facture centré avec ligne de séparation
-            document.add(new Paragraph("Facture")
+            document.add(new Paragraph("FACTURE")
                     .setFontSize(18)
                     .setBold()
                     .setTextAlignment(TextAlignment.CENTER)
@@ -896,144 +901,194 @@ public class FactureController implements Initializable {
             // Ligne de séparation après le titre
             document.add(new LineSeparator(new SolidLine()).setMarginBottom(20));
 
-            // 3. Informations facture alignées à gauche
-            Paragraph infoParagraph = new Paragraph()
+            // 3. Tableau pour informations client + QR Code (même ligne)
+            float[] clientInfoWidths = {3, 1}; // 3/4 pour info client, 1/4 pour QR code
+            Table clientInfoTable = new Table(clientInfoWidths);
+            clientInfoTable.setWidth(UnitValue.createPercentValue(100));
+            clientInfoTable.setMarginBottom(30);
+
+            // Cellule de gauche: Informations client et facture
+            Paragraph clientInfo = new Paragraph()
                     .add(new Text("Date: ").setBold())
-                    .add(facture.getDatetime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + "\n")
-                    .add(new Text("Client: ").setBold())
-                    .add(facture.getClient().getName() + "\n")
+                    .add(facture.getDatetime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) + "\n")
                     .add(new Text("N° Facture: ").setBold())
                     .add(String.valueOf(facture.getId()) + "\n")
-                    .add(new Text("Montant total: ").setBold())
-                    .add(String.format("%.0f dt", facture.getMontant()))
-                    .setMarginBottom(30);
+                    .add(new Text("Client: ").setBold())
+                    .add(facture.getClient().getName() + " " + facture.getClient().getLastName() + "\n")
+                    .add(new Text("Email: ").setBold())
+                    .add(facture.getClient().getEmail() != null ? facture.getClient().getEmail() : "Non spécifié" + "\n")
+                    .add(new Text("\n Montant total: ").setBold())
+                    .add(String.format("%.2f dt", facture.getMontant()));
 
-            document.add(infoParagraph);
+            clientInfoTable.addCell(new Cell().add(clientInfo).setBorder(Border.NO_BORDER));
+
+            // Cellule de droite: QR Code
+            try {
+                String qrContent = generateQRContent(facture);
+                byte[] qrCodeBytes = generateQRCodeImage(qrContent, 150, 150);
+                ImageData qrImageData = ImageDataFactory.create(qrCodeBytes);
+                com.itextpdf.layout.element.Image qrImage = new com.itextpdf.layout.element.Image(qrImageData)
+                        .setWidth(100)
+                        .setHeight(100)
+                        .setHorizontalAlignment(HorizontalAlignment.RIGHT);
+
+                // Texte sous le QR code
+                Paragraph qrText = new Paragraph("Scanner pour vérifier\nla facture")
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setFontSize(8)
+                        .setMarginTop(5);
+
+                // Remplacement de VBox par Div
+                Div qrContainer = new Div();
+                qrContainer.add(qrImage);
+                qrContainer.add(qrText);
+                qrContainer.setTextAlignment(TextAlignment.RIGHT);
+
+                clientInfoTable.addCell(new Cell().add(qrContainer).setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.RIGHT));
+            } catch (Exception e) {
+                System.err.println("Erreur génération QR code: " + e.getMessage());
+                clientInfoTable.addCell(new Cell().add(new Paragraph("QR Code non généré")).setBorder(Border.NO_BORDER));
+            }
+
+            document.add(clientInfoTable);
 
             // 4. Section Articles
-            document.add(new Paragraph("Articles")
+            document.add(new Paragraph("Détails des articles")
                     .setBold()
                     .setMarginBottom(10));
 
             // 5. Tableau des articles avec style amélioré
-            CommandeService commandeService = new CommandeService(MyDatabase.getInstance().getMyConnection());
-            Commande commande = commandeService.getCommandeById(facture.getId());
-            List<Integer> articleIds = parseArticleIds(commande.getArticleIds());
-            Map<Integer, Integer> quantites = parseQuantites(commande.getQuantites());
+            try {
+                CommandeService commandeService = new CommandeService(MyDatabase.getInstance().getMyConnection());
+                Commande commande = commandeService.getCommandeById(facture.getId());
+                List<Integer> articleIds = parseArticleIds(commande.getArticleIds());
+                Map<Integer, Integer> quantites = parseQuantites(commande.getQuantites());
 
-            if (!articleIds.isEmpty()) {
-                float[] columnWidths = {3, 1, 1, 1};
-                Table articlesTable = new Table(columnWidths);
-                articlesTable.setHorizontalAlignment(HorizontalAlignment.CENTER);
-                articlesTable.setMarginBottom(20);
+                if (!articleIds.isEmpty()) {
+                    float[] columnWidths = {3, 1, 1, 1};
+                    Table articlesTable = new Table(columnWidths);
+                    articlesTable.setWidth(UnitValue.createPercentValue(100));
+                    articlesTable.setMarginBottom(20);
 
-                // Couleurs définies comme DeviceRgb
-                DeviceRgb headerBgColor = new DeviceRgb(70, 130, 180); // Bleu acier
-                DeviceRgb whiteColor = new DeviceRgb(255, 255, 255);
-                DeviceRgb lightBlueColor = new DeviceRgb(240, 248, 255);
+                    // Couleurs
+                    DeviceRgb headerBgColor = new DeviceRgb(70, 130, 180); // Bleu acier
+                    DeviceRgb whiteColor = new DeviceRgb(255, 255, 255);
+                    DeviceRgb lightBlueColor = new DeviceRgb(240, 248, 255);
 
-                // En-têtes du tableau avec style amélioré
-                articlesTable.addHeaderCell(
-                        new Cell().add(new Paragraph("Nom").setBold())
-                                .setBackgroundColor(headerBgColor)
-                                .setFontColor(whiteColor)
-                                .setTextAlignment(TextAlignment.CENTER)
-                                .setPadding(5));
+                    // En-têtes du tableau
+                    articlesTable.addHeaderCell(
+                            new Cell().add(new Paragraph("Article").setBold())
+                                    .setBackgroundColor(headerBgColor)
+                                    .setFontColor(whiteColor)
+                                    .setTextAlignment(TextAlignment.CENTER)
+                                    .setPadding(5));
 
-                articlesTable.addHeaderCell(
-                        new Cell().add(new Paragraph("Prix unitaire").setBold())
-                                .setBackgroundColor(headerBgColor)
-                                .setFontColor(whiteColor)
-                                .setTextAlignment(TextAlignment.CENTER)
-                                .setPadding(5));
+                    articlesTable.addHeaderCell(
+                            new Cell().add(new Paragraph("Prix unitaire").setBold())
+                                    .setBackgroundColor(headerBgColor)
+                                    .setFontColor(whiteColor)
+                                    .setTextAlignment(TextAlignment.CENTER)
+                                    .setPadding(5));
 
-                articlesTable.addHeaderCell(
-                        new Cell().add(new Paragraph("Quantité").setBold())
-                                .setBackgroundColor(headerBgColor)
-                                .setFontColor(whiteColor)
-                                .setTextAlignment(TextAlignment.CENTER)
-                                .setPadding(5));
+                    articlesTable.addHeaderCell(
+                            new Cell().add(new Paragraph("Quantité").setBold())
+                                    .setBackgroundColor(headerBgColor)
+                                    .setFontColor(whiteColor)
+                                    .setTextAlignment(TextAlignment.CENTER)
+                                    .setPadding(5));
 
-                articlesTable.addHeaderCell(
-                        new Cell().add(new Paragraph("Total").setBold())
-                                .setBackgroundColor(headerBgColor)
-                                .setFontColor(whiteColor)
-                                .setTextAlignment(TextAlignment.CENTER)
-                                .setPadding(5));
+                    articlesTable.addHeaderCell(
+                            new Cell().add(new Paragraph("Total").setBold())
+                                    .setBackgroundColor(headerBgColor)
+                                    .setFontColor(whiteColor)
+                                    .setTextAlignment(TextAlignment.CENTER)
+                                    .setPadding(5));
 
-                double totalHT = 0;
+                    double totalHT = 0;
+                    boolean alternate = false;
 
-                // Alternance de couleurs pour les lignes
-                boolean alternate = false;
+                    for (Integer articleId : articleIds) {
+                        try {
+                            Article article = articleService.getArticleById(articleId);
+                            if (article != null) {
+                                int quantite = quantites.getOrDefault(articleId, 1);
+                                double prix = article.getPrix();
+                                double totalArticle = prix * quantite;
+                                totalHT += totalArticle;
 
-                for (Integer articleId : articleIds) {
-                    try {
-                        Article article = articleService.getArticleById(articleId);
-                        if (article != null) {
-                            int quantite = quantites.getOrDefault(articleId, 1);
-                            double prix = article.getPrix();
-                            double totalArticle = prix * quantite;
-                            totalHT += totalArticle;
+                                DeviceRgb rowColor = alternate ? lightBlueColor : whiteColor;
+                                alternate = !alternate;
 
-                            DeviceRgb rowColor = alternate ? lightBlueColor : whiteColor;
-                            alternate = !alternate;
+                                articlesTable.addCell(
+                                        new Cell().add(new Paragraph(article.getNom()))
+                                                .setBackgroundColor(rowColor)
+                                                .setPadding(5)
+                                                .setTextAlignment(TextAlignment.LEFT));
 
-                            articlesTable.addCell(
-                                    new Cell().add(new Paragraph(article.getNom()))
-                                            .setBackgroundColor(rowColor)
-                                            .setPadding(5)
-                                            .setTextAlignment(TextAlignment.LEFT));
+                                articlesTable.addCell(
+                                        new Cell().add(new Paragraph(String.format("%.2f dt", prix)))
+                                                .setBackgroundColor(rowColor)
+                                                .setPadding(5)
+                                                .setTextAlignment(TextAlignment.CENTER));
 
-                            articlesTable.addCell(
-                                    new Cell().add(new Paragraph(String.format("%.0f dt", prix)))
-                                            .setBackgroundColor(rowColor)
-                                            .setPadding(5)
-                                            .setTextAlignment(TextAlignment.CENTER));
+                                articlesTable.addCell(
+                                        new Cell().add(new Paragraph(String.valueOf(quantite)))
+                                                .setBackgroundColor(rowColor)
+                                                .setPadding(5)
+                                                .setTextAlignment(TextAlignment.CENTER));
 
-                            articlesTable.addCell(
-                                    new Cell().add(new Paragraph(String.valueOf(quantite)))
-                                            .setBackgroundColor(rowColor)
-                                            .setPadding(5)
-                                            .setTextAlignment(TextAlignment.CENTER));
-
-                            articlesTable.addCell(
-                                    new Cell().add(new Paragraph(String.format("%.0f dt", totalArticle)))
-                                            .setBackgroundColor(rowColor)
-                                            .setPadding(5)
-                                            .setTextAlignment(TextAlignment.CENTER));
+                                articlesTable.addCell(
+                                        new Cell().add(new Paragraph(String.format("%.2f dt", totalArticle)))
+                                                .setBackgroundColor(rowColor)
+                                                .setPadding(5)
+                                                .setTextAlignment(TextAlignment.CENTER));
+                            }
+                        } catch (Exception e) {
+                            System.err.println("Erreur article ID " + articleId + ": " + e.getMessage());
                         }
-                    } catch (Exception e) {
-                        System.err.println("Erreur article ID " + articleId + ": " + e.getMessage());
                     }
+
+                    document.add(articlesTable);
+
+                    // 6. Totaux
+                    float[] totalWidths = {3, 1};
+                    Table totalTable = new Table(totalWidths);
+                    totalTable.setWidth(UnitValue.createPercentValue(40));
+                    totalTable.setHorizontalAlignment(HorizontalAlignment.RIGHT);
+                    totalTable.setMarginTop(10);
+
+                    double tva = totalHT * 0.2;
+                    double totalTTC = totalHT + tva;
+
+                    totalTable.addCell(createTotalCell("Total HT:", true));
+                    totalTable.addCell(createTotalCell(String.format("%.2f dt", totalHT), false));
+
+                    totalTable.addCell(createTotalCell("TVA (20%):", true));
+                    totalTable.addCell(createTotalCell(String.format("%.2f dt", tva), false));
+
+                    totalTable.addCell(createTotalCell("Total TTC:", true));
+                    totalTable.addCell(createTotalCell(String.format("%.2f dt", totalTTC), false));
+
+                    document.add(totalTable);
                 }
-
-                document.add(articlesTable);
-
-                // 6. Totaux sous forme de paragraphes
-                Paragraph totalsParagraph = new Paragraph()
-                        .add(new Text("Total des produits (HT): ").setBold())
-                        .add(String.format("%.0f dt\n", totalHT))
-                        .add(new Text("TVA (20%): ").setBold())
-                        .add(String.format("%.0f dt\n", totalHT * 0.2))
-                        .add(new Text("Montant total TTC: ").setBold())
-                        .add(String.format("%.0f dt", totalHT * 1.2))
-                        .setMarginTop(15)
-                        .setMarginBottom(30);
-
-                document.add(totalsParagraph);
+            } catch (SQLException e) {
+                System.err.println("Erreur SQL: " + e.getMessage());
+                document.add(new Paragraph("Erreur lors de la récupération des données de la commande"));
             }
 
-            // Ligne horizontale avant le pied de page
-            document.add(new LineSeparator(new SolidLine()).setMarginTop(20).setMarginBottom(20));
+            // 7. Pied de page
+            document.add(new Paragraph("\n\n"));
+            document.add(new LineSeparator(new SolidLine()));
 
-            // 7. Pied de page centré
-            document.add(new Paragraph("Merci pour votre confiance !")
+            Paragraph footer = new Paragraph()
+                    .add(new Text("Merci pour votre confiance !").setItalic())
                     .setTextAlignment(TextAlignment.CENTER)
-                    .setItalic());
+                    .add("\n")
+                    .add(new Text("Pour toute question, contactez-nous à contact@autol.ink.com").setFontSize(10))
+                    .add("\n")
+                    .add(new Text("Tél: +216 48 004 881").setFontSize(10));
 
-            document.add(new Paragraph("Pour toute question, contactez-nous à contact@Autol.Ink.com")
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setFontSize(10));
+            document.add(footer);
 
         } catch (Exception e) {
             throw new IOException("Erreur lors de la génération du PDF", e);
@@ -1041,6 +1096,79 @@ public class FactureController implements Initializable {
 
         return outputStream.toByteArray();
     }
+
+    private String generateQRContent(Facture facture) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== FACTURE AUTOL.INK ===\n\n");
+        sb.append("N° Facture: ").append(facture.getId()).append("\n");
+        sb.append("Date: ").append(facture.getDatetime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))).append("\n");
+        sb.append("Client: ").append(facture.getClient().getName()).append(" ").append(facture.getClient().getLastName()).append("\n");
+        sb.append("Email: ").append(facture.getClient().getEmail()).append("\n");
+        sb.append("Montant total: ").append(String.format("%.2f dt", facture.getMontant())).append("\n\n");
+
+        // Détails des articles
+        try {
+            CommandeService commandeService = new CommandeService(MyDatabase.getInstance().getMyConnection());
+            Commande commande = commandeService.getCommandeById(facture.getId());
+
+            if (commande != null) {
+                sb.append("=== ARTICLES ===\n");
+
+                List<Integer> articleIds = parseArticleIds(commande.getArticleIds());
+                Map<Integer, Integer> quantites = parseQuantites(commande.getQuantites());
+                ArticleService articleService = new ArticleService();
+
+                for (Integer articleId : articleIds) {
+                    try {
+                        Article article = articleService.getArticleById(articleId);
+                        if (article != null) {
+                            int quantite = quantites.getOrDefault(articleId, 1);
+                            sb.append("- ").append(article.getNom())
+                                    .append(" (x").append(quantite)
+                                    .append(") - ").append(String.format("%.2f dt", article.getPrix()))
+                                    .append("\n");
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Erreur lors de la récupération de l'article " + articleId);
+                    }
+                }
+
+                sb.append("\nTotal articles: ").append(articleIds.size()).append("\n");
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur SQL lors de la génération du QR code: " + e.getMessage());
+        }
+
+        sb.append("\nCe QR code est une preuve d'authenticité de votre facture.");
+        return sb.toString();
+    }
+
+    private String getArticlesSummary(Commande commande) {
+        if (commande == null) return "Aucun article";
+
+        try {
+            ArticleService articleService = new ArticleService();
+            List<Integer> articleIds = parseArticleIds(commande.getArticleIds());
+            Map<Integer, Integer> quantites = parseQuantites(commande.getQuantites());
+
+            StringBuilder summary = new StringBuilder();
+            for (Integer articleId : articleIds) {
+                Article article = articleService.getArticleById(articleId);
+                if (article != null) {
+                    int quantite = quantites.getOrDefault(articleId, 1);
+                    summary.append(String.format("%s (x%d), ", article.getNom(), quantite));
+                }
+            }
+
+            return summary.length() > 0 ?
+                    summary.substring(0, summary.length() - 2) : // Enlever la dernière virgule
+                    "Aucun article";
+
+        } catch (Exception e) {
+            return "Erreur de chargement des articles";
+        }
+    }
+
 
     // Méthodes utilitaires existantes conservées telles quelles
     private Cell createCell(String text, boolean bold) {
@@ -1192,5 +1320,24 @@ public class FactureController implements Initializable {
             updatePageIndicators();
             updateDisplayedFactures();
         }
+    }
+
+
+    private byte[] generateQRCodeImage(String text, int width, int height) throws Exception {
+        Map<EncodeHintType, Object> hints = new HashMap<>();
+        hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+        hints.put(EncodeHintType.MARGIN, 1);
+
+        BitMatrix bitMatrix = new QRCodeWriter().encode(
+                text,
+                BarcodeFormat.QR_CODE,
+                width,
+                height,
+                hints
+        );
+
+        ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
+        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
+        return pngOutputStream.toByteArray();
     }
 }

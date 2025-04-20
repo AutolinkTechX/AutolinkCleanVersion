@@ -43,6 +43,17 @@ public class Facture {
         return commande;
     }
 
+    @Override
+    public String toString() {
+        return "Facture{" +
+                "id=" + id +
+                ", montant=" + montant +
+                ", datetime=" + datetime +
+                ", commande=" + commande +
+                ", client=" + client +
+                '}';
+    }
+
     public void setCommande(Commande commande) {
         this.commande = commande;
     }
