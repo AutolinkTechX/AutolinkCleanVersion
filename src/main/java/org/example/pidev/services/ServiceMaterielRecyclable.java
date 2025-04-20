@@ -226,28 +226,6 @@ public class ServiceMaterielRecyclable implements  IService<MaterielRecyclable>{
 
 
 
-    /*ce code est ajouté pour la statique**/
-    /*methode pour statique*/
-    public int getNombreTotalDemandes() throws SQLException {
-        String sql = "SELECT COUNT(*) FROM materiel_recyclable";
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery(sql);
-        if (rs.next()) {
-            return rs.getInt(1);
-        }
-        return 0;
-    }
-
-    public Map<String, Integer> getNombreDemandesParStatut() throws SQLException {
-        Map<String, Integer> result = new HashMap<>();
-        String sql = "SELECT statut, COUNT(*) as total FROM materiel_recyclable GROUP BY statut";
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery(sql);
-        while (rs.next()) {
-            result.put(rs.getString("statut"), rs.getInt("total"));
-        }
-        return result;
-    }
 
     public Map<String, Integer> getNombreDemandesParType() throws SQLException {
         Map<String, Integer> result = new HashMap<>();
@@ -258,6 +236,84 @@ public class ServiceMaterielRecyclable implements  IService<MaterielRecyclable>{
             result.put(rs.getString("type_materiel"), rs.getInt("total"));
         }
         return result;
+    }
+
+
+
+
+
+    /*ce code est ajouté pour la statique**/
+ /*   public int getNombreDemandesParEntreprise(int entrepriseId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM accord WHERE entreprise_id = ?";
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        stmt.setInt(1, entrepriseId);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+        return 0;
+    }*/
+
+
+    public Map<String, Integer> getNombreDemandesParStatut(int idEntrepriseConnectee) throws SQLException {
+        Map<String, Integer> result = new HashMap<>();
+        String sql = "SELECT statut, COUNT(*) as total FROM materiel_recyclable WHERE entreprise_id = ? GROUP BY statut";
+
+        PreparedStatement pstmt = connection.prepareStatement(sql);
+        pstmt.setInt(1, idEntrepriseConnectee);
+        ResultSet rs = pstmt.executeQuery();
+
+        while (rs.next()) {
+            result.put(rs.getString("statut"), rs.getInt("total"));
+        }
+
+        return result;
+    }
+
+    /*public Map<String, Integer> getNombreDemandesParType() throws SQLException {
+        Map<String, Integer> result = new HashMap<>();
+        String sql = "SELECT type_materiel, COUNT(*) as total FROM materiel_recyclable GROUP BY type_materiel";
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(sql);
+        while (rs.next()) {
+            result.put(rs.getString("type_materiel"), rs.getInt("total"));
+        }
+        return result;
+    }*/
+
+
+
+    public MaterielRecyclable getById(int id) {
+        MaterielRecyclable materiel = null;
+        String sql = "SELECT * FROM materiel_recyclable WHERE id = ?";
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                materiel = new MaterielRecyclable();
+                materiel.setId(rs.getInt("id"));
+                materiel.setName(rs.getString("name"));
+                materiel.setDescription(rs.getString("description"));
+                materiel.setType_materiel(Type_materiel.valueOf(rs.getString("type_materiel")));
+                materiel.setImage(rs.getString("image"));
+                materiel.setStatut(StatutEnum.valueOf(rs.getString("statut")));
+
+                // Si tu veux charger aussi l'entreprise liée
+                /*int entrepriseId = rs.getInt("entreprise_id");
+                ServiceEntreprise serviceEntreprise = new ServiceEntreprise();
+                Entreprise entreprise = serviceEntreprise.getById(entrepriseId); // À créer si besoin
+                materiel.setEntreprise(entreprise);*/
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Erreur SQL lors de la récupération du matériel !");
+            e.printStackTrace();
+        }
+
+        return materiel;
     }
 
 
