@@ -164,7 +164,7 @@
     </dependency>
 
 
-<!-- swing pour telecharger image en png-->
+    <!-- swing pour telecharger image en png-->
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-swing</artifactId>

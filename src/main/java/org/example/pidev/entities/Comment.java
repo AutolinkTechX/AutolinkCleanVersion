@@ -1,21 +1,49 @@
 package org.example.pidev.entities;
-import java.time.LocalDateTime;
-import java.util.Date;
+
+import java.sql.Date;
+import java.util.Objects;
+
 public class Comment {
 
-    private Integer id;
-    private String content;
-    private LocalDateTime createdAt;
-    private Integer idUser;
+    private int id;
     private Blog blog;
+    private String content;
+    private Date created_at;
+    private User user;
 
-    // Getters et Setters
-    public Integer getId() {
+    // Constructeurs
+    public Comment() {}
+
+    public Comment(Blog blog, String content, Date created_at, User user) {
+        this.blog = blog;
+        this.content = content;
+        this.created_at = created_at;
+        this.user = user;
+    }
+
+    public Comment(int id, Blog blog, String content, Date created_at, User user) {
+        this.id = id;
+        this.blog = blog;
+        this.content = content;
+        this.created_at = created_at;
+        this.user = user;
+    }
+
+    // Getters & Setters
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
+    }
+
+    public Blog getBlog() {
+        return blog;
+    }
+
+    public void setBlog(Blog blog) {
+        this.blog = blog;
     }
 
     public String getContent() {
@@ -26,28 +54,47 @@ public class Comment {
         this.content = content;
     }
 
-    public LocalDateTime  getCreatedAt() {
-        return createdAt;
+    public Date getCreated_at() {
+        return created_at;
     }
 
-    public void setCreatedAt(LocalDateTime  createdAt) {
-        this.createdAt = createdAt;
+    public void setCreated_at(Date created_at) {
+        this.created_at = created_at;
     }
 
-    public Integer getIdUser() {
-        return idUser;
+    public User getUser() {
+        return user;
     }
 
-    public void setIdUser(Integer idUser) {
-        this.idUser = idUser;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public Blog getBlog() {
-        return blog;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Comment)) return false;
+        Comment comment = (Comment) o;
+        return id == comment.id &&
+                Objects.equals(blog, comment.blog) &&
+                Objects.equals(content, comment.content) &&
+                Objects.equals(created_at, comment.created_at) &&
+                Objects.equals(user, comment.user);
     }
 
-    public void setBlog(Blog blog) {
-        this.blog = blog;
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, blog, content, created_at, user);
+    }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "id=" + id +
+                ", blog=" + blog +
+                ", content='" + content + '\'' +
+                ", created_at=" + created_at +
+                ", user=" + user +
+                '}';
     }
 }
-

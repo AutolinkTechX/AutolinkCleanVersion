@@ -52,7 +52,7 @@
                         <Cursor fx:constant="HAND" />
                     </cursor>
                 </MenuButton>
-                <Button fx:id="blogBtn" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #1c1c1c;" text="BLOG">
+                <Button fx:id="blogBtn" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #1c1c1c;" text="BLOG" onAction="#handleBlogButton">
                     <cursor>
                         <Cursor fx:constant="HAND" />
                     </cursor>
