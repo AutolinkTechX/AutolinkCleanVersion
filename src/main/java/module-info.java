@@ -13,7 +13,12 @@ module pidev {
     requires jbcrypt;
     requires org.hibernate.orm.core;
     requires org.slf4j;
+
+    requires com.google.zxing;
+    requires com.google.zxing.javase;        // pour io-7.2.5.jar
+
     requires javafx.swing;        // pour io-7.2.5.jar
+
 
     opens org.example.pidev to javafx.fxml;
     opens org.example.pidev.controllers to javafx.fxml;

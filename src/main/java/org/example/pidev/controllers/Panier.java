@@ -38,7 +38,7 @@ public class Panier implements Initializable {
     private List<List<List_article>> paginatedItems;
     private int currentPage = 0;
     private double subtotal = 0.0;
-    private static final double SHIPPING_COST = 7.0;
+    private static final double TVA_RATE = 0.20; // 20% de TVA
     private User currentUser;
     private ClientDashboardController dashboardController;
 
@@ -184,8 +184,13 @@ public class Panier implements Initializable {
 
     private void calculateTotals() {
         if (subtotalLabel != null) subtotalLabel.setText(String.format("%.2f DT", subtotal));
-        if (shippingLabel != null) shippingLabel.setText(String.format("%.2f DT", SHIPPING_COST));
-        if (totalLabel != null) totalLabel.setText(String.format("%.2f DT", subtotal + SHIPPING_COST));
+
+        // Calcul de la TVA (20% du sous-total)
+        double tva = subtotal * TVA_RATE;
+        if (shippingLabel != null) shippingLabel.setText(String.format("%.2f DT", tva));
+
+        // Calcul du total (sous-total + TVA)
+        if (totalLabel != null) totalLabel.setText(String.format("%.2f DT", subtotal + tva));
     }
 
     private void setupPagination() {
@@ -274,6 +279,7 @@ public class Panier implements Initializable {
     private Image loadDefaultImage() {
         return new Image(getClass().getResourceAsStream("/images/logo.jpg"));
     }
+
 
     private Label createItemNameLabel(List_article item) {
         Label label = new Label(item.getArticle().getNom());
@@ -375,7 +381,6 @@ public class Panier implements Initializable {
         }
     }
 
-
     private void showPaymentPopup() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Payement.fxml"));
@@ -464,7 +469,8 @@ public class Panier implements Initializable {
         for (List_article item : panierItems) {
             total += item.getPrixUnitaire() * item.getQuantite();
         }
-        return total + SHIPPING_COST; // Inclure les frais de livraison
+        // Ajouter la TVA (20% du total)
+        return total + (total * TVA_RATE);
     }
 
     private void navigateToLogin() {

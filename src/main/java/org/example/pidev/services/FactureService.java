@@ -51,7 +51,7 @@ public class FactureService {
     // Méthode pour obtenir les factures d'un utilisateur
     public List<Facture> obtenirFacturesParUtilisateur(int userId) throws SQLException {
         List<Facture> factures = new ArrayList<>();
-        String query = "SELECT f.*, c.id as commande_id, u.name as client_nom, u.last_name as client_prenom " +
+        String query = "SELECT f.*, c.id as commande_id, u.name as client_nom, u.last_name as client_prenom, u.email as client_email " +
                 "FROM facture f " +
                 "LEFT JOIN commande c ON f.commande_id = c.id " +
                 "LEFT JOIN user u ON f.client_id = u.id " +
@@ -113,7 +113,7 @@ public class FactureService {
 */
     // Méthode pour obtenir une facture par son ID
     public Facture getFactureById(int id) throws SQLException {
-        String query = "SELECT f.*, c.id as commande_id, u.name as client_nom, u.last_name as client_prenom " +
+        String query = "SELECT f.*, c.id as commande_id, u.name as client_nom, u.last_name as client_prenom, u.email as client_email " +
                 "FROM facture f " +
                 "LEFT JOIN commande c ON f.commande_id = c.id " +
                 "LEFT JOIN user u ON f.client_id = u.id " +
@@ -211,6 +211,7 @@ public class FactureService {
             client.setId(resultSet.getInt("client_id"));
             client.setName(resultSet.getString("client_nom"));
             client.setLastName(resultSet.getString("client_prenom"));
+            client.setEmail(resultSet.getString("client_email")); // Ajout de l'email
             facture.setClient(client);
 
             return facture;

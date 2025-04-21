@@ -90,7 +90,7 @@ public class ListeArticle {
             setupSearchListener();
         }
     }
-
+/*
     private void updateUserProfile(User user) {
         if (userImageView == null) {
             logger.warning("userImageView n'est pas initialisé dans le FXML");
@@ -139,14 +139,15 @@ public class ListeArticle {
             userImageView.setImage(null);
         }
     }
-
+*/
+    @FXML
     public void setCurrentUser(User user) {
         if (user == null) {
             System.out.println("Warning: No user connected");
             return;
         }
         this.currentUser = user;
-        updateUserProfile(user);
+        //updateUserProfile(user);
 
         // Initialisation des éléments nécessitant un utilisateur
         try {
@@ -494,14 +495,13 @@ public class ListeArticle {
         Button detailsBtn = createCompactIconButton("👁", "details-button",
                 e -> showArticleDetails(article), "Voir détails");
 
-        // Utiliser AtomicReference pour contourner le problème d'initialisation
         AtomicReference<Button> favBtnRef = new AtomicReference<>();
         Button favBtn = createCompactIconButton("❤", "favorite-button",
                 e -> handleFavoriteAction(article, favBtnRef.get()), "Ajouter aux favoris");
-        favBtnRef.set(favBtn); // Initialiser la référence
+        favBtnRef.set(favBtn);
 
         favBtn.setId("favBtn_" + article.getId());
-        updateFavoriteButtonStyle(favBtn, article);
+        updateFavoriteButtonStyle(favBtn, article); // Mise à jour initiale du style
 
         Button cartBtn = createCompactIconButton("🛒", "cart-button",
                 e -> addToCart(article), "Ajouter au panier");
@@ -619,31 +619,35 @@ public class ListeArticle {
     private void handleFavoriteAction(Article article, Button favBtn) {
         try {
             if (currentUser == null) {
-                AlertUtils.showErrorAlert("Erreur", "Veuillez vous connecter", "Vous devez être connecté pour gérer les favoris");
+                AlertUtils.showErrorAlert("Erreur", "Veuillez vous connecter",
+                        "Vous devez être connecté pour gérer les favoris");
                 return;
             }
 
             boolean isFavorite = articleService.isArticleInFavorites(currentUser.getId(), article.getId());
 
             if (isFavorite) {
-                // Retirer des favoris
-                articleService.removeFromFavorites(currentUser.getId(), article.getId());
-                AlertUtils.showSuccessAlert("Succès", article.getNom() + " retiré des favoris");
+                // Afficher un message que l'article est déjà dans les favoris
+                AlertUtils.showInformationAlert("Information",
+                        article.getNom() + " est déjà dans vos favoris");
             } else {
                 // Ajouter aux favoris
                 articleService.ajouterArticleFavori(currentUser.getId(), article.getId());
                 AlertUtils.showSuccessAlert("Succès", article.getNom() + " ajouté aux favoris !");
-            }
 
-            // Mise à jour du bouton favori
-            updateFavoriteButtonStyle(favBtn, article);
+                // Mise à jour du bouton favori
+                updateFavoriteButtonStyle(favBtn, article);
 
-            // Mise à jour locale du badge
-            updateFavoriteBadge();
+                // Mise à jour locale du badge
+                updateFavoriteBadge();
 
-            // Mise à jour du badge dans le dashboard
-            if (dashboardController != null) {
-                dashboardController.updateFavoritesBadge();
+                // Mise à jour du badge dans le dashboard
+                if (dashboardController != null) {
+                    dashboardController.updateFavoritesBadge();
+                }
+
+                // Actualiser la page
+                loadAllArticles();
             }
 
         } catch (SQLException e) {

@@ -98,7 +98,7 @@
                                 <Cursor fx:constant="HAND" />
                             </cursor>
                         </MenuButton>
-                        <Button fx:id="OrdersButton" onAction="#handleOrders" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="39.0" prefWidth="237.0" text=" Orders" textFill="WHITE" translateY="10.0">
+                        <MenuButton fx:id="ServicesMenuButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="39.0" prefWidth="237.0" style="-fx-background-color: transparent;" text=" Services" textFill="WHITE" translateY="10.0">
                             <graphic>
                                 <ImageView fitHeight="25.0" fitWidth="39.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
@@ -109,26 +109,19 @@
                             <font>
                                 <Font size="20.0" />
                             </font>
-                     <cursor>
-                        <Cursor fx:constant="HAND" />
-                     </cursor>
-                        </Button>
-                        <Button fx:id="StatistiqueButton" onAction="#handleStatistics" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="39.0" prefWidth="237.0" text=" Statistique" textFill="WHITE" translateY="10.0">
-                            <graphic>
-                                <ImageView fitHeight="25.0" fitWidth="39.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@icons/Stat.png" />
-                                    </image>
-                                </ImageView>
-                            </graphic>
-                            <font>
-                                <Font size="20.0" />
-                            </font>
+                            <items>
+                                <MenuItem fx:id="OrdersMenuItem" mnemonicParsing="false" onAction="#handleOrders"
+                                          styleClass="menu-item" text="Orders" />
+                                <MenuItem fx:id="CalendarMenuItem" mnemonicParsing="false" onAction="#handleCalendrier"
+                                          styleClass="menu-item" text="Calendrier" />
+                                <MenuItem fx:id="StatisticsMenuItem" mnemonicParsing="false" onAction="#handleStatistics"
+                                          styleClass="menu-item" text="Statistique" />
+                            </items>
                             <cursor>
                                 <Cursor fx:constant="HAND" />
                             </cursor>
-                        </Button>
-                        <Button fx:id="PartnersButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="40.0" prefWidth="236.0" text=" Partners" textFill="WHITE" translateY="10.0">
+                        </MenuButton>
+                       <Button fx:id="PartnersButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="40.0" prefWidth="236.0" text=" Partners" textFill="WHITE" translateY="10.0">
                             <graphic>
                                 <ImageView fitHeight="24.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
                                     <image>

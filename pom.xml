@@ -150,12 +150,27 @@
       <version>7.2.5</version>
     </dependency>
 
+
+
+    <dependency>
+      <groupId>com.google.zxing</groupId>
+      <artifactId>core</artifactId>
+      <version>3.4.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.zxing</groupId>
+      <artifactId>javase</artifactId>
+      <version>3.4.1</version>
+    </dependency>
+
+
     <!-- swing pour telecharger image en png-->
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-swing</artifactId>
       <version>17.0.6</version> <!-- ou une autre version compatible -->
     </dependency>
+    
   </dependencies>
 
   <build>

@@ -166,6 +166,7 @@ public class ArticleService {
         return articles;
     }
 */
+
     public List<Article> getByCategory(String category) throws SQLException {
         String query = "SELECT * FROM article WHERE category = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -195,27 +196,35 @@ public class ArticleService {
     }
 
     public boolean ajouterArticleFavori(int userId, int articleId) throws SQLException {
-        String query = "INSERT INTO favorie (user_id, article_id, date_creation, date_expiration) VALUES (?, ?, ?, ?)";
+        // Vérifie d'abord si l'article est déjà dans les favoris (non expiré)
+        if (isArticleInFavorites(userId, articleId)) {
+            return false;
+        }
 
-        LocalDateTime expirationDate = LocalDateTime.now().plusDays(30);
+        // Si l'article était précédemment dans les favoris mais a expiré, on le supprime
+        String deleteQuery = "DELETE FROM favorie WHERE user_id = ? AND article_id = ?";
+        try (PreparedStatement deleteStmt = connection.prepareStatement(deleteQuery)) {
+            deleteStmt.setInt(1, userId);
+            deleteStmt.setInt(2, articleId);
+            deleteStmt.executeUpdate();
+        }
 
-        try (PreparedStatement pst = connection.prepareStatement(query)) {
-            pst.setInt(1, userId);
-            pst.setInt(2, articleId);
-            pst.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
-            pst.setTimestamp(4, Timestamp.valueOf(expirationDate));
+        // Ajoute le nouvel enregistrement avec la date d'expiration
+        String insertQuery = "INSERT INTO favorie (user_id, article_id, date_creation, date_expiration) VALUES (?, ?, ?, ?)";
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expirationDate = now.plusHours(24);
 
-            try {
-                return pst.executeUpdate() > 0;
-            } catch (SQLIntegrityConstraintViolationException e) {
-                // Si déjà en favoris
-                return false;
-            }
+        try (PreparedStatement insertStmt = connection.prepareStatement(insertQuery)) {
+            insertStmt.setInt(1, userId);
+            insertStmt.setInt(2, articleId);
+            insertStmt.setTimestamp(3, Timestamp.valueOf(now));
+            insertStmt.setTimestamp(4, Timestamp.valueOf(expirationDate));
+            return insertStmt.executeUpdate() > 0;
         }
     }
 
     public boolean isArticleInFavorites(int userId, int articleId) throws SQLException {
-        String query = "SELECT COUNT(*) FROM favorie WHERE user_id = ? AND article_id = ?";
+        String query = "SELECT COUNT(*) FROM favorie WHERE user_id = ? AND article_id = ? AND date_expiration > NOW()";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, userId);
             statement.setInt(2, articleId);
@@ -299,7 +308,6 @@ public class ArticleService {
             statement.executeUpdate();
         }
     }
-
 
     public Article getArticleById(int id) throws SQLException {
         String query = "SELECT * FROM article WHERE id = ?";
@@ -449,7 +457,6 @@ public class ArticleService {
         return "Unknown Article";
     }
 
-
     public List<Article> getOutOfStockArticles() throws SQLException {
         List<Article> articles = new ArrayList<>();
         String query = "SELECT * FROM article WHERE quantitestock = 0";
@@ -507,7 +514,6 @@ public class ArticleService {
         }
         return favoriteCounts;
     }
-
 
     public Map<String, Double> getArticleByCommande(int id) {
         Map<String, Double> articleMap = new HashMap<>();

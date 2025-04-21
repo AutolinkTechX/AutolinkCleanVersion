@@ -56,7 +56,7 @@
                         <Label fx:id="subtotalLabel" styleClass="cart-summary-value" text="0.00 DT"/>
                     </HBox>
                     <HBox styleClass="cart-summary-row">
-                        <Label text="Livraison:" styleClass="cart-summary-label"/>
+                        <Label text="TVA(20%) :" styleClass="cart-summary-label"/>
                         <Label fx:id="shippingLabel" styleClass="cart-summary-value" text="0.00 DT"/>
                     </HBox>
                     <Separator styleClass="cart-total-separator"/>
