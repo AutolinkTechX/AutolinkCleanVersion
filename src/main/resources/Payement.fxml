@@ -1,89 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.web.*?>
 <?import javafx.geometry.Insets?>
 
 <AnchorPane prefHeight="718.0" prefWidth="1300.0"
             style="-fx-background-color: #f5f5f5;"
             stylesheets="@styles/Payement/payement.css"
-            xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="org.example.pidev.controllers.Payement">
 
-    <!-- Conteneur principal sous la navbar -->
-    <HBox layoutY="63.0" spacing="20" style="-fx-padding: 20;" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="63.0">
-        <!-- Carte 1: Panier et facture -->
-        <VBox fx:id="cartContainer" prefWidth="650" spacing="10" style="-fx-background-color: white; -fx-border-radius: 5; -fx-border-color: #ddd; -fx-padding: 15;">
+    <!-- Conteneur principal -->
+    <HBox layoutY="63.0" spacing="20" style="-fx-padding: 20;"
+          AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20"
+          AnchorPane.rightAnchor="20" AnchorPane.topAnchor="63.0">
+
+        <!-- Panier -->
+        <VBox fx:id="cartContainer" prefWidth="650" spacing="10"
+              style="-fx-background-color: white; -fx-border-radius: 5; -fx-border-color: #ddd; -fx-padding: 15;">
             <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Votre panier" />
             <Separator />
-
-            <!-- Liste des articles -->
             <ListView fx:id="cartItemsList" prefHeight="300" style="-fx-border-width: 0;" />
-
             <Separator />
-
-            <!-- Total -->
             <HBox alignment="CENTER_RIGHT" spacing="10">
                 <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Total:" />
                 <Label fx:id="totalAmountLabel" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #28a745;" />
             </HBox>
         </VBox>
 
-        <!-- Carte 2: Options de paiement -->
+        <!-- Options de paiement -->
         <VBox fx:id="paymentContainer" prefWidth="650" spacing="15"
               style="-fx-background-color: white; -fx-border-radius: 5; -fx-border-color: #ddd; -fx-padding: 15;">
+
             <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Méthode de paiement" />
             <Separator />
 
-            <!-- Choix de paiement -->
             <VBox spacing="10">
-                <RadioButton fx:id="onlineRadio" selected="true" text="Paiement en ligne" toggleGroup="$paymentMethodGroup" />
-                <VBox fx:id="onlineForm" spacing="10" style="-fx-padding: 10 0 10 20;" visible="true">
-                    <Label style="-fx-font-weight: bold;" text="Informations de carte" />
-                    <GridPane hgap="10" vgap="10">
-                        <columnConstraints>
-                            <ColumnConstraints percentWidth="40" />
-                            <ColumnConstraints percentWidth="60" />
-                        </columnConstraints>
-                        <rowConstraints>
-                            <RowConstraints prefHeight="30" />
-                            <RowConstraints prefHeight="30" />
-                            <RowConstraints prefHeight="30" />
-                        </rowConstraints>
+                <!-- Premier RadioButton avec déclaration du ToggleGroup -->
+                <RadioButton fx:id="onlineRadio" text="Paiement en ligne" selected="true">
+                    <toggleGroup>
+                        <ToggleGroup fx:id="paymentMethodGroup"/>
+                    </toggleGroup>
+                </RadioButton>
 
+                <!-- Formulaire paiement en ligne -->
+
+                    <!-- Formulaire paiement en ligne -->
+                    <VBox fx:id="onlineForm" spacing="10" style="-fx-padding: 10 0 10 20;">
                         <Label text="Numéro de carte:" />
-                        <TextField fx:id="cardNumberField" promptText="1234 5678 9012 3456" GridPane.columnIndex="1" />
+                        <TextField fx:id="cardNumberField" />
 
-                        <Label text="Date d'expiration:" GridPane.rowIndex="1" />
-                        <HBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                            <ComboBox fx:id="expiryMonthCombo" prefWidth="80" promptText="Mois" />
-                            <ComboBox fx:id="expiryYearCombo" prefWidth="80" promptText="Année" />
+                        <Label text="Date d'expiration:" />
+                        <HBox spacing="10">
+                            <ComboBox fx:id="expiryMonthCombo" promptText="Mois" prefWidth="80"/>
+                            <ComboBox fx:id="expiryYearCombo" promptText="Année" prefWidth="100"/>
                         </HBox>
 
-                        <Label text="Code de sécurité:" GridPane.rowIndex="2" />
-                        <TextField fx:id="cvvField" prefWidth="80" promptText="123" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                    </GridPane>
-                </VBox>
+                        <Label text="CVV:" />
+                        <TextField fx:id="cvvField" prefWidth="60"/>
 
-                <RadioButton fx:id="cashRadio" text="Paiement à la livraison" toggleGroup="$paymentMethodGroup" />
+                        <Button fx:id="stripePaymentButton" text="Payer avec Stripe"
+                                style="-fx-background-color: #635bff; -fx-text-fill: white;"
+                                onAction="#handleStripePayment"/>
+                    </VBox>
+
+                <!-- Deuxième RadioButton utilisant le même ToggleGroup -->
+                <RadioButton fx:id="cashRadio" text="Paiement à la livraison" toggleGroup="$paymentMethodGroup"/>
+
+                <!-- Formulaire livraison -->
                 <VBox fx:id="cashForm" spacing="10" style="-fx-padding: 10 0 10 20;" visible="false">
                     <Label style="-fx-font-weight: bold;" text="Informations de livraison" />
                     <Label text="Vous paierez en espèces lors de la livraison" />
-
-                    <!-- Formulaire de livraison déplacé ici -->
                     <GridPane hgap="10" vgap="10">
                         <columnConstraints>
                             <ColumnConstraints percentWidth="30" />
                             <ColumnConstraints percentWidth="70" />
                         </columnConstraints>
-
                         <Label text="Nom complet:" />
                         <TextField fx:id="fullNameField" GridPane.columnIndex="1" />
-
                         <Label text="Adresse:" GridPane.rowIndex="1" />
                         <TextArea fx:id="addressField" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
                         <Label text="Téléphone:" GridPane.rowIndex="2" />
                         <TextField fx:id="phoneField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                     </GridPane>
@@ -92,14 +89,32 @@
 
             <Separator />
 
-            <!-- Boutons de confirmation -->
+            <!-- Boutons de contrôle -->
             <HBox alignment="CENTER_RIGHT" spacing="10">
-                <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel" style="-fx-pref-width: 100; -fx-pref-height: 35;" />
-                <Button fx:id="confirmPaymentButton"
-                        text="Confirmer le paiement"
-                        onAction="#handleConfirmPayment" style="-fx-pref-width: 200; -fx-pref-height: 35; -fx-background-color: #28a745; -fx-text-fill: white;" />
+                <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel"
+                        style="-fx-pref-width: 100; -fx-background-color: #f8f9fa; -fx-border-color: #ddd;"/>
+
+                <Button fx:id="confirmPaymentButton" text="Confirmer la commande"
+                        onAction="#handleConfirmPayment"
+                        style="-fx-pref-width: 200; -fx-background-color: #28a745; -fx-text-fill: white;"/>
             </HBox>
         </VBox>
     </HBox>
+
+    <!-- Popup Stripe (initialement cachée) -->
+    <!-- Popup Stripe (initialement cachée) -->
+    <StackPane fx:id="stripePopup" visible="false"
+               style="-fx-background-color: rgba(0,0,0,0.5);"
+               AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+               AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+
+        <VBox alignment="CENTER"
+              style="-fx-background-color: white; -fx-padding: 20; -fx-spacing: 10; -fx-min-width: 500;">
+            <Label text="Paiement sécurisé" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+            <WebView fx:id="stripeWebView" prefWidth="450" prefHeight="500"/>
+            <Button text="Fermer" onAction="#closeStripePopup"
+                    style="-fx-pref-width: 100;"/>
+        </VBox>
+    </StackPane>
 
 </AnchorPane>

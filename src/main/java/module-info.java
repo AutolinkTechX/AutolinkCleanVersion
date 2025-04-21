@@ -5,7 +5,7 @@ module pidev {
     requires spring.context;
     requires jakarta.persistence;
     requires com.fasterxml.jackson.databind;
-
+    requires javafx.web;
     // Noms de modules automatiques pour iTextPDF
     requires kernel;    // pour kernel-7.2.5.jar
     requires layout;    // pour layout-7.2.5.jar
@@ -17,7 +17,10 @@ module pidev {
     requires com.google.zxing;
     requires com.google.zxing.javase;        // pour io-7.2.5.jar
 
-    requires javafx.swing;        // pour io-7.2.5.jar
+    requires javafx.swing;
+    requires twilio;
+    requires stripe.java;
+    requires jdk.jsobject;        // pour io-7.2.5.jar
 
 
     opens org.example.pidev to javafx.fxml;
