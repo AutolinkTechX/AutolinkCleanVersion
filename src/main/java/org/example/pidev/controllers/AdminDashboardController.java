@@ -49,6 +49,7 @@ public class AdminDashboardController {
     @FXML
     private VBox contentArea;
     @FXML private StackPane contentPane;
+    @FXML private Button BlogButton;
 
     @FXML private MenuButton ServicesMenuButton;
     @FXML private MenuItem OrdersMenuItem;
@@ -225,6 +226,20 @@ public class AdminDashboardController {
         } else {
             // User clicked Cancel or closed the dialog
             System.out.println("Logout cancelled");
+        }
+    }
+
+
+    @FXML
+    private void handleBlog() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/BlogAffichage.fxml"));
+            Parent blogView = loader.load();
+            contentArea.getChildren().clear();
+            contentArea.getChildren().add(blogView);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Failed to load Blog view", "An error occurred while trying to load the Blog view.");
         }
     }
     
@@ -413,5 +428,14 @@ public class AdminDashboardController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+    private void showError(String header, String content) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Navigation Error");
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

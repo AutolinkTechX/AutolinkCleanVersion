@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.pidev.controllers.BlogController"
+            prefWidth="800" prefHeight="600"
+            style="-fx-background-color: #f5f5f5;">
+
+    <!-- Button to add a new blog -->
+    <Button fx:id="addBlogButton"
+            text="Ajouter un Blog"
+            layoutX="14.0" layoutY="560.0"
+            style="-fx-font-size: 14px; -fx-pref-width: 150px;"
+            onAction="#handleAddBlogButton"/> <!-- ce nom doit matcher -->
+
+
+    <!-- FlowPane for displaying blog cards -->
+    <FlowPane fx:id="cardContainer"
+              layoutX="14.0" layoutY="14.0"
+              prefHeight="530.0" prefWidth="780.0"
+              hgap="20" vgap="20"
+              style="-fx-background-color: transparent;"/>
+</AnchorPane>

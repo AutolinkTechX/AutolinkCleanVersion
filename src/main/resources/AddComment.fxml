@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.example.pidev.controllers.AddCommentController"
+      spacing="10"
+      alignment="CENTER"
+      style="-fx-padding: 10;">
+
+    <Label text="Ajouter un Commentaire" style="-fx-font-weight: bold;"/>
+    <TextArea fx:id="commentTextArea"
+              promptText="Votre commentaire ici..."
+              prefHeight="100"
+              prefWidth="350"/>
+    <Button text="Soumettre"
+            onAction="#handleSubmit"
+            style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+</VBox>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Pos?>
+<?import javafx.scene.image.ImageView?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="org.example.pidev.controllers.AddBlogController">
+    <children>
+        <VBox alignment="TOP_CENTER" spacing="10.0" AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="10" AnchorPane.topAnchor="10">
+            <padding>
+                <Insets top="20" left="20" right="20" bottom="20"/>
+            </padding>
+            <children>
+                <!-- Titre -->
+                <Label text="Ajouter un nouveau Blog" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+                <!-- Champ Titre -->
+                <TextField fx:id="titleField" promptText="Titre du Blog" />
+
+                <!-- Contenu -->
+                <TextArea fx:id="contentField" promptText="Contenu du Blog" prefRowCount="4" />
+
+                <!-- Date de publication -->
+                <DatePicker fx:id="dpPublishedDate" promptText="Date de publication" />
+
+                <!-- Section Image -->
+                <Label text="Image du Blog:" style="-fx-font-weight: bold;"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button fx:id="selectImageBtn" text="Sélectionner une image" onAction="#handleSelectImage"/>
+                    <ImageView fx:id="imagePreview" fitWidth="100" fitHeight="100" preserveRatio="true"/>
+                </HBox>
+                <TextField fx:id="imageField" promptText="Chemin de l'image" editable="false"/>
+
+                <!-- Likes/Dislikes -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <TextField fx:id="likesField" promptText="Likes" prefWidth="100"/>
+                    <TextField fx:id="dislikesField" promptText="Dislikes" prefWidth="100"/>
+                </HBox>
+
+                <!-- Bouton de soumission -->
+                <Button fx:id="addBlogButton"
+                        text="Publier le Blog"
+                        style="-fx-font-size: 14px; -fx-pref-width: 150px; -fx-background-color: #4CAF50; -fx-text-fill: white;"
+                        onAction="#handleAddBlog"/>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

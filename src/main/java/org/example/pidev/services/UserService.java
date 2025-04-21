@@ -268,4 +268,27 @@ public class UserService implements IService<User> {
         
         return clients;
     }
+
+
+
+
+    public User getUserById(int id) throws SQLException {
+        String req = "SELECT * FROM user WHERE id=?";
+        try (PreparedStatement ps = connection.prepareStatement(req)) { // Remplacé cnx par connection
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    User user = new User();
+                    user.setId(rs.getInt("id"));
+                    user.setName(rs.getString("name"));
+                    user.setLastName(rs.getString("last_name")); // Attention au nom de colonne
+                    user.setEmail(rs.getString("email"));
+                    user.setPhone(rs.getInt("phone"));
+                    // Tu peux compléter si tu veux set d'autres champs (image, createdAt, etc.)
+                    return user;
+                }
+            }
+        }
+        return null;
+    }
 }
