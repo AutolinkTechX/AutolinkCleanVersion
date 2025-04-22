@@ -185,28 +185,35 @@ public class CalendarController implements Initializable {
         dayNumber.getStyleClass().add("day-number");
         dayCell.getChildren().add(dayNumber);
 
-        // Add commandes for this day
+        // Add check icon if there are commandes for this day
         List<Commande> commandesForDay = getCommandesForDate(date);
         if (!commandesForDay.isEmpty()) {
-            VBox commandesBox = new VBox(2);
-            commandesBox.setAlignment(Pos.TOP_CENTER);
-
-            for (Commande commande : commandesForDay) {
-                Label commandeLabel = new Label("Cmd #" + commande.getId() + " - " + commande.getClient().getName());
-                commandeLabel.setFont(Font.font("System", FontWeight.NORMAL, 10));
-                commandeLabel.setWrapText(true);
-                commandeLabel.setMaxWidth(Double.MAX_VALUE);
-                commandeLabel.getStyleClass().add("commande-label");
-                commandesBox.getChildren().add(commandeLabel);
-            }
-
-            dayCell.getChildren().add(commandesBox);
+            // Create check icon (green circle with check mark)
+            StackPane checkIcon = createCheckIcon();
+            dayCell.getChildren().add(checkIcon);
         }
 
         // Add click handler
         dayCell.setOnMouseClicked(e -> handleDayClick(date, commandesForDay));
 
         return dayCell;
+    }
+
+    private StackPane createCheckIcon() {
+        // Create a green circle
+        Circle circle = new Circle(8);
+        circle.setFill(Color.GREEN);
+
+        // Create a check mark (✓)
+        Text checkMark = new Text("✓");
+        checkMark.setFill(Color.WHITE);
+        checkMark.setFont(Font.font("Arial", FontWeight.BOLD, 10));
+
+        // Stack them together
+        StackPane checkIcon = new StackPane(circle, checkMark);
+        checkIcon.setAlignment(Pos.CENTER);
+
+        return checkIcon;
     }
 
     private List<Commande> getCommandesForDate(LocalDate date) {
@@ -216,19 +223,44 @@ public class CalendarController implements Initializable {
     }
 
     private void handleDayClick(LocalDate date, List<Commande> commandesForDay) {
-        System.out.println("Selected date: " + date);
         if (!commandesForDay.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Commandes pour le ").append(date).append(":\n");
-            for (Commande commande : commandesForDay) {
-                sb.append("- Commande #").append(commande.getId())
-                        .append(" (").append(commande.getClient().getName()).append(")\n");
-            }
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Détails des commandes");
-            alert.setHeaderText("Commandes du " + date);
-            alert.setContentText(sb.toString());
-            alert.showAndWait();
+            // Create dialog with pagination
+            Dialog<Void> dialog = new Dialog<>();
+            dialog.setTitle("Détails des commandes");
+            dialog.setHeaderText("Commandes du " + date);
+
+            // Create pagination
+            int itemsPerPage = 3;
+            int pageCount = (int) Math.ceil((double) commandesForDay.size() / itemsPerPage);
+
+            Pagination pagination = new Pagination(pageCount, 0);
+            pagination.setPageFactory(pageIndex -> {
+                VBox pageContent = new VBox(5);
+                pageContent.setPadding(new Insets(10));
+
+                int fromIndex = pageIndex * itemsPerPage;
+                int toIndex = Math.min(fromIndex + itemsPerPage, commandesForDay.size());
+
+                for (int i = fromIndex; i < toIndex; i++) {
+                    Commande commande = commandesForDay.get(i);
+                    Label commandeLabel = new Label(
+                            "Commande #" + commande.getId() +
+                                    "\nClient: " + commande.getClient().getName() +
+                                    "\nTotal: " + commande.getTotal() + " €"
+                    );
+                    commandeLabel.setStyle("-fx-border-color: lightgray; -fx-border-width: 0 0 1 0; -fx-padding: 5;");
+                    commandeLabel.setWrapText(true);
+                    pageContent.getChildren().add(commandeLabel);
+                }
+
+                return new ScrollPane(pageContent);
+            });
+
+            // Add pagination to dialog
+            dialog.getDialogPane().setContent(pagination);
+            dialog.getDialogPane().setPrefSize(400, 300);
+            dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+            dialog.showAndWait();
         }
     }
 }

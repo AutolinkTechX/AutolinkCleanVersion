@@ -668,7 +668,7 @@ public class Payement implements Initializable {
 
             try {
                 // 1. Vérifier le stock
-                if (!panierService.verifierStockDisponible(1)) {
+                if (!panierService.verifierStockDisponible(currentUser.getId())) {
                     AlertUtils.showErrorAlert("Stock insuffisant",
                             "Certains articles ne sont plus disponibles",
                             "Veuillez vérifier votre panier.");

@@ -22,9 +22,12 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.example.pidev.entities.Article;
 import org.example.pidev.services.ArticleService;
+import org.example.pidev.utils.MyDatabase;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -239,22 +242,90 @@ public class AjoutArticleController {
             e.printStackTrace();
         }
     }
+/*
+    private void handleDeleteProduct(Article article) {
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Confirm Deletion");
+        confirmAlert.setHeaderText(null);
+        confirmAlert.setContentText("Are you sure you want to delete this product and all its favorites?");
+
+        Optional<ButtonType> result = confirmAlert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                // Démarrer une transaction
+                Connection conn = MyDatabase.getInstance().getConnection();
+                conn.setAutoCommit(false);
+
+                try {
+                    // 1. Supprimer d'abord les favoris associés
+                    String deleteFavoritesSQL = "DELETE FROM favorie WHERE article_id = ?";
+                    try (PreparedStatement stmt = conn.prepareStatement(deleteFavoritesSQL)) {
+                        stmt.setInt(1, article.getId());
+                        stmt.executeUpdate();
+                    }
+
+                    // 2. Puis supprimer l'article
+                    articleService.delete(article.getId());
+
+                    // Valider la transaction
+                    conn.commit();
+
+                    showSuccessMessage("Product and associated favorites deleted successfully!");
+                    refreshCards();
+                } catch (SQLException e) {
+                    // Annuler en cas d'erreur
+                    conn.rollback();
+                    throw e;
+                } finally {
+                    conn.setAutoCommit(true);
+                }
+            } catch (SQLException e) {
+                showAlert("Database Error",
+                        "Could not delete product: " + e.getMessage(),
+                        Alert.AlertType.ERROR);
+                e.printStackTrace();
+            }
+        }
+    }
+*/
 
     private void handleDeleteProduct(Article article) {
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle("Confirm Deletion");
         confirmAlert.setHeaderText(null);
-        confirmAlert.setContentText("Are you sure you want to delete this product?");
+        confirmAlert.setContentText("Are you sure you want to delete this product and all its favorites?");
 
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                articleService.delete(article.getId());
-                showSuccessMessage("Product deleted successfully!");
-                refreshCards();
+            try (Connection conn = MyDatabase.getInstance().getConnection()) {
+                conn.setAutoCommit(false); // Start transaction
+
+                try {
+                    // 1. Delete favorites first
+                    String deleteFavoritesSQL = "DELETE FROM favorie WHERE article_id = ?";
+                    try (PreparedStatement stmt = conn.prepareStatement(deleteFavoritesSQL)) {
+                        stmt.setInt(1, article.getId());
+                        stmt.executeUpdate();
+                    }
+
+                    // 2. Delete article
+                    String deleteArticleSQL = "DELETE FROM article WHERE id = ?";
+                    try (PreparedStatement stmt = conn.prepareStatement(deleteArticleSQL)) {
+                        stmt.setInt(1, article.getId());
+                        stmt.executeUpdate();
+                    }
+
+                    conn.commit(); // Commit transaction
+                    showSuccessMessage("Product and associated favorites deleted successfully!");
+                    refreshCards();
+
+                } catch (SQLException e) {
+                    conn.rollback(); // Rollback on error
+                    throw e;
+                }
             } catch (SQLException e) {
                 showAlert("Database Error",
-                        "Could not delete product. It may be referenced elsewhere.\nError: " + e.getMessage(),
+                        "Could not delete product: " + e.getMessage(),
                         Alert.AlertType.ERROR);
                 e.printStackTrace();
             }
