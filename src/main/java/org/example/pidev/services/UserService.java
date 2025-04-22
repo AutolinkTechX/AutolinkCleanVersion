@@ -4,9 +4,12 @@ import org.example.pidev.entities.User;
 import org.example.pidev.utils.MyDatabase;
 import org.mindrot.jbcrypt.BCrypt;
 
+
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class UserService implements IService<User> {
 
@@ -148,10 +151,21 @@ public class UserService implements IService<User> {
             throw new IllegalArgumentException("Email or password incorrect");
         }
     }
+    public boolean emailExists(String email) throws SQLException {
+        String query = "SELECT COUNT(*) FROM user WHERE email = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+            return false;
+        }
+    }
 
-    public void sendPasswordReset(String email) throws SQLException {
-        // Implement password reset logic
-        System.out.println("Password reset requested for: " + email);
+
+    public void sendPasswordReset(String email){
+        System.out.println("Sending password reset email to: " + email);
     }
 
     public String getRoleName(int roleId) throws SQLException {

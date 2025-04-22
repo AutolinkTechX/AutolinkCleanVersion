@@ -19,7 +19,6 @@ module pidev {
 
     requires javafx.swing;        // pour io-7.2.5.jar
 
-
     opens org.example.pidev to javafx.fxml;
     opens org.example.pidev.controllers to javafx.fxml;
     opens org.example.pidev.entities to javafx.base;
