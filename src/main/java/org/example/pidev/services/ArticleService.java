@@ -533,5 +533,26 @@ public class ArticleService {
     }
 
 
+    public void deleteWithCascade(int articleId) throws SQLException {
+        Connection conn = MyDatabase.getInstance().getConnection();
+        conn.setAutoCommit(false);
+
+        try {
+            // Supprimer les favoris d'abord
+            FavorieService favorieService = new FavorieService();
+            favorieService.deleteByArticleId(articleId);
+
+            // Puis supprimer l'article
+            delete(articleId);
+
+            conn.commit();
+        } catch (SQLException e) {
+            conn.rollback();
+            throw e;
+        } finally {
+            conn.setAutoCommit(true);
+        }
+    }
+
 
 }

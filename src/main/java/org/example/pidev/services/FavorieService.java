@@ -105,4 +105,16 @@ public class FavorieService {
         }
         return 0;
     }
+
+
+    public void deleteByArticleId(int articleId) throws SQLException {
+        String sql = "DELETE FROM favorie WHERE article_id = ?";
+
+        try (Connection conn = MyDatabase.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, articleId);
+            stmt.executeUpdate();
+        }
+    }
 }
