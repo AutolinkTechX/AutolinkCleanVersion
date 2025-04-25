@@ -601,6 +601,7 @@ public class Payement implements Initializable {
     }
 
     // Modifiez showSuccessAlert pour fermer automatiquement la popup
+    /*
     private void showSuccessAlert(int commandeId, double totalCommande, List<Map<String, Object>> articlesDetails) {
         try {
             StringBuilder details = new StringBuilder();
@@ -656,11 +657,66 @@ public class Payement implements Initializable {
             redirectToHome();
         }
     }
+*/
 
-    private void processOnlinePayment() {
-        processStripePayment();
+    private void showSuccessAlert(int commandeId, double totalCommande, List<Map<String, Object>> articlesDetails) {
+        try {
+            StringBuilder details = new StringBuilder();
+            details.append("Détails de la commande #").append(commandeId).append(":\n\n");
+            details.append("----------------------------------------\n");
+
+            if (articlesDetails != null && !articlesDetails.isEmpty()) {
+                for (Map<String, Object> article : articlesDetails) {
+                    String nom = (String) article.get("nom");
+                    double prixUnitaire = (double) article.get("prix");
+                    int quantite = (int) article.get("quantite");
+                    double totalArticle = prixUnitaire * quantite;
+
+                    details.append(String.format(
+                            "Nom: %s\n" +
+                                    "Prix unitaire: %.2f DT\n" +
+                                    "Quantité: %d\n" +
+                                    "Total article: %.2f DT\n" +
+                                    "----------------------------------------\n",
+                            nom, prixUnitaire, quantite, totalArticle
+                    ));
+                }
+            }
+
+            details.append(String.format("\nTOTAL COMMANDE: %.2f DT", totalCommande));
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Paiement réussi");
+            alert.setHeaderText("Votre commande a été enregistrée avec succès");
+            alert.setContentText(details.toString());
+            alert.getDialogPane().setPrefSize(400, 400);
+
+            // Quand l'utilisateur clique sur OK, rediriger vers l'accueil
+            alert.setOnHidden(event -> {
+                redirectToHome();
+            });
+
+            alert.show();
+
+        } catch (Exception e) {
+            AlertUtils.showErrorAlert("Erreur", "Problème d'affichage", "Les détails n'ont pas pu être affichés");
+            redirectToHome();
+        }
     }
 
+    private void processOnlinePayment() {
+        try {
+            String clientSecret = stripeService.createPaymentIntent(
+                    totalAmount,
+                    "eur",
+                    "Payment for order from " + currentUser.getName()
+            );
+            showStripePaymentForm(clientSecret);
+        } catch (StripeException e) {
+            AlertUtils.showErrorAlert("Erreur Stripe", "Échec du paiement", e.getMessage());
+        }
+    }
+    /*
     public void completeOnlinePayment() {
         try {
             Connection connection = MyDatabase.getInstance().getConnection();
@@ -675,17 +731,14 @@ public class Payement implements Initializable {
                     return;
                 }
 
-                System.out.println("Panierrrrrrrrrrrrrrrrrr");
-
                 // 2. Récupérer les détails
                 List<Map<String, Object>> articlesDetails = panierService.getArticlesAvecDetails(currentUser.getId());
                 double totalCommande = panierService.calculerTotalPanier(currentUser.getId());
 
                 // 3. Créer la commande
                 Commande commande = createCommande();
-                commande.setModePaiement("card"); // Stripe payment
+                commande.setModePaiement("card");
                 commande.setTotal(totalCommande);
-
 
                 // Enregistrement de la commande et de la facture
                 Commande createdCommande = commandeService.createCommande(commande);
@@ -696,10 +749,8 @@ public class Payement implements Initializable {
                 panierService.viderPanier(currentUser.getId());
                 connection.commit();
 
-
-                // Envoi du SMS de confirmation pour le paiement cash
+                // Envoi du SMS de confirmation
                 if (!phoneField.getText().isEmpty()) {
-                    // Créer un utilisateur temporaire avec le numéro saisi
                     User tempUser = new User();
                     tempUser.setPhone(Integer.parseInt(phoneField.getText()));
                     SmsService.sendPaymentConfirmation(tempUser,
@@ -711,18 +762,74 @@ public class Payement implements Initializable {
                             totalCommande);
                 }
 
-                // 7. Afficher succès
+                // Afficher le succès
                 showSuccessAlert(createdCommande.getId(), totalCommande, articlesDetails);
 
             } catch (Exception e) {
                 connection.rollback();
-                AlertUtils.showErrorAlert("Erreur SQL", "Erreur lors du paiement", e.getMessage());
+                throw e;
             } finally {
                 connection.setAutoCommit(true);
             }
-
         } catch (Exception e) {
-            AlertUtils.showErrorAlert("Erreur", "Erreur inattendue", e.getMessage());
+            AlertUtils.showErrorAlert("Erreur", "Erreur lors du paiement", e.getMessage());
+        }
+    }
+*/
+
+    public void completeOnlinePayment() {
+        try (Connection connection = MyDatabase.getInstance().getConnection()) {
+            connection.setAutoCommit(false);
+
+            try {
+                // 1. Vérifier le stock
+                if (!panierService.verifierStockDisponible(currentUser.getId())) {
+                    AlertUtils.showErrorAlert("Stock insuffisant",
+                            "Certains articles ne sont plus disponibles",
+                            "Veuillez vérifier votre panier.");
+                    return;
+                }
+
+                // 2. Récupérer les détails
+                List<Map<String, Object>> articlesDetails = panierService.getArticlesAvecDetails(currentUser.getId());
+                double totalCommande = panierService.calculerTotalPanier(currentUser.getId());
+
+                // 3. Créer la commande
+                Commande commande = createCommande();
+                commande.setModePaiement("card");
+                commande.setTotal(totalCommande);
+
+                // Enregistrement de la commande et de la facture
+                Commande createdCommande = commandeService.createCommande(commande);
+                Facture facture = createFacture(createdCommande);
+                factureService.ajouterFacture(facture);
+
+                // Vidage du panier
+                panierService.viderPanier(currentUser.getId());
+                connection.commit();
+
+                // Envoi du SMS de confirmation
+                if (!phoneField.getText().isEmpty()) {
+                    User tempUser = new User();
+                    tempUser.setPhone(Integer.parseInt(phoneField.getText()));
+                    SmsService.sendPaymentConfirmation(tempUser,
+                            String.valueOf(createdCommande.getId()),
+                            totalCommande);
+                } else if (currentUser.getPhone() != 0) {
+                    SmsService.sendPaymentConfirmation(currentUser,
+                            String.valueOf(createdCommande.getId()),
+                            totalCommande);
+                }
+
+                // Afficher le succès
+                showSuccessAlert(createdCommande.getId(), totalCommande, articlesDetails);
+
+            } catch (Exception e) {
+                connection.rollback();
+                throw e;
+            }
+        } catch (Exception e) {
+            AlertUtils.showErrorAlert("Erreur", "Erreur lors du paiement", e.getMessage());
         }
     }
 
@@ -949,30 +1056,119 @@ public class Payement implements Initializable {
         }
     }
 
-
+/*
     private void showStripePaymentForm(String clientSecret) {
         stripePopup.setVisible(true);
         WebEngine webEngine = stripeWebView.getEngine();
 
         String url = stripeService.createCheckoutSession(totalAmount);
         stripeWebView.getEngine().load(url);
-        stripePopup.setVisible(true);
 
-        webEngine.getLoadWorker().exceptionProperty().addListener((obs, oldEx, newEx) -> {
-            if (newEx != null) {
-                System.err.println("WebView load error: " + newEx.getMessage());
-            }
-        });
-
-        System.out.println("stripePopup is " + (stripePopup != null ? "NOT null" : "null"));
-        System.out.println("Loading Stripe payment form");
-
-
-        // Java-JS bridge
         webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
             if (newState == Worker.State.SUCCEEDED) {
+                // Injecter du JavaScript pour détecter la complétion du paiement
+                webEngine.executeScript(
+                        "window.addEventListener('message', function(event) {" +
+                                "   if (event.data.type === 'payment-success') {" +
+                                "       window.javaConnector.paymentSuccess(event.data.sessionId);" +
+                                "   } else if (event.data.type === 'payment-cancel') {" +
+                                "       window.javaConnector.paymentCanceled();" +
+                                "   }" +
+                                "});" +
+
+                                // Surveiller les changements dans le DOM pour détecter la complétion
+                                "var observer = new MutationObserver(function(mutations) {" +
+                                "   var successElement = document.querySelector('.sr-payment-complete');" +
+                                "   if (successElement) {" +
+                                "       var sessionId = window.location.href.split('sessionId=')[1];" +
+                                "       window.postMessage({" +
+                                "           type: 'payment-success'," +
+                                "           sessionId: sessionId" +
+                                "       }, '*');" +
+                                "   }" +
+                                "   var cancelElement = document.querySelector('.sr-cancel-btn');" +
+                                "   if (cancelElement) {" +
+                                "       window.postMessage({" +
+                                "           type: 'payment-cancel'" +
+                                "       }, '*');" +
+                                "   }" +
+                                "});" +
+                                "observer.observe(document.body, { childList: true, subtree: true });"
+                );
+
+                // Connecter le bridge Java-JS
                 JSObject window = (JSObject) webEngine.executeScript("window");
                 window.setMember("javaConnector", new JavaConnector());
+            }
+        });
+    }
+*/
+
+    private void showStripePaymentForm(String clientSecret) {
+        stripePopup.setVisible(true);
+        WebEngine webEngine = stripeWebView.getEngine();
+
+        // Utilisez des URLs locales pour gérer le résultat
+        String successUrl = "http://localhost/success?session_id={CHECKOUT_SESSION_ID}";
+        String cancelUrl = "http://localhost/cancel";
+
+        String url = stripeService.createCheckoutSession(totalAmount, successUrl, cancelUrl);
+        stripeWebView.getEngine().load(url);
+
+        webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
+            if (newState == Worker.State.SUCCEEDED) {
+                // Surveiller les changements d'URL pour détecter la complétion
+                webEngine.locationProperty().addListener((obs2, oldLocation, newLocation) -> {
+                    if (newLocation.contains("success")) {
+                        // Extraire l'ID de session de l'URL
+                        String sessionId = newLocation.split("session_id=")[1];
+                        handleSuccessfulPayment(sessionId);
+                    } else if (newLocation.contains("cancel")) {
+                        Platform.runLater(() -> {
+                            closeStripePopup();
+                            AlertUtils.showInformationAlert(
+                                    "Paiement annulé",
+                                    "Vous avez annulé le processus de paiement"
+                            );
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    private void handleSuccessfulPayment(String sessionId) {
+        Platform.runLater(() -> {
+            try {
+                // Vérifier le statut du paiement avec Stripe
+                Session session = Session.retrieve(sessionId);
+
+                if ("paid".equals(session.getPaymentStatus())) {
+                    // Fermer la popup Stripe
+                    closeStripePopup();
+
+                    // Traiter le paiement
+                    completeOnlinePayment();
+
+                    // Fermer aussi le dialog de paiement principal si nécessaire
+                    if (paymentStage != null) {
+                        paymentStage.close();
+                    }
+                } else {
+                    closeStripePopup();
+                    AlertUtils.showErrorAlert(
+                            "Paiement incomplet",
+                            "Erreur",
+                            "Le paiement n'a pas été complété. Statut: " + session.getPaymentStatus()
+                    );
+                }
+            } catch (StripeException e) {
+                closeStripePopup();
+                AlertUtils.showErrorAlert(
+                        "Erreur Stripe",
+                        "Problème technique",
+                        "Impossible de vérifier le statut du paiement: " + e.getMessage()
+                );
             }
         });
     }
@@ -980,16 +1176,52 @@ public class Payement implements Initializable {
     @FXML
     private void closeStripePopup() {
         stripePopup.setVisible(false);
-    }
+        stripeWebView.getEngine().loadContent(""); // Vider le contenu
 
-    public class JavaConnector {
-        public void paymentSuccess() {
-            Platform.runLater(() -> {
-                closeStripePopup(); // hide popup
-                completeOnlinePayment(); // do all the backend work
-            });
+        // Optionnel: fermer aussi le dialog principal si nécessaire
+        if (paymentStage != null) {
+            paymentStage.close();
         }
     }
 
+    public class JavaConnector {
+        public void paymentSuccess(String sessionId) {
+            Platform.runLater(() -> {
+                try {
+                    // Vérifier le statut du paiement avec Stripe
+                    Session session = Session.retrieve(sessionId);
 
+                    if ("paid".equals(session.getPaymentStatus())) {
+                        // Traiter le paiement - cela inclut l'affichage de la confirmation
+                        // et la fermeture des popups via completeOnlinePayment()
+                        completeOnlinePayment();
+                    } else {
+                        closeStripePopup();
+                        AlertUtils.showErrorAlert(
+                                "Paiement incomplet",
+                                "Erreur",
+                                "Le paiement n'a pas été complété. Statut: " + session.getPaymentStatus()
+                        );
+                    }
+                } catch (StripeException e) {
+                    closeStripePopup();
+                    AlertUtils.showErrorAlert(
+                            "Erreur Stripe",
+                            "Problème technique",
+                            "Impossible de vérifier le statut du paiement: " + e.getMessage()
+                    );
+                }
+            });
+        }
+
+        public void paymentCanceled() {
+            Platform.runLater(() -> {
+                closeStripePopup();
+                AlertUtils.showInformationAlert(
+                        "Paiement annulé",
+                        "Vous avez annulé le processus de paiement"
+                );
+            });
+        }
+    }
 }

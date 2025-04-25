@@ -555,4 +555,63 @@ public class ArticleService {
     }
 
 
+
+    // Méthode pour trouver le prix minimum
+    public double findMinPrice() throws SQLException {
+        String query = "SELECT MIN(prix) FROM article WHERE quantitestock > 0";
+        try (PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
+            if (resultSet.next()) {
+                return resultSet.getDouble(1);
+            }
+        }
+        return 0.0; // Valeur par défaut si aucun article trouvé
+    }
+
+    // Méthode pour trouver le prix maximum
+    public double findMaxPrice() throws SQLException {
+        String query = "SELECT MAX(prix) FROM article WHERE quantitestock > 0";
+        try (PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
+            if (resultSet.next()) {
+                return resultSet.getDouble(1);
+            }
+        }
+        return 0.0; // Valeur par défaut si aucun article trouvé
+    }
+
+
+    public List<Article> filterArticlesByPrice(Double minPrice, Double maxPrice) throws SQLException {
+        List<Article> articles = new ArrayList<>();
+        StringBuilder query = new StringBuilder("SELECT * FROM article WHERE quantitestock > 0");
+
+        // Ajout des conditions de prix si elles sont spécifiées
+        if (minPrice != null && maxPrice != null) {
+            query.append(" AND prix BETWEEN ? AND ?");
+        } else if (minPrice != null) {
+            query.append(" AND prix >= ?");
+        } else if (maxPrice != null) {
+            query.append(" AND prix <= ?");
+        }
+
+        try (PreparedStatement statement = connection.prepareStatement(query.toString())) {
+            int paramIndex = 1;
+            if (minPrice != null && maxPrice != null) {
+                statement.setDouble(paramIndex++, minPrice);
+                statement.setDouble(paramIndex, maxPrice);
+            } else if (minPrice != null) {
+                statement.setDouble(paramIndex, minPrice);
+            } else if (maxPrice != null) {
+                statement.setDouble(paramIndex, maxPrice);
+            }
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    articles.add(mapResultSetToArticle(resultSet));
+                }
+            }
+        }
+        return articles;
+    }
+
 }
