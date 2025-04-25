@@ -42,6 +42,7 @@ public class Panier implements Initializable {
     private User currentUser;
     private ClientDashboardController dashboardController;
 
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
@@ -92,7 +93,6 @@ public class Panier implements Initializable {
             nextButton.setOnAction(event -> showNextPage());
         }
     }
-
 
     public void setCurrentUser(User user) {
         if (user == null) {
@@ -230,7 +230,6 @@ public class Panier implements Initializable {
         updatePaginationUI();
     }
 
-
     private HBox createCartItemCard(List_article item) {
         HBox card = new HBox(10); // Espacement réduit
         card.getStyleClass().add("cart-item");
@@ -259,6 +258,7 @@ public class Panier implements Initializable {
         card.getChildren().addAll(imageContainer, details);
         return card;
     }
+    
     private Image loadItemImage(List_article item) {
         try {
             String imageUrl = item.getArticle().getImage();
@@ -279,7 +279,6 @@ public class Panier implements Initializable {
     private Image loadDefaultImage() {
         return new Image(getClass().getResourceAsStream("/images/logo.jpg"));
     }
-
 
     private Label createItemNameLabel(List_article item) {
         Label label = new Label(item.getArticle().getNom());

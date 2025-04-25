@@ -168,7 +168,6 @@ public class PanierService {
         }
     }
 
-
     // Méthode pour calculer le total du panier
     public double calculerTotalPanier(int userId) throws SQLException {
         double total = 0.0;
@@ -234,7 +233,6 @@ public class PanierService {
         return false;
     }
 
-
     public int getTotalQuantity(int userId) throws SQLException {
         int totalQuantity = 0;
         String query = "SELECT SUM(quantite) as total FROM list_article WHERE user_id = ?";
@@ -250,7 +248,6 @@ public class PanierService {
         return totalQuantity;
     }
 
-
     public int getPanierCountForUser(int userId) {
         String query = "SELECT COUNT(*) FROM list_article WHERE user_id = ?";
         try {
@@ -265,4 +262,6 @@ public class PanierService {
         }
         return 0;
     }
+
+
 }
