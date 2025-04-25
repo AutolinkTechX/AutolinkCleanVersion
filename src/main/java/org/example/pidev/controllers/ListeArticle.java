@@ -1,4 +1,4 @@
-package org.example.pidev.controllers;
+ package org.example.pidev.controllers;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -64,6 +64,16 @@ public class ListeArticle {
     private List<Article> allArticles;
     private User currentUser;
     @FXML private ImageView userImageView;
+    @FXML private TextField minPriceInput;
+    @FXML private TextField maxPriceInput;
+    @FXML private Button filterButton;
+
+    @FXML private Slider minPriceSlider;
+    @FXML private Slider maxPriceSlider;
+    @FXML private Label minPriceLabel;
+    @FXML private Label maxPriceLabel;
+
+
 
     // Styles
     private static final String HOVER_STYLE = "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 2);";
@@ -88,6 +98,61 @@ public class ListeArticle {
         }
         if (searchField != null) {
             setupSearchListener();
+        }
+        try {
+            // Initialiser les sliders avec les prix min/max
+            double minPrice = articleService.findMinPrice();
+            double maxPrice = articleService.findMaxPrice();
+
+            minPriceSlider.setMin(minPrice);
+            minPriceSlider.setMax(maxPrice);
+            minPriceSlider.setValue(minPrice);
+
+            maxPriceSlider.setMin(minPrice);
+            maxPriceSlider.setMax(maxPrice);
+            maxPriceSlider.setValue(maxPrice);
+
+            // Mettre à jour les labels
+            updatePriceLabels();
+
+            // Écouteurs pour les sliders
+            minPriceSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal.doubleValue() > maxPriceSlider.getValue()) {
+                    maxPriceSlider.setValue(newVal.doubleValue());
+                }
+                updatePriceLabels();
+            });
+
+            maxPriceSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal.doubleValue() < minPriceSlider.getValue()) {
+                    minPriceSlider.setValue(newVal.doubleValue());
+                }
+                updatePriceLabels();
+            });
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            AlertUtils.showErrorAlert("Erreur", "Initialisation des filtres de prix", e.getMessage());
+        }
+    }
+
+    private void updatePriceLabels() {
+        minPriceLabel.setText(String.format("Min: %.0f DT", minPriceSlider.getValue()));
+        maxPriceLabel.setText(String.format("Max: %.0f DT", maxPriceSlider.getValue()));
+    }
+
+    @FXML
+    private void applyFilters(ActionEvent event) {
+        try {
+            double minPrice = minPriceSlider.getValue();
+            double maxPrice = maxPriceSlider.getValue();
+
+            List<Article> filteredArticles = articleService.filterArticlesByPrice(minPrice, maxPrice);
+            updateArticlesDisplay(filteredArticles);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            AlertUtils.showErrorAlert("Erreur", "Erreur SQL", "Une erreur est survenue lors du filtrage.");
         }
     }
 /*
@@ -140,6 +205,50 @@ public class ListeArticle {
         }
     }
 */
+
+
+    private void updateArticlesDisplay(List<Article> articles) {
+        Platform.runLater(() -> {
+            articlesContainer.getChildren().clear();
+
+            if (articles == null || articles.isEmpty()) {
+                Label noResultsLabel = new Label("Aucun article ne correspond à vos critères de filtrage.");
+                noResultsLabel.getStyleClass().add("no-results-label");
+                articlesContainer.getChildren().add(noResultsLabel);
+                return;
+            }
+
+            // Mettre à jour la pagination
+            allArticles = articles;
+            currentPage = 1;
+            calculateTotalPages();
+            updateNavigationButtons();
+            updatePageIndicators();
+
+            // Afficher les articles de la première page
+            int fromIndex = 0;
+            int toIndex = Math.min(CARDS_PER_PAGE, articles.size());
+            displayArticles(articles.subList(fromIndex, toIndex));
+        });
+    }
+
+    private void setupNumericValidation() {
+        // Validation pour minPriceInput
+        minPriceInput.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*(\\.\\d{0,2})?")) {
+                minPriceInput.setText(oldValue);
+            }
+        });
+
+        // Validation pour maxPriceInput
+        maxPriceInput.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*(\\.\\d{0,2})?")) {
+                maxPriceInput.setText(oldValue);
+            }
+        });
+    }
+
+
     @FXML
     public void setCurrentUser(User user) {
         if (user == null) {
