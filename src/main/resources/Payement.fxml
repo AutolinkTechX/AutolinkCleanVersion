@@ -43,9 +43,23 @@
                         <ToggleGroup fx:id="paymentMethodGroup"/>
                     </toggleGroup>
                 </RadioButton>
-                
+
+                <!-- Formulaire paiement en ligne -->
+
                     <!-- Formulaire paiement en ligne -->
                     <VBox fx:id="onlineForm" spacing="10" style="-fx-padding: 10 0 10 20;">
+                        <Label text="Numéro de carte:" />
+                        <TextField fx:id="cardNumberField" />
+
+                        <Label text="Date d'expiration:" />
+                        <HBox spacing="10">
+                            <ComboBox fx:id="expiryMonthCombo" promptText="Mois" prefWidth="80"/>
+                            <ComboBox fx:id="expiryYearCombo" promptText="Année" prefWidth="100"/>
+                        </HBox>
+
+                        <Label text="CVV:" />
+                        <TextField fx:id="cvvField" prefWidth="60"/>
+
                         <Button fx:id="stripePaymentButton" text="Payer avec Stripe"
                                 style="-fx-background-color: #635bff; -fx-text-fill: white;"
                                 onAction="#handleStripePayment"/>
