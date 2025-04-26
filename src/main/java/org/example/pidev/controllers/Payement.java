@@ -1007,9 +1007,9 @@ public class Payement implements Initializable {
         Connection connection = null;
         try {
             connection = MyDatabase.getInstance().getConnection();
-            connection.setAutoCommit(false); // Désactiver l'auto-commit
+            connection.setAutoCommit(false); // Démarrer la transaction
 
-            // 1. Vérifier le stock AVANT toute modification
+            // 1. Vérifier le stock
             if (!panierService.verifierStockDisponible(currentUser.getId())) {
                 AlertUtils.showErrorAlert("Stock insuffisant",
                         "Certains articles ne sont plus disponibles",
@@ -1017,7 +1017,7 @@ public class Payement implements Initializable {
                 return;
             }
 
-            // 2. Récupérer les détails du panier (lecture seule)
+            // 2. Récupérer les détails du panier
             List<Map<String, Object>> articlesDetails = panierService.getArticlesAvecDetails(currentUser.getId());
             double totalCommande = panierService.calculerTotalPanier(currentUser.getId());
 
@@ -1028,10 +1028,9 @@ public class Payement implements Initializable {
             commande.setTotal(totalCommande);
             commande.setModePaiement("especes");
 
-            // Préparer les données des articles
+            // Sérialiser les articles et quantités
             List<Integer> articleIds = new ArrayList<>();
             Map<Integer, Integer> quantites = new HashMap<>();
-
             for (Map<String, Object> details : articlesDetails) {
                 int articleId = (int) details.get("article_id");
                 int quantite = (int) details.get("quantite");
@@ -1039,45 +1038,40 @@ public class Payement implements Initializable {
                 quantites.put(articleId, quantite);
             }
 
-            // Sérialisation JSON
             ObjectMapper objectMapper = new ObjectMapper();
             commande.setArticleIds(objectMapper.writeValueAsString(articleIds));
             commande.setQuantites(objectMapper.writeValueAsString(quantites));
 
-            // 4. Enregistrer la commande
+            // 4. Enregistrer la commande et la facture
             Commande createdCommande = commandeService.createCommande(commande);
-
-            // 5. Créer la facture
             Facture facture = createFacture(createdCommande);
             factureService.ajouterFacture(facture);
 
-            // 6. Mettre à jour les stocks
+            // 5. Mettre à jour les stocks et vider le panier
             for (Map.Entry<Integer, Integer> entry : quantites.entrySet()) {
                 articleService.mettreAJourStock(entry.getKey(), entry.getValue());
             }
-
-            // 7. Vider le panier (DERNIÈRE ÉTAPE)
             panierService.viderPanier(currentUser.getId());
 
             // Valider la transaction
             connection.commit();
 
-            // Envoyer confirmation SMS
+            // Envoyer la confirmation SMS
             sendPaymentConfirmation(createdCommande.getId(), totalCommande);
 
-            // Fermer les fenêtres
+            // Fermer les popups
             cashPopup.setVisible(false);
             if (paymentStage != null) {
                 paymentStage.close();
             }
 
-            // Actualiser l'affichage parent
+            // Actualiser le panier parent
             if (parentController != null) {
                 parentController.refreshCart();
             }
 
-            // Afficher confirmation
-            showSuccessAlerte(createdCommande.getId(), totalCommande, articlesDetails);
+            // Afficher la confirmation
+            showSuccessAlert(createdCommande.getId(), totalCommande, articlesDetails);
 
         } catch (Exception e) {
             try {
@@ -1085,31 +1079,21 @@ public class Payement implements Initializable {
                 if (connection != null) {
                     connection.rollback();
                 }
-
-                // Message d'erreur amélioré avec logs
-                System.err.println("Erreur paiement cash: " + e.getMessage());
-                e.printStackTrace();
-
-                AlertUtils.showErrorAlert("Erreur de paiement",
-                        "Échec du traitement",
-                        "Le paiement n'a pas pu être complété.\n" +
-                                "Raison: " + e.getMessage() + "\n\n" +
-                                "Votre panier n'a pas été modifié.");
-
+                AlertUtils.showErrorAlert("Erreur", "Erreur lors du paiement",
+                        "Le paiement a échoué : " + e.getMessage() +
+                                "\nVotre panier n'a pas été modifié.");
             } catch (SQLException ex) {
-                System.err.println("Erreur lors du rollback: " + ex.getMessage());
-                AlertUtils.showErrorAlert("Erreur critique",
-                        "Problème technique",
-                        "Une erreur grave est survenue. Veuillez contacter le support.");
+                AlertUtils.showErrorAlert("Erreur", "Problème technique",
+                        "Une erreur grave est survenue : " + ex.getMessage());
             }
         } finally {
             try {
                 if (connection != null) {
-                    connection.setAutoCommit(true); // Rétablir l'auto-commit
+                    connection.setAutoCommit(true);
                     connection.close();
                 }
             } catch (SQLException e) {
-                System.err.println("Erreur fermeture connexion: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }
