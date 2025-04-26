@@ -196,11 +196,20 @@
       <version>24.4.0</version> <!-- Use the latest version -->
     </dependency>
 
+    <!-- WebSocket client dependency -->
+    <dependency>
+      <groupId>org.java-websocket</groupId>
+      <artifactId>Java-WebSocket</artifactId>
+      <version>1.5.2</version>
+    </dependency>
+
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-web</artifactId>
       <version>17.0.2</version> <!-- Use the version matching your JavaFX version -->
     </dependency>
+
+
 
   </dependencies>
 

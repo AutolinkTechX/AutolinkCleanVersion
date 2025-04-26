@@ -25,6 +25,9 @@ import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.control.DatePicker;
+import org.example.pidev.utils.WebSocketNotifier;
+import org.example.pidev.websocket.NotificationClient;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 
@@ -70,6 +73,8 @@ public class AjouterMaterielRecyclable implements Initializable {
     @FXML private Label entrepriseErrorLabel;
     @FXML private Label typeErrorLabel;
     @FXML private Label imageErrorLabel;
+
+    private NotificationClient notificationClient;
 
 
     private ServiceMaterielRecyclable m = new ServiceMaterielRecyclable();
@@ -262,6 +267,7 @@ public class AjouterMaterielRecyclable implements Initializable {
             accord.setEntreprise(entrepriseObj);
 
             serviceAccord.ajouter(accord);
+            WebSocketNotifier.sendNotification("Un nouvel accord a été créé !");
 
             // Afficher un message de succès
             showAlert("Succès", "Matériau ajouté avec succès et accord créé!", Alert.AlertType.INFORMATION);
