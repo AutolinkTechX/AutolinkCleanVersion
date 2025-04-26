@@ -377,7 +377,156 @@ public class ServiceAccord implements IService<Accord> {
         return result;
     }
 
+    public List<Accord> getRecentAccordsByEntrepriseId(int entrepriseId) {
+        List<Accord> accords = new ArrayList<>();
+        
+        // Réinitialiser la connexion
+        connection = MyDatabase.getInstance().getMyConnection();
+        
+        String sql = "SELECT a.*, m.id as materiel_id, m.name as materiel_name, m.description as materiel_description, " +
+                "m.datecreation as materiel_datecreation, m.type_materiel as materiel_type, " +
+                "m.image as materiel_image, m.statut as materiel_statut, " +
+                "e.id as entreprise_id, e.company_name, e.email, e.phone " +
+                "FROM accord a " +
+                "JOIN materiel_recyclable m ON a.materiel_recyclable_id = m.id " +
+                "JOIN entreprise e ON a.entreprise_id = e.id " +
+                "WHERE e.id = ? " +
+                "ORDER BY a.date_creation DESC";
 
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, entrepriseId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Accord accord = new Accord();
+                accord.setId(rs.getInt("id"));
+                accord.setDateCreation(rs.getTimestamp("date_creation").toLocalDateTime());
+
+                java.sql.Timestamp dateReception = rs.getTimestamp("date_reception");
+                accord.setDateReception(dateReception != null ? dateReception.toLocalDateTime() : null);
+
+                accord.setQuantity(rs.getFloat("quantity"));
+                accord.setOutput(rs.getString("output"));
+
+                MaterielRecyclable materiel = new MaterielRecyclable();
+                materiel.setId(rs.getInt("materiel_id"));
+                materiel.setName(rs.getString("materiel_name"));
+                materiel.setDescription(rs.getString("materiel_description"));
+                materiel.setDateCreation(rs.getTimestamp("materiel_datecreation").toLocalDateTime());
+                materiel.setType_materiel(Type_materiel.valueOf(rs.getString("materiel_type")));
+
+                String imagePath = rs.getString("materiel_image");
+                if (imagePath != null && !imagePath.isEmpty()) {
+                    materiel.setImage(imagePath);
+                }
+
+                String statutStr = rs.getString("materiel_statut");
+                if (statutStr != null) {
+                    materiel.setStatut(StatutEnum.valueOf(statutStr));
+                }
+
+                Entreprise entreprise = new Entreprise();
+                entreprise.setId(rs.getInt("entreprise_id"));
+                entreprise.setCompanyName(rs.getString("company_name"));
+                entreprise.setEmail(rs.getString("email"));
+                entreprise.setPhone(rs.getString("phone"));
+
+                materiel.setEntreprise(entreprise);
+                accord.setMaterielRecyclable(materiel);
+                accord.setEntreprise(entreprise);
+
+                accords.add(accord);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return accords;
+    }
+
+    public List<Accord> getUnseenAccordsByEntrepriseId(int entrepriseId) {
+        List<Accord> accords = new ArrayList<>();
+        
+        // Réinitialiser la connexion
+        connection = MyDatabase.getInstance().getMyConnection();
+        
+        String sql = "SELECT a.*, m.id as materiel_id, m.name as materiel_name, m.description as materiel_description, " +
+                "m.datecreation as materiel_datecreation, m.type_materiel as materiel_type, " +
+                "m.image as materiel_image, m.statut as materiel_statut, " +
+                "e.id as entreprise_id, e.company_name, e.email, e.phone " +
+                "FROM accord a " +
+                "JOIN materiel_recyclable m ON a.materiel_recyclable_id = m.id " +
+                "JOIN entreprise e ON a.entreprise_id = e.id " +
+                "LEFT JOIN notifications_vues nv ON a.id = nv.accord_id AND nv.entreprise_id = ? " +
+                "WHERE e.id = ? AND nv.id IS NULL " +
+                "ORDER BY a.date_creation DESC";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, entrepriseId);
+            stmt.setInt(2, entrepriseId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Accord accord = new Accord();
+                accord.setId(rs.getInt("id"));
+                accord.setDateCreation(rs.getTimestamp("date_creation").toLocalDateTime());
+
+                java.sql.Timestamp dateReception = rs.getTimestamp("date_reception");
+                accord.setDateReception(dateReception != null ? dateReception.toLocalDateTime() : null);
+
+                accord.setQuantity(rs.getFloat("quantity"));
+                accord.setOutput(rs.getString("output"));
+
+                MaterielRecyclable materiel = new MaterielRecyclable();
+                materiel.setId(rs.getInt("materiel_id"));
+                materiel.setName(rs.getString("materiel_name"));
+                materiel.setDescription(rs.getString("materiel_description"));
+                materiel.setDateCreation(rs.getTimestamp("materiel_datecreation").toLocalDateTime());
+                materiel.setType_materiel(Type_materiel.valueOf(rs.getString("materiel_type")));
+
+                String imagePath = rs.getString("materiel_image");
+                if (imagePath != null && !imagePath.isEmpty()) {
+                    materiel.setImage(imagePath);
+                }
+
+                String statutStr = rs.getString("materiel_statut");
+                if (statutStr != null) {
+                    materiel.setStatut(StatutEnum.valueOf(statutStr));
+                }
+
+                Entreprise entreprise = new Entreprise();
+                entreprise.setId(rs.getInt("entreprise_id"));
+                entreprise.setCompanyName(rs.getString("company_name"));
+                entreprise.setEmail(rs.getString("email"));
+                entreprise.setPhone(rs.getString("phone"));
+
+                materiel.setEntreprise(entreprise);
+                accord.setMaterielRecyclable(materiel);
+                accord.setEntreprise(entreprise);
+
+                accords.add(accord);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return accords;
+    }
+
+    public void markAccordsAsSeen(int entrepriseId, List<Accord> accords) {
+        connection = MyDatabase.getInstance().getMyConnection();
+        
+        String sql = "INSERT INTO notifications_vues (accord_id, entreprise_id, date_vue) VALUES (?, ?, NOW())";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            for (Accord accord : accords) {
+                stmt.setInt(1, accord.getId());
+                stmt.setInt(2, entrepriseId);
+                stmt.addBatch();
+            }
+            stmt.executeBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
 
