@@ -1,19 +1,31 @@
 package org.example.pidev.services;
 
 import org.example.pidev.entities.User;
+import org.example.pidev.utils.EmailUtil;
 import org.example.pidev.utils.MyDatabase;
 import org.mindrot.jbcrypt.BCrypt;
-
-
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.mail.Session;
+import java.util.Properties;
+import javax.mail.Authenticator;
+import javax.mail.PasswordAuthentication;
+import java.util.UUID;
+import java.time.LocalDateTime;
+
+
+
 
 public class UserService implements IService<User> {
 
     private final Connection connection;
+    private final String smtpHostServer = "smtp.gmail.com";
+    private final String AutolinkEmail = "flappywharf@gmail.com";
+    private final String AutolinkPassword = "mctb jqmv quhy bpme";
+    
 
     public UserService() {
         this.connection = MyDatabase.getInstance().getMyConnection();
@@ -163,9 +175,60 @@ public class UserService implements IService<User> {
         }
     }
 
+    public void sendPasswordReset(String email) throws SQLException {
+        String resetToken = UUID.randomUUID().toString();
+        LocalDateTime expirationTime = LocalDateTime.now().plusHours(1);
 
-    public void sendPasswordReset(String email){
-        System.out.println("Sending password reset email to: " + email);
+        String query = "UPDATE user SET reset_token = ?, reset_token_expires_at = ? WHERE email = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, resetToken);
+            stmt.setTimestamp(2, Timestamp.valueOf(expirationTime));
+            stmt.setString(3, email);
+            stmt.executeUpdate();
+        }
+
+	    
+	    Properties props = System.getProperties();
+
+	    props.put("mail.smtp.host", smtpHostServer);
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+
+        Authenticator auth = new Authenticator() {
+			@Override
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(AutolinkEmail, AutolinkPassword);
+			}
+		};
+		Session session = Session.getInstance(props, auth);
+
+        String appLink = "Autolink://reset-password?token=" + resetToken;
+        String webLink = "http://localhost:8080/reset-password?token=" + resetToken;
+
+        String htmlContent = "Click the link below to reset your password: " + appLink + "\n"
+            + "Or copy this link to your browser if the above doesn't work: " + webLink + "\n"
+            + "This link will expire in 1 hour.";
+		
+		EmailUtil.sendEmail(session, email,"Reset Password", htmlContent);
+    }
+
+    public boolean resetPassword(String token, String newPassword) throws SQLException {
+        if (token == null || token.isEmpty() || newPassword == null || newPassword.isEmpty()) {
+            throw new IllegalArgumentException("Token and new password cannot be null or empty");
+        }
+
+        String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+
+        String query = "UPDATE user SET password = ?, reset_token = NULL WHERE reset_token = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, hashedPassword);
+            stmt.setString(2, token);
+            
+            int rowsAffected = stmt.executeUpdate();
+
+            return rowsAffected == 1;
+        }
     }
 
     public String getRoleName(int roleId) throws SQLException {
