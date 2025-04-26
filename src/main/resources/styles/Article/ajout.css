@@ -4,6 +4,96 @@
     -fx-font-family: 'Segoe UI', Arial, sans-serif;
 }
 
+/* ========== HEADER CONTAINER STYLES ========== */
+.header-container {
+    -fx-padding: 10px 0;
+    -fx-alignment: center-left;
+    -fx-spacing: 15px;
+}
+
+.header-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 0 15px 0 0;
+    -fx-min-width: 250px; /* Fixed width for the header */
+}
+
+.search-field {
+    -fx-pref-width: 200px;
+    -fx-pref-height: 35px;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-border-color: #e0e0e0;
+    -fx-padding: 0 15px;
+    -fx-font-size: 14px;
+}
+
+.search-field:focused {
+    -fx-border-color: #3498db;
+}
+
+/* ========== FILTER COMBOBOX STYLES ========== */
+.filter-combo {
+    -fx-pref-width: 180px;
+    -fx-pref-height: 35px;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-background-color: #ecf0f1;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-padding: 0 10px;
+}
+
+.filter-combo .list-cell {
+    -fx-background-color: #ecf0f1;
+    -fx-padding: 5px 10px;
+}
+
+.filter-combo .list-view {
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-border-color: #e0e0e0;
+    -fx-background-color: white;
+}
+
+.filter-combo .arrow {
+    -fx-background-color: #7f8c8d;
+}
+
+/* ========== BUTTON STYLES ========== */
+.filter-button {
+    -fx-background-color: #ecf0f1;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-pref-height: 35px;
+    -fx-min-width: 120px;
+    -fx-font-size: 13px;
+    -fx-text-fill: #2c3e50;
+    -fx-cursor: hand;
+}
+
+.filter-button:selected, .active-filter {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+}
+
+.add-button {
+    -fx-background-color: #2ecc71;
+    -fx-background-radius: 20px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-pref-height: 35px;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-padding: 0 20px;
+    -fx-min-width: 150px;
+}
+
+.add-button:hover {
+    -fx-background-color: #27ae60;
+}
+
 /* ========== PRODUCT CARD STYLES ========== */
 .product-card {
     -fx-background-color: white;
