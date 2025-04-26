@@ -246,7 +246,7 @@ public class CalendarController implements Initializable {
                     Label commandeLabel = new Label(
                             "Commande #" + commande.getId() +
                                     "\nClient: " + commande.getClient().getName() +
-                                    "\nTotal: " + commande.getTotal() + " €"
+                                    "\nTotal: " + commande.getTotal() + " DT"
                     );
                     commandeLabel.setStyle("-fx-border-color: lightgray; -fx-border-width: 0 0 1 0; -fx-padding: 5;");
                     commandeLabel.setWrapText(true);
