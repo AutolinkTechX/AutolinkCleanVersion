@@ -15,6 +15,7 @@
         <DatePicker fx:id="datePicker" />
         <Button text="Search" onAction="#handleSearch" style="-fx-background-color: #ca8a62; -fx-text-fill: white;"/>
         <Button text="Clear" onAction="#handleClearSearch" style="-fx-background-color: #cccccc;"/>
+        <!-- Add the new download button -->
     </HBox>
 
     <ScrollPane fitToWidth="true" hbarPolicy="NEVER">

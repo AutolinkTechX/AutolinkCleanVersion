@@ -101,7 +101,26 @@
         </VBox>
     </HBox>
 
-    <!-- Popup Stripe (initialement cachée) -->
+    <!-- Popup pour paiement cash (initialement cachée) -->
+    <StackPane fx:id="cashPopup" visible="false"
+               style="-fx-background-color: rgba(0,0,0,0.5);"
+               AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+               AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+
+        <VBox alignment="CENTER"
+              style="-fx-background-color: white; -fx-padding: 20; -fx-spacing: 10; -fx-min-width: 500;">
+            <Label text="Confirmation paiement cash" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+            <Label text="Votre commande sera préparée pour livraison. Vous paierez en espèces à la réception."
+                   style="-fx-wrap-text: true;"/>
+            <HBox spacing="10" alignment="CENTER">
+                <Button text="Annuler" onAction="#handleCancelCash"
+                        style="-fx-pref-width: 100; -fx-background-color: #f8f9fa; -fx-border-color: #ddd;"/>
+                <Button text="Confirmer" onAction="#handleConfirmCash"
+                        style="-fx-pref-width: 100; -fx-background-color: #28a745; -fx-text-fill: white;"/>
+            </HBox>
+        </VBox>
+    </StackPane>
+
     <!-- Popup Stripe (initialement cachée) -->
     <StackPane fx:id="stripePopup" visible="false"
                style="-fx-background-color: rgba(0,0,0,0.5);"
