@@ -21,7 +21,10 @@ module pidev {
     requires twilio;
     requires stripe.java;
     requires jdk.jsobject;
-    requires Java.WebSocket;        // pour io-7.2.5.jar
+    requires Java.WebSocket;
+    requires com.google.api.client;
+    requires com.google.api.client.extensions.jetty.auth;
+    requires com.google.gson;        // pour io-7.2.5.jar
 
     opens org.example.pidev to javafx.fxml;
     opens org.example.pidev.controllers to javafx.fxml;
