@@ -212,21 +212,22 @@ public class ShowAccords implements Initializable {
 
         List<Accord> recentAccords = accordService.getRecentAccordsByEntrepriseId(entreprise.getId());
 
-        // En-tête personnalisé avec taille augmentée
+        // Enhanced header design with red color
         Label headerLabel = new Label("Notifications");
-        headerLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2b2b2b; -fx-padding: 15 0 15 0;");
+        headerLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: red; -fx-padding: 15 0 15 0;");
 
         // Création du ComboBox pour le filtre avec style amélioré
         ComboBox<String> filterComboBox = new ComboBox<>();
         filterComboBox.getItems().addAll("Toutes les notifications", "Non lues", "Lues");
         filterComboBox.setValue("Toutes les notifications");
         filterComboBox.setPrefWidth(250); // Augmentation de la largeur du ComboBox
-        filterComboBox.setStyle("-fx-background-color: white; " +
-                "-fx-border-color: #e0e0e0; " +
+        filterComboBox.setStyle("-fx-background-color: linear-gradient(to bottom, #f0f0f0, #d9d9d9); " +
+                "-fx-border-color: #b0b0b0; " +
                 "-fx-border-radius: 5; " +
                 "-fx-background-radius: 5; " +
                 "-fx-padding: 8; " +  // Padding augmenté
-                "-fx-font-size: 14px;"); // Taille de police augmentée
+                "-fx-font-size: 14px; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 1);"); // Added shadow effect
 
         // Conteneur pour le filtre avec icône
         HBox filterContainer = new HBox(15); // Espacement augmenté
