@@ -206,12 +206,6 @@
     </dependency>
 
 
-
-
-
-
-
-
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-web</artifactId>
@@ -223,7 +217,12 @@
       <artifactId>gson</artifactId>
       <version>2.10.1</version> <!-- ou une autre version récente -->
     </dependency>
-
+    
+    <dependency>
+      <groupId>com.sun.mail</groupId>
+      <artifactId>javax.mail</artifactId>
+      <version>1.5.5</version>
+    </dependency>
 
   </dependencies>
 
@@ -241,6 +240,14 @@
             <arg>pidev=ALL-UNNAMED</arg>
             <arg>--add-exports</arg>
             <arg>java.base/sun.security.x509=ALL-UNNAMED</arg>
+            <arg>--add-opens</arg>
+            <arg>java.base/java.lang=ALL-UNNAMED</arg>
+            <arg>--add-opens</arg>
+            <arg>java.base/java.util=ALL-UNNAMED</arg>
+            <arg>--add-opens</arg>
+            <arg>java.base/java.net=ALL-UNNAMED</arg>
+            <arg>--add-opens</arg>
+            <arg>java.base/java.io=ALL-UNNAMED</arg>
           </compilerArgs>
         </configuration>
       </plugin>
@@ -271,6 +278,30 @@
           </resources>
         </configuration>
       </plugin>
+      <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>3.3.0</version>
+            <configuration>
+                <archive>
+                    <manifest>
+                        <mainClass>org.example.pidev.test.MainFX</mainClass> <!-- Replace with your real main class -->
+                    </manifest>
+                </archive>
+                <descriptorRefs>
+                    <descriptorRef>jar-with-dependencies</descriptorRef>
+                </descriptorRefs>
+            </configuration>
+            <executions>
+                <execution>
+                    <id>make-assembly</id> 
+                    <phase>package</phase> 
+                    <goals>
+                        <goal>single</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
     </plugins>
   </build>
 </project>

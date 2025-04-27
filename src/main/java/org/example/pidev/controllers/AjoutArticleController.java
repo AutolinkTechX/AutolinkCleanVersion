@@ -1,15 +1,13 @@
 package org.example.pidev.controllers;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -30,6 +28,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,9 +36,11 @@ public class AjoutArticleController {
 
     @FXML private GridPane cardsContainer;
     @FXML private HBox paginationContainer;
+    @FXML private ComboBox<String> filterComboBox;
 
     private final ArticleService articleService = new ArticleService();
     private List<Article> allArticles;
+    private List<Article> filteredArticles;
     private int currentPage = 1;
     private final int itemsPerPage = 6;
     private List<StackPane> pageIndicators = new ArrayList<>();
@@ -47,11 +48,29 @@ public class AjoutArticleController {
     private static final double CARD_WIDTH = 240;
     private static final double CARD_HEIGHT = 320;
 
+
     @FXML
     private void initialize() {
+        // Initialize ComboBox items if not set in FXML
+        if (filterComboBox.getItems().isEmpty()) {
+            filterComboBox.getItems().addAll(
+                    "Tous",
+                    "Plus récent",
+                    "Plus ancien"
+            );
+        }
+
+        // Set default value
+        filterComboBox.setValue("Tous");
+
+        // Add listener for filter changes
+        filterComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            applyFilter(newVal);
+        });
+
         refreshCards();
     }
-
+    /*
     private void refreshCards() {
         try {
             allArticles = articleService.getAllArticle();
@@ -95,6 +114,143 @@ public class AjoutArticleController {
         }
 
         updatePageIndicators(page);
+    }
+*/
+
+    /*
+    private void refreshCards() {
+        try {
+            allArticles = articleService.getAllArticle();
+            filteredArticles = new ArrayList<>(allArticles); // Initialisation avec tous les articles
+            currentPage = 1;
+            displayPage(currentPage);
+            setupPagination();
+        } catch (Exception e) {
+            showAlert("Error", "Error while loading products: " + e.getMessage(), Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
+    }
+*/
+    private void refreshCards() {
+        try {
+            allArticles = articleService.getAllArticle();
+            applyFilter(filterComboBox.getValue());
+            currentPage = 1; // Reset to first page when refreshing
+            displayPage(currentPage); // Use displayPage instead of displayCards
+            setupPagination();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void applyFilter(String filterType) {
+        if (allArticles == null) return;
+
+        filteredArticles = new ArrayList<>(allArticles);
+
+        switch (filterType) {
+            case "Plus récent":
+                filteredArticles.sort(Comparator.comparing(Article::getDatecreation).reversed());
+                break;
+            case "Plus ancien":
+                filteredArticles.sort(Comparator.comparing(Article::getDatecreation));
+                break;
+            case "Tous":
+            default:
+                // No special sorting
+                break;
+        }
+
+        currentPage = 1; // Reset to first page when filtering
+        displayPage(currentPage);
+        setupPagination();
+    }
+
+    private void displayCards() {
+        cardsContainer.getChildren().clear();
+
+        int col = 0;
+        int row = 0;
+
+        for (Article article : filteredArticles) {
+            VBox card = createProductCard(article);
+            cardsContainer.add(card, col, row);
+
+            col++;
+            if (col >= 3) {
+                col = 0;
+                row++;
+            }
+        }
+    }
+
+    private void displayPage(int page) {
+        cardsContainer.getChildren().clear();
+        cardsContainer.setHgap(20);
+        cardsContainer.setVgap(20);
+        cardsContainer.setPadding(new Insets(20));
+        cardsContainer.setAlignment(Pos.CENTER);
+
+        int fromIndex = (page - 1) * itemsPerPage;
+        int toIndex = Math.min(fromIndex + itemsPerPage, filteredArticles.size());
+
+        if (fromIndex >= filteredArticles.size() || filteredArticles.isEmpty()) {
+            showEmptyState();
+            return;
+        }
+
+        List<Article> pageArticles = filteredArticles.subList(fromIndex, toIndex);
+
+        int row = 0;
+        int col = 0;
+        for (Article article : pageArticles) {
+            VBox card = createProductCard(article);
+            cardsContainer.add(card, col, row);
+
+            col++;
+            if (col >= 3) { // 3 columns
+                col = 0;
+                row++;
+            }
+        }
+
+        updatePageIndicators(page);
+    }
+
+    @FXML
+    private void handleFilterRecent(ActionEvent event) {
+        try {
+            filteredArticles = new ArrayList<>(allArticles);
+            filteredArticles.sort(Comparator.comparing(Article::getDatecreation).reversed());
+            currentPage = 1;
+            displayPage(currentPage);
+            setupPagination();
+        } catch (Exception e) {
+            showAlert("Error", "Error while filtering products: " + e.getMessage(), Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleFilterOldest(ActionEvent event) {
+        try {
+            filteredArticles = new ArrayList<>(allArticles);
+            filteredArticles.sort(Comparator.comparing(Article::getDatecreation));
+            currentPage = 1;
+            displayPage(currentPage);
+            setupPagination();
+        } catch (Exception e) {
+            showAlert("Error", "Error while filtering products: " + e.getMessage(), Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleFilterAll(ActionEvent event) {
+        filteredArticles = new ArrayList<>(allArticles);
+        currentPage = 1;
+        displayPage(currentPage);
+        setupPagination();
     }
 
     private VBox createProductCard(Article article) {
@@ -189,6 +345,7 @@ public class AjoutArticleController {
         buttonBox.getChildren().addAll(detailsBtn, editBtn, deleteBtn);
         return buttonBox;
     }
+
     private void showDetails(Article article) {
         try {
             // Try with leading slash
@@ -242,6 +399,7 @@ public class AjoutArticleController {
             e.printStackTrace();
         }
     }
+
 /*
     private void handleDeleteProduct(Article article) {
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -423,8 +581,14 @@ public class AjoutArticleController {
         setupPagination(); // Rebuild pagination controls
     }
 
+    /*
     private int getTotalPages() {
         return (int) Math.ceil((double) allArticles.size() / itemsPerPage);
+    }
+*/
+
+    private int getTotalPages() {
+        return (int) Math.ceil((double) filteredArticles.size() / itemsPerPage);
     }
 
     private void showEmptyState() {
@@ -447,6 +611,66 @@ public class AjoutArticleController {
         refreshCards();
     }
 
+    /*
+    @FXML
+    private ToggleGroup filterToggleGroup;
 
+    @FXML
+    private void handleFilterRecent(ActionEvent event) {
+        // Implémentez le filtrage par articles les plus récents
+        try {
+            List<Article> articles = articleService.getAllArticles();
+            articles.sort(Comparator.comparing(Article::getDatecreation).reversed());
+            displayArticles(articles);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleFilterOldest(ActionEvent event) {
+        // Implémentez le filtrage par articles les plus anciens
+        try {
+            List<Article> articles = articleService.getAllArticles();
+            articles.sort(Comparator.comparing(Article::getDatecreation));
+            displayArticles(articles);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleFilterAll(ActionEvent event) {
+        // Afficher tous les articles sans filtre
+        try {
+            List<Article> articles = articleService.getAllArticles();
+            displayArticles(articles);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+*/
+
+    private void displayArticles(List<Article> articles) {
+        // Implémentez la logique pour afficher les articles dans cardsContainer
+        cardsContainer.getChildren().clear();
+
+        int column = 0;
+        int row = 0;
+        final int maxColumns = 3; // Nombre de colonnes souhaité
+
+        for (Article article : articles) {
+            // Créez et ajoutez vos cartes d'article ici
+            // Exemple simplifié :
+            VBox card = createProductCard(article);
+            cardsContainer.add(card, column, row);
+
+            column++;
+            if (column >= maxColumns) {
+                column = 0;
+                row++;
+            }
+        }
+    }
 
 }

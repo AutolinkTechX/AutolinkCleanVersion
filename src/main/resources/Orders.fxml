@@ -8,19 +8,20 @@
 
 <VBox xmlns="http://javafx.com/javafx/17.0.2" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.pidev.controllers.Orders"
-      stylesheets="@styles/Orders/Details.css">
+      stylesheets="@styles/Orders/Details.css"
+      alignment="CENTER">
 
     <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: white; -fx-padding: 15;">
         <Label text="Search by Date:" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
         <DatePicker fx:id="datePicker" />
         <Button text="Search" onAction="#handleSearch" style="-fx-background-color: #ca8a62; -fx-text-fill: white;"/>
         <Button text="Clear" onAction="#handleClearSearch" style="-fx-background-color: #cccccc;"/>
-        <!-- Add the new download button -->
     </HBox>
 
     <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
-        <VBox fx:id="ordersContainer" spacing="20" style="-fx-padding: 20;">
-            <FlowPane fx:id="cardsContainer" hgap="20" vgap="20" prefWrapLength="1000"/>
+        <VBox fx:id="ordersContainer" spacing="20" style="-fx-padding: 20;" alignment="CENTER">
+            <FlowPane fx:id="cardsContainer" hgap="20" vgap="20" alignment="CENTER"
+                      prefWrapLength="1000"/>
         </VBox>
     </ScrollPane>
 
