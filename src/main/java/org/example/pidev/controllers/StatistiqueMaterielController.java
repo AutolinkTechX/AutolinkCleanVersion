@@ -28,7 +28,7 @@ import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.WritableImage;
@@ -41,6 +41,7 @@ import org.example.pidev.services.ServiceMaterielRecyclable;
 import org.example.pidev.utils.SessionManager;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -52,6 +53,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class StatistiqueMaterielController implements Initializable {
@@ -287,25 +289,24 @@ public class StatistiqueMaterielController implements Initializable {
             ImageIO.write(bufferedImage, "png", baos);
             byte[] imageBytes = baos.toByteArray();
 
-            // 3. Sélection de l'emplacement de sauvegarde
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Enregistrer le PDF");
-            fileChooser.setInitialFileName("statistiques-" + LocalDate.now() + ".pdf");
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
+            // 3. Chemin de sauvegarde automatique
+            String downloadsPath = System.getProperty("user.home") + File.separator + "Downloads";
+            String fileName = "statistiques-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + ".pdf";
+            File file = new File(downloadsPath, fileName);
 
-            Window window = statistiquesPane.getScene() != null ? statistiquesPane.getScene().getWindow() : null;
-            File file = fileChooser.showSaveDialog(window);
+            // Création du dossier si inexistant
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
 
-            if (file == null) return;
-
-            // 4. Création du PDF avec les nouvelles modifications
-            try (PdfWriter writer = new PdfWriter(file.getAbsolutePath());
+            // 4. Création du PDF
+            try (PdfWriter writer = new PdfWriter(file);
                  PdfDocument pdfDoc = new PdfDocument(writer);
                  Document document = new Document(pdfDoc, new PageSize(1400, 900))) {
 
                 document.setMargins(50, 50, 50, 50);
 
-                // === NOUVEL EN-TÊTE À 3 COLONNES ===
+                // En-tête à 3 colonnes
                 Table headerTable = new Table(new float[]{30f, 40f, 30f});
                 headerTable.setWidth(UnitValue.createPercentValue(100));
 
@@ -323,18 +324,15 @@ public class StatistiqueMaterielController implements Initializable {
                         .setBorder(Border.NO_BORDER)
                         .setTextAlignment(TextAlignment.LEFT));
 
-                // Colonne centrale - NOUVEAU TITRE
+                // Colonne centrale - Titre
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/M/yyyy HH:mm");
                 String dateTime = LocalDateTime.now().format(formatter);
 
-                Paragraph title = new Paragraph("Statistiques  d'aujourd'hui\n" + dateTime)
+                Paragraph title = new Paragraph("Statistiques d'aujourd'hui\n" + dateTime)
                         .setBold()
                         .setFontSize(22)
                         .setTextAlignment(TextAlignment.CENTER)
-                        //  .setFontColor(ColorConstants.BLUE)
-                        .setFontColor(new DeviceRgb(0xB5, 0x60, 0x2C)) // Couleur terre cuite #b5602c
-
-                        .setMarginTop(10);
+                        .setFontColor(new DeviceRgb(0xB5, 0x60, 0x2C));
 
                 headerTable.addCell(new Cell()
                         .add(title)
@@ -345,7 +343,7 @@ public class StatistiqueMaterielController implements Initializable {
                 // Colonne droite - Logo
                 URL logoUrl = getClass().getResource("/icons/logo.png");
                 if (logoUrl == null) {
-                    throw new IOException("Logo non trouvé. Vérifiez: /icons/logo.png dans target/classes/");
+                    throw new IOException("Logo non trouvé: /icons/logo.png");
                 }
 
                 byte[] logoBytes;
@@ -369,7 +367,7 @@ public class StatistiqueMaterielController implements Initializable {
 
                 document.add(headerTable);
 
-                // === IMAGE DES STATISTIQUES ===
+                // Image des statistiques
                 ImageData statsImageData = ImageDataFactory.create(imageBytes);
                 com.itextpdf.layout.element.Image statsImage = new com.itextpdf.layout.element.Image(statsImageData);
 
@@ -379,10 +377,30 @@ public class StatistiqueMaterielController implements Initializable {
                         .setMarginBottom(20);
 
                 document.add(statsImage);
-
             }
 
-            showAlert(Alert.AlertType.INFORMATION, "PDF généré", "Enregistrement réussi !", "");
+            // 5. Notification et ouverture
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Génération PDF");
+            alert.setHeaderText("PDF généré avec succès !");
+            alert.setContentText("Emplacement : " + file.getAbsolutePath());
+
+            ButtonType openButton = new ButtonType("Ouvrir", ButtonBar.ButtonData.OK_DONE);
+            alert.getButtonTypes().setAll(openButton);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == openButton) {
+                if (Desktop.isDesktopSupported()) {
+                    try {
+                        Desktop.getDesktop().open(file);
+                    } catch (IOException e) {
+                        showAlert(Alert.AlertType.WARNING,
+                                "Erreur d'ouverture",
+                                "Impossible d'ouvrir le PDF",
+                                "Ouvrez-le manuellement depuis :\n" + file.getAbsolutePath());
+                    }
+                }
+            }
 
         } catch (Exception e) {
             handleError(e);
@@ -390,6 +408,7 @@ public class StatistiqueMaterielController implements Initializable {
             telechargerButton.setVisible(true);
         }
     }
+
     // Méthodes utilitaires
     private void showAlert(Alert.AlertType type, String title, String header, String content) {
         Alert alert = new Alert(type);
@@ -400,16 +419,11 @@ public class StatistiqueMaterielController implements Initializable {
     }
 
     private void handleError(Exception e) {
-        String errorDetails = "Erreur technique : \n" + e.getClass().getSimpleName() + "\n" + e.getMessage();
-        System.err.println(errorDetails);
         e.printStackTrace();
-
         showAlert(Alert.AlertType.ERROR,
                 "Erreur",
-                "Échec de la génération PDF",
-                (e instanceof IOException) ?
-                        "Problème de fichier ou ressource manquante" :
-                        "Veuillez contacter le support technique"
-        );
+                "Une erreur est survenue",
+                "Détails : " + e.getMessage());
     }
+
 }

@@ -212,21 +212,22 @@ public class ShowAccords implements Initializable {
 
         List<Accord> recentAccords = accordService.getRecentAccordsByEntrepriseId(entreprise.getId());
 
-        // En-tête personnalisé avec taille augmentée
+        // Enhanced header design with centered alignment and custom color
         Label headerLabel = new Label("Notifications");
-        headerLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2b2b2b; -fx-padding: 15 0 15 0;");
+        headerLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #b5602c; -fx-padding: 15 0 15 0; -fx-alignment: center;");
 
         // Création du ComboBox pour le filtre avec style amélioré
         ComboBox<String> filterComboBox = new ComboBox<>();
         filterComboBox.getItems().addAll("Toutes les notifications", "Non lues", "Lues");
         filterComboBox.setValue("Toutes les notifications");
         filterComboBox.setPrefWidth(250); // Augmentation de la largeur du ComboBox
-        filterComboBox.setStyle("-fx-background-color: white; " +
-                "-fx-border-color: #e0e0e0; " +
+        filterComboBox.setStyle("-fx-background-color: linear-gradient(to bottom, #f0f0f0, #d9d9d9); " +
+                "-fx-border-color: #b0b0b0; " +
                 "-fx-border-radius: 5; " +
                 "-fx-background-radius: 5; " +
                 "-fx-padding: 8; " +  // Padding augmenté
-                "-fx-font-size: 14px;"); // Taille de police augmentée
+                "-fx-font-size: 14px; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 1);"); // Added shadow effect
 
         // Conteneur pour le filtre avec icône
         HBox filterContainer = new HBox(15); // Espacement augmenté
@@ -321,11 +322,11 @@ public class ShowAccords implements Initializable {
         });
 
         // Création du conteneur principal avec espacement augmenté
-        VBox content = new VBox(15); // Reduced padding
-        content.setPadding(new Insets(15)); // Reduced padding
-        content.setSpacing(10); // Reduced spacing between elements
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(15));
+        content.setSpacing(10);
         content.getChildren().addAll(headerLabel, filterContainer, accordListView);
-        content.setStyle("-fx-background-color: white;");
+        content.setStyle("-fx-background-color: linear-gradient(to bottom, #ffffff, #f2f2f2); -fx-border-radius: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 0);");
 
         // Style du DialogPane avec taille augmentée
         DialogPane dialogPane = popup.getDialogPane();
@@ -335,15 +336,15 @@ public class ShowAccords implements Initializable {
         dialogPane.setMinWidth(400); // Reduced minimum width
         dialogPane.setMinHeight(400); // Reduced minimum height
 
-        // Style du bouton de fermeture
+        // Style du bouton de fermeture with custom color
         ButtonType fermerButton = new ButtonType("Fermer", ButtonBar.ButtonData.OK_DONE);
         dialogPane.getButtonTypes().add(fermerButton);
         Button closeButton = (Button) dialogPane.lookupButton(fermerButton);
-        closeButton.setStyle("-fx-background-color: #007bff; " +
+        closeButton.setStyle("-fx-background-color: #b5602c; " +
                 "-fx-text-fill: white; " +
                 "-fx-font-weight: bold; " +
-                "-fx-padding: 10 25; " + // Padding augmenté
-                "-fx-font-size: 14px; " + // Taille de police augmentée
+                "-fx-padding: 10 25; " +
+                "-fx-font-size: 14px; " +
                 "-fx-background-radius: 5;");
 
         // Mise à jour de la liste et gestion des notifications
