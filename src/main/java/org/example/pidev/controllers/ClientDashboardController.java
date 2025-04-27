@@ -7,7 +7,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
+
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -19,6 +19,7 @@ import org.example.pidev.utils.MyDatabase;
 import org.example.pidev.utils.SessionManager;
 import javafx.application.Platform;
 import java.util.prefs.BackingStoreException;
+import javafx.scene.image.Image;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -55,6 +56,7 @@ public class ClientDashboardController {
         initializeBadges();
         setupIconButtons();
         loadDefaultView();
+        updateUserMenu();
     }
 
     private boolean verifySession() {
@@ -225,8 +227,14 @@ public class ClientDashboardController {
     }
 
     private void setupUserMenu(){
+        profileMenuItem.setOnAction(e -> {
+            try {
+                loadProfileView();
+            } catch (IOException ex) {
+                Logger.getLogger(ClientDashboardController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
         
-        profileMenuItem.setOnAction(e -> loadProfileView());
         logoutMenuItem.setOnAction(e -> {
             try {
                 handleLogout();
@@ -241,13 +249,18 @@ public class ClientDashboardController {
         cartBadge.setVisible(false);
     }
 
-    private void loadProfileView() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Profile.fxml"));
-            Node view = loader.load();
-            contentArea.getChildren().setAll(view);
-        } catch (IOException e) {
-            showError("Error", "Failed to load profile view");
+    private void loadProfileView() throws IOException {
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Profile.fxml"));
+        Node view = loader.load();
+        
+        // Get the controller and set the dashboard reference
+        ProfileController profileController = loader.getController();
+        profileController.setDashboardController(this);
+        
+        contentArea.getChildren().setAll(view);
+    } catch (IOException e) {
+            showError("Error", "Failed to load profile view: " + e.getMessage());
         }
     }
 
@@ -308,36 +321,33 @@ public class ClientDashboardController {
         }
     }
 
+    public void updateUserMenu() {
+        if (currentUser != null) {
+            // Set the user's name and last name in the menu button
+            userMenuBtn.setText(currentUser.getName() + " " + currentUser.getLastName());
+
+            // Load the user's profile image if available
+            if (currentUser.getImage_path() != null && !currentUser.getImage_path().isEmpty()) {
+                try {
+                    Image profileImage = new Image(currentUser.getImage_path());
+                    userImage.setImage(profileImage);
+                } catch (Exception e) {
+                    System.err.println("Error loading profile image: " + e.getMessage());
+                    // Fallback to default image if there's an error
+                    userImage.setImage(new Image(getClass().getResourceAsStream("/icons/Users.png")));
+                }
+            } else {
+                // Use default image if no image path is set
+                userImage.setImage(new Image(getClass().getResourceAsStream("/icons/Users.png")));
+            }
+        }
+    }
+
     public void setCurrentUser(User user) {
         this.currentUser = user;
         SessionManager.setCurrentUser(user); // Stocke l'utilisateur dans la session
-        updateUserProfile();
         updateBadges();
-    }
-
-    private void updateUserProfile() {
-        if (currentUser != null) {
-            try {
-                String imagePath = currentUser.getImage_path();
-                Image image;
-
-                if (imagePath != null && !imagePath.isEmpty()) {
-                    if (imagePath.startsWith("file:")) {
-                        image = new Image(imagePath);
-                    } else {
-                        image = new Image(getClass().getResourceAsStream("/" + imagePath));
-                    }
-                } else {
-                    image = new Image(getClass().getResourceAsStream("/images/logo.jpg"));
-                }
-
-                userImage.setImage(image);
-                userMenuBtn.setText(currentUser.getName() + " " + currentUser.getLastName());
-            } catch (Exception e) {
-                System.err.println("Error loading user image: " + e.getMessage());
-                userImage.setImage(new Image(getClass().getResourceAsStream("/images/logo.jpg")));
-            }
-        }
+        updateUserMenu();
     }
     
 
