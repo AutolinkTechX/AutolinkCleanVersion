@@ -189,6 +189,11 @@ public class LoginDashboardController {
                     
                     // Get role name from database
                     String roleName = entrepriseService.getRoleName(authenticatedEntreprise.getRoleId());
+                    if ("ROLE_ENTREPRISE".equals(roleName)) {
+                        loadEntrepriseDashboard();
+                    } else {
+                        showError("Invalid user role");
+                    }
                     
                 } catch (IllegalArgumentException e2) {
                     // Both authentications failed

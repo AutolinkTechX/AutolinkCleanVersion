@@ -339,6 +339,7 @@ public class ClientDashboardController {
             }
         }
     }
+    
 
     public void updateBadges() {
         if (currentUser != null) {
