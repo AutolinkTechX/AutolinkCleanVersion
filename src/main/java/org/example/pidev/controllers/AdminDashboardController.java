@@ -15,10 +15,12 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.pidev.utils.SessionManager;
+import javafx.application.Platform;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
+import java.util.prefs.BackingStoreException;
 
 public class AdminDashboardController {
 
@@ -58,12 +60,19 @@ public class AdminDashboardController {
 
     @FXML
     private void initialize() {
+        if (!verifySession()) {
+            return;
+        }
         System.out.println("AdminDashboardController initialized");
         if (LogoutButton != null) {
             System.out.println("LogoutButton is not null");
             LogoutButton.setOnAction(event -> {
                 System.out.println("Logout button clicked");
-                handleLogout();
+                try {
+                    handleLogout();
+                } catch (BackingStoreException e) {
+                    e.printStackTrace();
+                }
             });
         } else {
             System.out.println("LogoutButton is null - FXML injection failed");
@@ -160,8 +169,36 @@ public class AdminDashboardController {
         ServicesMenuButton.setText(""); // Clear the text since we're using a custom graphic
     }
 
+    private boolean verifySession() {
+        if (SessionManager.getCurrentUser() == null && 
+            SessionManager.getCurrentEntreprise() == null) {
+            
+            System.out.println("Session verification failed - redirecting to login");
+            
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Session Expired");
+                alert.setHeaderText(null);
+                alert.setContentText("Please log in again to continue");
+                alert.showAndWait();
+    
+                try {
+                    Parent root = FXMLLoader.load(getClass().getResource("/DashboardLogin.fxml"));
+                    Stage stage = (Stage) contentArea.getScene().getWindow();
+                    stage.setScene(new Scene(root));
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            
+            return false;
+        }
+        return true;
+    }
+
     @FXML
-    private void handleLogout() {
+    private void handleLogout() throws BackingStoreException {
         System.out.println("handleLogout method called");
         
         // Create a custom alert dialog

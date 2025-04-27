@@ -15,6 +15,7 @@ import org.example.pidev.entities.User;
 import org.example.pidev.services.EntrepriseService;
 import org.example.pidev.services.UserService;
 import org.example.pidev.utils.SessionManager;
+import java.util.prefs.BackingStoreException;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -32,6 +33,7 @@ public class LoginDashboardController {
     @FXML private PasswordField passwordField;
     @FXML private Button showPasswordButton;
     @FXML private TextField visiblePasswordField;
+    @FXML private CheckBox rememberMeCheckBox;
 
     private final UserService userService = new UserService();
     private final EntrepriseService entrepriseService = new EntrepriseService();
@@ -39,8 +41,15 @@ public class LoginDashboardController {
 
     @FXML
     public void initialize() {
+        checkSavedSession();
         // Set up event handlers
-        loginButton.setOnAction(event -> handleLogin());
+        loginButton.setOnAction(event -> {
+            try {
+                handleLogin();
+            } catch (BackingStoreException e) {
+                e.printStackTrace();
+            }
+        });
         forgotPasswordLink.setOnAction(event -> handleForgotPassword());
 
         // Initialize the visible password field
@@ -59,6 +68,30 @@ public class LoginDashboardController {
         // Enable login button only when fields are valid
         emailField.textProperty().addListener((obs, oldVal, newVal) -> validateInputs());
         passwordField.textProperty().addListener((obs, oldVal, newVal) -> validateInputs());
+
+    }
+
+    private void checkSavedSession() {
+        if (SessionManager.hasSavedSession()) {
+            String userType = SessionManager.getSavedUserType();
+            if ("USER".equals(userType)) {
+                int userId = SessionManager.getSavedUserId();
+                String email = SessionManager.getSavedUserEmail();
+                if (userId != -1 && email != null) {
+                    emailField.setText(email);
+                    rememberMeCheckBox.setSelected(true);
+                    // Optionally attempt auto-login here
+                }
+            } else if ("ENTREPRISE".equals(userType)) {
+                int entrepriseId = SessionManager.getSavedEntrepriseId();
+                String email = SessionManager.getSavedEntrepriseEmail();
+                if (entrepriseId != -1 && email != null) {
+                    emailField.setText(email);
+                    rememberMeCheckBox.setSelected(true);
+                    // Optionally attempt auto-login here
+                }
+            }
+        }
     }
 
     private void validateInputs() {
@@ -115,7 +148,7 @@ public class LoginDashboardController {
         }
     }
 
-    private void handleLogin() {
+    private void handleLogin() throws BackingStoreException {
         String email = emailField.getText().trim();
         String password = passwordField.getText().trim();
 
@@ -125,10 +158,16 @@ public class LoginDashboardController {
                 User authenticatedUser = userService.authenticate(email, password);
                 SessionManager.setCurrentUser(authenticatedUser);
                 
+                // Save session if "Remember Me" is checked
+                boolean rememberMe = rememberMeCheckBox != null && rememberMeCheckBox.isSelected();
+                SessionManager.saveSession(rememberMe);
+                
+                System.out.println("Login successful - rememberMe: " + rememberMe);
+                
                 // Get role name from database
                 String roleName = userService.getRoleName(authenticatedUser.getRoleId());
                 
-                // Check user role and route to appropriate dashboard
+                // Route to appropriate dashboard
                 if ("ROLE_ADMIN".equals(roleName)) {
                     loadAdminDashboard();
                 } else if ("ROLE_CLIENT".equals(roleName)) {
@@ -142,15 +181,15 @@ public class LoginDashboardController {
                     Entreprise authenticatedEntreprise = entrepriseService.authenticate(email, password);
                     SessionManager.setCurrentEntreprise(authenticatedEntreprise);
                     
+                    // Save session if "Remember Me" is checked
+                    boolean rememberMe = rememberMeCheckBox != null && rememberMeCheckBox.isSelected();
+                    SessionManager.saveSession(rememberMe);
+                    
+                    System.out.println("Login successful - rememberMe: " + rememberMe);
+                    
                     // Get role name from database
                     String roleName = entrepriseService.getRoleName(authenticatedEntreprise.getRoleId());
                     
-                    // Check enterprise role and route to appropriate dashboard
-                    if ("ROLE_ENTREPRISE".equals(roleName)) {
-                        loadEntrepriseDashboard();
-                    } else {
-                        showError("Invalid enterprise role");
-                    }
                 } catch (IllegalArgumentException e2) {
                     // Both authentications failed
                     emailErrorLabel.setVisible(false);

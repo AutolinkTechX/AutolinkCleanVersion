@@ -26,6 +26,7 @@ module pidev {
     requires jdk.jsobject;        // pour io-7.2.5.jar
     requires javax.mail;
     requires Java.WebSocket;        // pour io-7.2.5.jar
+    requires java.prefs;
 
 
     opens org.example.pidev to javafx.fxml;

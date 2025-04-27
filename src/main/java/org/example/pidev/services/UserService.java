@@ -368,4 +368,20 @@ public class UserService implements IService<User> {
         }
         return null;
     }
+
+    public boolean updateUserProfile(User user) throws SQLException {
+        String sql = "UPDATE user SET name = ?, last_name = ?, phone = ?, email = ?, image_path = ? WHERE id = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, user.getName());
+            stmt.setString(2, user.getLastName());
+            stmt.setInt(3, user.getPhone());
+            stmt.setString(4, user.getEmail());
+            stmt.setString(5, user.getImage_path());
+            stmt.setInt(6, user.getId());
+            
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
 }

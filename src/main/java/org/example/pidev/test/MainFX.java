@@ -6,82 +6,117 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
-import org.example.pidev.websocket.NotificationServer;
 
+import org.example.pidev.utils.SessionManager;
 import java.io.IOException;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class MainFX extends Application {
 
     private static String[] savedArgs;
-    private static Map<String, String> queryParameters = new HashMap<>();
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws IOException{
         try {
-            // Check if we have a deep link to handle
-            boolean isResetPasswordLink = false;
-            String token = null;
-            
-            // Handle parameters passed from main (for standard launch)
-            if (savedArgs != null && savedArgs.length > 0) {
-                String uriString = savedArgs[0];
-                if (uriString.startsWith("autolink://")) {
-                    try {
-                        URI uri = new URI(uriString);
-                        if ("reset-password".equals(uri.getHost())) {
-                            isResetPasswordLink = true;
-                            // Parse query parameters
-                            String query = uri.getQuery();
-                            if (query != null) {
-                                String[] pairs = query.split("&");
-                                for (String pair : pairs) {
-                                    int idx = pair.indexOf("=");
-                                    queryParameters.put(pair.substring(0, idx), pair.substring(idx + 1));
-                                }
-                            }
-                            token = queryParameters.get("token");
-                        }
-                    } catch (URISyntaxException e) {
-                        System.err.println("Error parsing URI: " + e.getMessage());
-                    }
-                }
+            // 1. First try to restore any saved session
+            if (SessionManager.restoreSession()) {
+                System.out.println("Proceeding to dashboard...");
+                loadAppropriateDashboard(primaryStage);
+                return;
             }
 
-            FXMLLoader loader;
-            if (isResetPasswordLink) {
-                // Load the ResetPassword.fxml if we have a reset-password link
-                loader = new FXMLLoader(getClass().getResource("/ResetPassword.fxml"));
+            // 2. Handle deep links (password reset)
+            if (handleDeepLinks(primaryStage)) {
+                return;
+            }
+
+            // 3. Default to login page
+            System.out.println("No valid session found - loading login page");
+            loadLoginPage(primaryStage);
+
+        } catch (Exception e) {
+            System.err.println("Application startup error: " + e.getMessage());
+            e.printStackTrace();
+            showErrorAlert("Startup Error", "Failed to initialize application");
+            loadLoginPage(primaryStage);
+        }
+    }
+
+    private boolean handleDeepLinks(Stage stage) {
+        if (savedArgs == null || savedArgs.length == 0) {
+            return false;
+        }
+
+        try {
+            String uriString = savedArgs[0];
+            if (uriString.startsWith("autolink://reset-password")) {
+                URI uri = new URI(uriString);
+                String query = uri.getQuery();
+                Map<String, String> params = new HashMap<>();
+                
+                if (query != null) {
+                    for (String pair : query.split("&")) {
+                        int idx = pair.indexOf("=");
+                        params.put(pair.substring(0, idx), pair.substring(idx + 1));
+                    }
+                }
+
+                String token = params.get("token");
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/ResetPassword.fxml"));
                 Parent root = loader.load();
                 
-                // Pass the token to the controller if needed
                 Object controller = loader.getController();
                 if (controller instanceof TokenReceiver) {
                     ((TokenReceiver) controller).setToken(token);
                 }
                 
-                primaryStage.setTitle("Reset Password");
-                primaryStage.setScene(new Scene(root));
-            } else {
-                // Default to login page
-                loader = new FXMLLoader(getClass().getResource("/DashboardLogin.fxml"));
-                Parent root = loader.load();
-                primaryStage.setTitle("Login");
-                primaryStage.setScene(new Scene(root));
+                stage.setTitle("Reset Password");
+                stage.setScene(new Scene(root));
+                stage.setResizable(false);
+                stage.show();
+                return true;
             }
-            
-            primaryStage.setResizable(false);
-            primaryStage.show();
-
-        } catch (IOException e) {
-            System.err.println("Error loading FXML file: " + e.getMessage());
-            e.printStackTrace();
-            showErrorAlert("Application Error", "Failed to load the application interface. Please check the logs for details.");
+        } catch (Exception e) {
+            System.err.println("Error handling deep link: " + e.getMessage());
         }
+        return false;
+    }
+
+    private void loadAppropriateDashboard(Stage primaryStage) throws IOException {
+        String userType = SessionManager.getCurrentUserType();
+        String fxmlPath;
+        String title;
+
+        if ("USER".equals(userType)) {
+            fxmlPath = "/ClientDashboard.fxml";
+            title = "Client Dashboard";
+        } else if ("ENTREPRISE".equals(userType)) {
+            fxmlPath = "/DashboardEntreprise.fxml";
+            title = "Enterprise Dashboard";
+        } else {
+            System.out.println("Unknown user type - falling back to login");
+            loadLoginPage(primaryStage);
+            return;
+        }
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+        Parent root = loader.load();
+        primaryStage.setTitle(title);
+        primaryStage.setScene(new Scene(root));
+        primaryStage.setMaximized(true);
+        primaryStage.show();
+    }
+
+    private void loadLoginPage(Stage primaryStage) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/DashboardLogin.fxml"));
+        Parent root = loader.load();
+        primaryStage.setTitle("Login");
+        primaryStage.setScene(new Scene(root));
+        primaryStage.setResizable(false);
+        primaryStage.show();
     }
 
     @Override
