@@ -22,9 +22,9 @@ module pidev {
     requires stripe.java;
     requires jdk.jsobject;
     requires Java.WebSocket;
-    requires com.google.api.client;
-    requires com.google.api.client.extensions.jetty.auth;
-    requires com.google.gson;        // pour io-7.2.5.jar
+    requires com.google.gson;
+
+
 
     opens org.example.pidev to javafx.fxml;
     opens org.example.pidev.controllers to javafx.fxml;
