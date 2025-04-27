@@ -8,7 +8,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="800" prefWidth="1200" stylesheets="@styles/Orders/calendar.css" xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controllers.CalendarController">
+<BorderPane prefHeight="800" prefWidth="1200" stylesheets="@styles/Orders/calendar.css"
+            xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.pidev.controllers.CalendarController">
 
     <top>
         <HBox alignment="CENTER" styleClass="header-box" BorderPane.alignment="CENTER">
