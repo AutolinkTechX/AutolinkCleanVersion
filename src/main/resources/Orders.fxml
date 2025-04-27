@@ -6,29 +6,39 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox xmlns="http://javafx.com/javafx/17.0.2" xmlns:fx="http://javafx.com/fxml/1"
+<VBox xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.pidev.controllers.Orders"
-      stylesheets="@styles/Orders/Details.css"
-      alignment="CENTER">
+      stylesheets="@styles/Orders/Orders.css"
+      alignment="CENTER" styleClass="root">
 
-    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: white; -fx-padding: 15;">
-        <Label text="Search by Date:" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
-        <DatePicker fx:id="datePicker" />
-        <Button text="Search" onAction="#handleSearch" style="-fx-background-color: #ca8a62; -fx-text-fill: white;"/>
-        <Button text="Clear" onAction="#handleClearSearch" style="-fx-background-color: #cccccc;"/>
-        <Button fx:id="downloadAllBtn" text="Télécharger tous" />
+    <!-- Header avec la classe search-header -->
+    <HBox alignment="CENTER_LEFT" styleClass="search-header">
+        <!-- Conteneur gauche pour les éléments de recherche -->
+        <HBox alignment="CENTER_LEFT" spacing="20" HBox.hgrow="ALWAYS">
+            <Label text="Search by Date:" styleClass="search-label"/>
+            <DatePicker fx:id="datePicker" styleClass="date-picker"/>
+            <Button text="Search" onAction="#handleSearch" styleClass="search-button"/>
+            <Button text="Clear" onAction="#handleClearSearch" styleClass="clear-button"/>
+        </HBox>
+
+        <!-- Bouton télécharger à droite -->
+        <Button fx:id="downloadAllBtn" text="Télécharger tous" styleClass="download-all-button"/>
     </HBox>
 
-    <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
-        <VBox fx:id="ordersContainer" spacing="20" style="-fx-padding: 20;" alignment="CENTER">
+    <!-- ScrollPane avec la bonne classe -->
+    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="scroll-pane">
+        <VBox fx:id="ordersContainer" spacing="20" styleClass="cards-container" alignment="CENTER">
             <FlowPane fx:id="cardsContainer" hgap="20" vgap="20" alignment="CENTER"
                       prefWrapLength="1000"/>
         </VBox>
     </ScrollPane>
 
-    <HBox alignment="CENTER" spacing="10">
-        <Button fx:id="prevPageBtn" text="Previous" onAction="#handlePreviousPage" disable="true"/>
-        <Label fx:id="pageInfoLabel" text="Page 1 of 1"/>
-        <Button fx:id="nextPageBtn" text="Next" onAction="#handleNextPage" disable="true"/>
+    <!-- Pagination avec les bonnes classes -->
+    <HBox alignment="CENTER" spacing="10" styleClass="pagination-container">
+        <HBox styleClass="pagination-buttons">
+            <Button fx:id="prevPageBtn" text="Previous" onAction="#handlePreviousPage" disable="true" styleClass="page-button"/>
+            <Label fx:id="pageInfoLabel" text="Page 1 of 1" styleClass="page-info"/>
+            <Button fx:id="nextPageBtn" text="Next" onAction="#handleNextPage" disable="true" styleClass="page-button"/>
+        </HBox>
     </HBox>
 </VBox>

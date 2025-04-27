@@ -573,17 +573,55 @@
 }
 
 
-.price-label {
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #2e8b57;
-    -fx-padding: 5px;
-    -fx-background-color: #f0f0f0;
-    -fx-background-radius: 10px;
-}
-
 .price-input {
     -fx-font-size: 14px;
     -fx-alignment: CENTER;
     -fx-pref-width: 80px;
+}
+
+/* Slider styles */
+.price-slider {
+    -fx-pref-width: 200px;
+}
+
+.price-slider .thumb {
+    -fx-background-color: #800080;
+    -fx-background-radius: 50%;
+    -fx-pref-height: 16px;
+    -fx-pref-width: 16px;
+}
+
+.price-slider .track {
+    -fx-background-color: #e0e0e0;
+    -fx-background-radius: 2px;
+    -fx-pref-height: 4px;
+}
+
+.price-slider .colored-track {
+    -fx-background-color: #800080;
+    -fx-background-radius: 2px;
+}
+
+.price-slider .animated-thumb {
+    -fx-background-color: transparent;
+}
+
+.price-slider .axis {
+    -fx-tick-label-fill: #666;
+    -fx-font-size: 10px;
+}
+
+.price-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2e8b57;
+}
+
+.price-value-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+    -fx-padding: 5px;
+    -fx-background-color: #f0f0f0;
+    -fx-background-radius: 10px;
 }
