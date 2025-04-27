@@ -1,4 +1,4 @@
- package org.example.pidev.controllers;
+package org.example.pidev.controllers;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -89,18 +89,8 @@ public class ListeArticle {
 
     @FXML
     public void initialize() {
-        // Initialisation de base qui ne dépend pas de l'utilisateur
-        if (articlesContainer != null) {
-            setupArticlesContainer();
-        }
-        if (prevPageBtn != null && nextPageBtn != null) {
-            setupPaginationButtons();
-        }
-        if (searchField != null) {
-            setupSearchListener();
-        }
         try {
-            // Initialiser les sliders avec les prix min/max
+            // Initialiser les sliders avec les prix min/max réels
             double minPrice = articleService.findMinPrice();
             double maxPrice = articleService.findMaxPrice();
 
@@ -112,30 +102,32 @@ public class ListeArticle {
             maxPriceSlider.setMax(maxPrice);
             maxPriceSlider.setValue(maxPrice);
 
-            // Mettre à jour les labels
-            updatePriceLabels();
+            // Formater les valeurs avec espace pour les milliers
+            minPriceLabel.setText(String.format("Min: %,.0f DT", minPriceSlider.getValue()));
+            maxPriceLabel.setText(String.format("Max: %,.0f DT", maxPriceSlider.getValue()));
 
             // Écouteurs pour les sliders
             minPriceSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
                 if (newVal.doubleValue() > maxPriceSlider.getValue()) {
                     maxPriceSlider.setValue(newVal.doubleValue());
                 }
-                updatePriceLabels();
+                minPriceLabel.setText(String.format("Min: %,.0f DT", newVal.doubleValue()));
             });
 
             maxPriceSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
                 if (newVal.doubleValue() < minPriceSlider.getValue()) {
                     minPriceSlider.setValue(newVal.doubleValue());
                 }
-                updatePriceLabels();
+                maxPriceLabel.setText(String.format("Max: %,.0f DT", newVal.doubleValue()));
             });
 
         } catch (SQLException e) {
             e.printStackTrace();
             AlertUtils.showErrorAlert("Erreur", "Initialisation des filtres de prix", e.getMessage());
         }
-    }
 
+        setupSearchListener();
+    }
     private void updatePriceLabels() {
         minPriceLabel.setText(String.format("Min: %.0f DT", minPriceSlider.getValue()));
         maxPriceLabel.setText(String.format("Max: %.0f DT", maxPriceSlider.getValue()));
@@ -147,6 +139,10 @@ public class ListeArticle {
             double minPrice = minPriceSlider.getValue();
             double maxPrice = maxPriceSlider.getValue();
 
+            // Formater les valeurs pour l'affichage
+            minPriceLabel.setText(String.format("Min: %,.0f DT", minPrice));
+            maxPriceLabel.setText(String.format("Max: %,.0f DT", maxPrice));
+
             List<Article> filteredArticles = articleService.filterArticlesByPrice(minPrice, maxPrice);
             updateArticlesDisplay(filteredArticles);
 
@@ -155,6 +151,7 @@ public class ListeArticle {
             AlertUtils.showErrorAlert("Erreur", "Erreur SQL", "Une erreur est survenue lors du filtrage.");
         }
     }
+
 /*
     private void updateUserProfile(User user) {
         if (userImageView == null) {

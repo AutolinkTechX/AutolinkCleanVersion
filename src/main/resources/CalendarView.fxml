@@ -25,9 +25,9 @@
             <Button fx:id="nextMonthBtn" styleClass="nav-button" text="&gt;" />
             <Button fx:id="nextYearBtn" styleClass="nav-button" text="&gt;&gt;" />
             <Button fx:id="todayBtn" styleClass="today-button" text="Aujourd'hui" />
-         <BorderPane.margin>
-            <Insets top="20.0" />
-         </BorderPane.margin>
+            <BorderPane.margin>
+                <Insets top="20.0" />
+            </BorderPane.margin>
         </HBox>
     </top>
 
