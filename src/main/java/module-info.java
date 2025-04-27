@@ -20,10 +20,13 @@ module pidev {
     requires javafx.swing;
     requires twilio;
     requires stripe.java;
+    requires com.google.gson;
+
 
     requires jdk.jsobject;        // pour io-7.2.5.jar
     requires javax.mail;
     requires Java.WebSocket;        // pour io-7.2.5.jar
+
 
     opens org.example.pidev to javafx.fxml;
     opens org.example.pidev.controllers to javafx.fxml;

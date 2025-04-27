@@ -152,33 +152,55 @@ public class ShowAccords implements Initializable {
             updateNotificationCount();
             saveSeenNotifications(); // Sauvegarder après avoir vu les notifications
         });
+
+        // Augmenter la taille de l'icône de notification
+        notificationIcon.setFitWidth(22);  // Augmenté de 20 à 25
+        notificationIcon.setFitHeight(22); // Augmenté de 20 à 25
+
+        // Améliorer le style du label de notification
+        notificationLabel.setStyle("-fx-text-fill: white; " +
+                "-fx-font-size: 12px; " +  // Augmenté de 10px à 12px
+                "-fx-font-weight: bold; " +
+                "-fx-background-color: red; " +
+                "-fx-padding: 2 6; " +     // Augmenté le padding
+                "-fx-background-radius: 12; " + // Augmenté pour garder la forme ronde
+                "-fx-min-width: 22; " +    // Augmenté de 18 à 22
+                "-fx-min-height: 22;");    // Ajouté pour maintenir la forme circulaire
+
+        notificationButton.setStyle("-fx-background-color: transparent; -fx-padding: 5;");
     }
 
     private void updateNotificationCount() {
         if (entreprise != null) {
             List<Accord> recentAccords = accordService.getRecentAccordsByEntrepriseId(entreprise.getId());
             int unseenCount = 0;
-            
+
             for (Accord accord : recentAccords) {
                 if (!seenAccordIds.contains(accord.getId())) {
                     unseenCount++;
                 }
             }
-            
+
             notificationCount = unseenCount;
-            
+
             Platform.runLater(() -> {
                 if (notificationCount > 0) {
                     notificationLabel.setText(String.valueOf(notificationCount));
                     notificationLabel.setVisible(true);
-                    
+
+                    // Améliorer l'effet visuel de l'icône
                     ColorAdjust colorAdjust = new ColorAdjust();
                     colorAdjust.setHue(0.7);
                     colorAdjust.setSaturation(1);
+                    colorAdjust.setBrightness(0.1); // Ajouté pour plus de contraste
                     notificationIcon.setEffect(colorAdjust);
+
+                    // Ajouter un effet de mise en évidence
+                    notificationIcon.setStyle("-fx-effect: dropshadow(gaussian, #ff0000, 10, 0, 0, 0);");
                 } else {
                     notificationLabel.setVisible(false);
                     notificationIcon.setEffect(null);
+                    notificationIcon.setStyle(null);
                 }
             });
         }
@@ -186,138 +208,180 @@ public class ShowAccords implements Initializable {
 
     private void showNewAccordPopup() {
         Dialog<ButtonType> popup = new Dialog<>();
-        popup.setTitle("Notifications");
-        
+        popup.setTitle("Centre de notifications");
+
         List<Accord> recentAccords = accordService.getRecentAccordsByEntrepriseId(entreprise.getId());
-        
-        // Création du ComboBox pour le filtre
+
+        // En-tête personnalisé avec taille augmentée
+        Label headerLabel = new Label("Notifications");
+        headerLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2b2b2b; -fx-padding: 15 0 15 0;");
+
+        // Création du ComboBox pour le filtre avec style amélioré
         ComboBox<String> filterComboBox = new ComboBox<>();
         filterComboBox.getItems().addAll("Toutes les notifications", "Non lues", "Lues");
         filterComboBox.setValue("Toutes les notifications");
-        filterComboBox.setStyle("-fx-background-color: white; -fx-border-color: #a05a2c; -fx-border-radius: 5;");
-        
-        // Création de la ListView personnalisée
+        filterComboBox.setPrefWidth(250); // Augmentation de la largeur du ComboBox
+        filterComboBox.setStyle("-fx-background-color: white; " +
+                "-fx-border-color: #e0e0e0; " +
+                "-fx-border-radius: 5; " +
+                "-fx-background-radius: 5; " +
+                "-fx-padding: 8; " +  // Padding augmenté
+                "-fx-font-size: 14px;"); // Taille de police augmentée
+
+        // Conteneur pour le filtre avec icône
+        HBox filterContainer = new HBox(15); // Espacement augmenté
+        ImageView filterIcon = new ImageView(new Image("file:src/main/resources/icons/filter.png"));
+        filterIcon.setFitHeight(20); // Taille d'icône augmentée
+        filterIcon.setFitWidth(20);
+        Label filterLabel = new Label("Filtrer par :");
+        filterLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;"); // Police augmentée
+        filterContainer.getChildren().addAll(filterIcon, filterLabel, filterComboBox);
+        filterContainer.setAlignment(Pos.CENTER_LEFT);
+        filterContainer.setStyle("-fx-padding: 15; -fx-background-color: #f8f9fa; -fx-background-radius: 5;"); // Padding augmenté
+
+        // Création de la ListView avec taille augmentée
         ListView<Accord> accordListView = new ListView<>();
-        accordListView.setPrefHeight(300);
-        accordListView.setPrefWidth(400);
-        accordListView.setStyle("-fx-background-color: white; -fx-border-color: #a05a2c; -fx-border-radius: 5;");
-        
-        // Personnalisation de l'affichage des éléments
+        accordListView.setPrefHeight(300); // Reduced height
+        accordListView.setPrefWidth(400); // Reduced width
+        accordListView.setMinHeight(200); // Reduced minimum height
+        accordListView.setStyle("-fx-background-color: white; " +
+                "-fx-border-color: #e0e0e0; " +
+                "-fx-border-radius: 8; " +
+                "-fx-background-radius: 8; " +
+                "-fx-padding: 10;"); // Padding augmenté
+
+        // Style personnalisé pour chaque élément de la liste
         accordListView.setCellFactory(lv -> new ListCell<Accord>() {
             @Override
             protected void updateItem(Accord accord, boolean empty) {
                 super.updateItem(accord, empty);
                 if (empty || accord == null) {
                     setText(null);
+                    setGraphic(null);
                     setStyle("");
                 } else {
+                    VBox container = new VBox(10); // Espacement augmenté entre les éléments
+
+                    // Informations de l'accord avec taille de police augmentée
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-                    String accordInfo = accord.getMaterielRecyclable().getName() + " - " + 
-                                      accord.getDateCreation().format(formatter);
-                    setText(accordInfo);
-                    
+                    Label nameLabel = new Label(accord.getMaterielRecyclable().getName());
+                    Label dateLabel = new Label(accord.getDateCreation().format(formatter));
+                    Label statusLabel = new Label(accord.getMaterielRecyclable().getStatut().toString());
+
+                    // Style des labels avec taille augmentée
+                    nameLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;"); // Police augmentée
+                    dateLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;"); // Police augmentée
+                    statusLabel.setStyle("-fx-font-size: 14px; -fx-background-color: #e9ecef; " +
+                            "-fx-padding: 4 12; -fx-background-radius: 12;"); // Padding augmenté
+
+                    // Conteneur pour le statut
+                    HBox statusContainer = new HBox(8);
+                    statusContainer.setAlignment(Pos.CENTER_LEFT);
+                    statusContainer.getChildren().addAll(statusLabel);
+
+                    // Ajout des éléments au conteneur
+                    container.getChildren().addAll(nameLabel, dateLabel, statusContainer);
+                    container.setPadding(new Insets(12)); // Padding augmenté
+
                     boolean isRead = seenAccordIds.contains(accord.getId());
-                    
-                    // Style pour les notifications lues/non lues
+
+                    // Style du conteneur selon l'état de lecture
                     if (isRead) {
-                        // Style pour les notifications lues (plus clair)
-                        setStyle("-fx-background-color: #f8f9fa; " +
-                                "-fx-text-fill: #6c757d; " +
-                                "-fx-padding: 10; " +
+                        container.setStyle("-fx-background-color: #ffffff; " +
+                                "-fx-padding: 15; " + // Padding augmenté
                                 "-fx-border-color: transparent transparent #dee2e6 transparent; " +
                                 "-fx-border-width: 0 0 1 0;");
                     } else {
-                        // Style pour les notifications non lues (plus foncé)
-                        setStyle("-fx-background-color: #e7f3ff; " +
-                                "-fx-text-fill: #1d2124; " +
-                                "-fx-font-weight: bold; " +
-                                "-fx-padding: 10; " +
+                        container.setStyle("-fx-background-color: #e7f3ff; " +
+                                "-fx-padding: 15; " + // Padding augmenté
                                 "-fx-border-color: transparent transparent #dee2e6 transparent; " +
                                 "-fx-border-width: 0 0 1 0;");
                     }
-                    
+
                     // Effet de survol
-                    setOnMouseEntered(e -> {
+                    container.setOnMouseEntered(e -> {
                         if (isRead) {
-                            setStyle("-fx-background-color: #f1f3f5; " +
-                                    "-fx-text-fill: #6c757d; " +
-                                    "-fx-padding: 10; " +
-                                    "-fx-border-color: transparent transparent #dee2e6 transparent; " +
-                                    "-fx-border-width: 0 0 1 0;");
+                            container.setStyle("-fx-background-color: #f8f9fa; -fx-padding: 15;");
                         } else {
-                            setStyle("-fx-background-color: #d4e5f9; " +
-                                    "-fx-text-fill: #1d2124; " +
-                                    "-fx-font-weight: bold; " +
-                                    "-fx-padding: 10; " +
-                                    "-fx-border-color: transparent transparent #dee2e6 transparent; " +
-                                    "-fx-border-width: 0 0 1 0;");
+                            container.setStyle("-fx-background-color: #d4e5f9; -fx-padding: 15;");
                         }
                     });
-                    
-                    setOnMouseExited(e -> {
+
+                    container.setOnMouseExited(e -> {
                         if (isRead) {
-                            setStyle("-fx-background-color: #f8f9fa; " +
-                                    "-fx-text-fill: #6c757d; " +
-                                    "-fx-padding: 10; " +
-                                    "-fx-border-color: transparent transparent #dee2e6 transparent; " +
-                                    "-fx-border-width: 0 0 1 0;");
+                            container.setStyle("-fx-background-color: #ffffff; -fx-padding: 15;");
                         } else {
-                            setStyle("-fx-background-color: #e7f3ff; " +
-                                    "-fx-text-fill: #1d2124; " +
-                                    "-fx-font-weight: bold; " +
-                                    "-fx-padding: 10; " +
-                                    "-fx-border-color: transparent transparent #dee2e6 transparent; " +
-                                    "-fx-border-width: 0 0 1 0;");
+                            container.setStyle("-fx-background-color: #e7f3ff; -fx-padding: 15;");
                         }
                     });
+
+                    setGraphic(container);
                 }
             }
         });
-        
-        // Fonction pour mettre à jour la ListView selon le filtre
+
+        // Création du conteneur principal avec espacement augmenté
+        VBox content = new VBox(15); // Reduced padding
+        content.setPadding(new Insets(15)); // Reduced padding
+        content.setSpacing(10); // Reduced spacing between elements
+        content.getChildren().addAll(headerLabel, filterContainer, accordListView);
+        content.setStyle("-fx-background-color: white;");
+
+        // Style du DialogPane avec taille augmentée
+        DialogPane dialogPane = popup.getDialogPane();
+        dialogPane.setContent(content);
+        dialogPane.setPrefWidth(500); // Reduced width
+        dialogPane.setPrefHeight(500); // Reduced height
+        dialogPane.setMinWidth(400); // Reduced minimum width
+        dialogPane.setMinHeight(400); // Reduced minimum height
+
+        // Style du bouton de fermeture
+        ButtonType fermerButton = new ButtonType("Fermer", ButtonBar.ButtonData.OK_DONE);
+        dialogPane.getButtonTypes().add(fermerButton);
+        Button closeButton = (Button) dialogPane.lookupButton(fermerButton);
+        closeButton.setStyle("-fx-background-color: #007bff; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-weight: bold; " +
+                "-fx-padding: 10 25; " + // Padding augmenté
+                "-fx-font-size: 14px; " + // Taille de police augmentée
+                "-fx-background-radius: 5;");
+
+        // Mise à jour de la liste et gestion des notifications
         filterComboBox.setOnAction(e -> {
             String filter = filterComboBox.getValue();
             ObservableList<Accord> filteredAccords = FXCollections.observableArrayList();
-            
+
             for (Accord accord : recentAccords) {
                 boolean isRead = seenAccordIds.contains(accord.getId());
                 if (filter.equals("Toutes les notifications") ||
-                    (filter.equals("Non lues") && !isRead) ||
-                    (filter.equals("Lues") && isRead)) {
+                        (filter.equals("Non lues") && !isRead) ||
+                        (filter.equals("Lues") && isRead)) {
                     filteredAccords.add(accord);
                 }
             }
-            
+
             if (filteredAccords.isEmpty()) {
+                VBox emptyContainer = new VBox(15);
+                emptyContainer.setAlignment(Pos.CENTER);
+
+                ImageView emptyIcon = new ImageView(new Image("file:src/main/resources/icons/empty.png"));
+                emptyIcon.setFitHeight(60); // Taille d'icône augmentée
+                emptyIcon.setFitWidth(60);
+
                 Label emptyLabel = new Label("Aucune notification dans cette catégorie");
-                emptyLabel.setStyle("-fx-padding: 10; -fx-text-fill: #6c757d;");
-                accordListView.setPlaceholder(emptyLabel);
+                emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #6c757d;"); // Police augmentée
+
+                emptyContainer.getChildren().addAll(emptyIcon, emptyLabel);
+                accordListView.setPlaceholder(emptyContainer);
             }
-            
+
             accordListView.setItems(filteredAccords);
         });
-        
-        // Déclencher l'événement pour afficher initialement toutes les notifications
+
+        // Déclencher le filtre initial
         filterComboBox.fireEvent(new javafx.event.ActionEvent());
-        
-        VBox content = new VBox(10);
-        content.setPadding(new Insets(10));
-        content.getChildren().addAll(
-            new Label("Filtrer les notifications :"),
-            filterComboBox,
-            accordListView
-        );
-        content.setStyle("-fx-background-color: white;");
-        
-        popup.getDialogPane().setContent(content);
-        popup.getDialogPane().setPrefWidth(450);
-        popup.getDialogPane().setPrefHeight(400);
-        
-        // Ajout des boutons
-        ButtonType fermerButton = new ButtonType("Fermer", ButtonBar.ButtonData.OK_DONE);
-        popup.getDialogPane().getButtonTypes().add(fermerButton);
-        
-        // Marquer comme lues uniquement les notifications non lues lors de la fermeture
+
+        // Gestion de la fermeture
         popup.setResultConverter(dialogButton -> {
             if (dialogButton == fermerButton) {
                 for (Accord accord : recentAccords) {
@@ -329,10 +393,9 @@ public class ShowAccords implements Initializable {
             }
             return dialogButton;
         });
-        
+
         popup.showAndWait();
     }
-
     private void initializeDateSortComboBox() {
         dateSortComboBox.setItems(FXCollections.observableArrayList(
                 "Tous",
