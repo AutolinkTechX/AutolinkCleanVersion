@@ -61,6 +61,13 @@ import com.itextpdf.layout.element.Image;
 
 import com.itextpdf.layout.borders.Border;
 
+import javafx.geometry.Pos;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.ProgressBar;
+
+import javafx.concurrent.Task;
+import javafx.scene.control.ProgressIndicator;
+
 public class Orders {
     @FXML
     private FlowPane cardsContainer;
@@ -78,12 +85,149 @@ public class Orders {
     private int currentPage = 1;
     private int totalPages = 1;
     private LocalDate searchDate = null;
-
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    /*
     @FXML
     public void initialize() {
         loadOrders();
+    }
+*/
+    @FXML private Button downloadAllBtn; // Doit correspondre à fx:id dans FXML
+
+    @FXML
+    public void initialize() {
+        // Vérification null pour éviter NPE
+        if (downloadAllBtn != null) {
+            downloadAllBtn.setText("Télécharger tous");
+            downloadAllBtn.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 14;");
+            downloadAllBtn.setOnAction(event -> downloadAllOrders());
+        } else {
+            System.err.println("Erreur: downloadAllBtn n'a pas été injecté par FXML");
+        }
+
+        loadOrders();
+    }
+
+    private void downloadAllOrders() {
+        downloadAllBtn.setDisable(true);
+
+        // Créer une boîte de dialogue de progression
+        Dialog<ButtonType> progressDialog = new Dialog<>();
+        progressDialog.setTitle("Téléchargement des factures");
+        progressDialog.setHeaderText("Génération des PDF en cours...");
+
+        // Appliquer le style CSS
+        styleProgressDialog(progressDialog);
+
+        // Créer un conteneur pour la progression
+        ProgressBar progressBar = new ProgressBar();
+        progressBar.setProgress(-1); // Indéterminée
+        progressBar.setPrefWidth(300);
+
+        Label statusLabel = new Label("Veuillez patienter...");
+
+        VBox content = new VBox(10, progressBar, statusLabel);
+        content.setPadding(new Insets(20));
+        content.setAlignment(Pos.CENTER);
+
+        progressDialog.getDialogPane().setContent(content);
+        progressDialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+
+        // Créer et configurer la tâche
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                List<Commande> allCommandes;
+                if (searchDate != null) {
+                    allCommandes = commandeService.getCommandesByDate(searchDate, 1, Integer.MAX_VALUE);
+                } else {
+                    allCommandes = commandeService.getAllCommandes(1, Integer.MAX_VALUE);
+                }
+
+                int total = allCommandes.size();
+                int[] successCount = {0};
+                int[] failCount = {0};
+
+                Path downloadFolder = Paths.get(System.getProperty("user.home"), "Downloads", "Factures_AutolInk");
+                if (!Files.exists(downloadFolder)) {
+                    Files.createDirectories(downloadFolder);
+                }
+
+                for (int i = 0; i < allCommandes.size(); i++) {
+                    Commande commande = allCommandes.get(i);
+
+                    updateProgress(i + 1, total);
+                    updateMessage(String.format("Traitement de la commande %d/%d", i + 1, total));
+
+                    try {
+                        byte[] pdfContent = generateOrderPdfContent(commande);
+                        String fileName = String.format("Commande_%d_%s.pdf",
+                                commande.getId(),
+                                commande.getDateCommande().toLocalDate().format(DateTimeFormatter.BASIC_ISO_DATE));
+                        Files.write(downloadFolder.resolve(fileName), pdfContent);
+                        successCount[0]++;
+                    } catch (Exception e) {
+                        System.err.println("Erreur avec la commande " + commande.getId() + ": " + e.getMessage());
+                        failCount[0]++;
+                    }
+                }
+
+                Platform.runLater(() -> {
+                    progressDialog.close();
+                    showDownloadResult(successCount[0], failCount[0], downloadFolder);
+                });
+
+                return null;
+            }
+        };
+
+        // Lier la progression à l'UI
+        progressBar.progressProperty().bind(task.progressProperty());
+        statusLabel.textProperty().bind(task.messageProperty());
+
+        // Configurer le comportement après la tâche
+        task.setOnSucceeded(e -> {
+            downloadAllBtn.setDisable(false);
+        });
+
+        task.setOnFailed(e -> {
+            downloadAllBtn.setDisable(false);
+            progressDialog.close();
+            showAlert("Erreur", "Échec du téléchargement",
+                    "Une erreur est survenue: " + task.getException().getMessage());
+        });
+
+        task.setOnCancelled(e -> {
+            downloadAllBtn.setDisable(false);
+        });
+
+        // Démarrer la tâche dans un nouveau thread
+        new Thread(task).start();
+
+        // Afficher la boîte de dialogue
+        progressDialog.show();
+    }
+
+    private void showDownloadResult(int successCount, int failCount, Path downloadFolder) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Téléchargement terminé");
+        alert.setHeaderText("Résumé du téléchargement");
+        alert.setContentText(String.format(
+                "%d factures générées avec succès.\n" +
+                        "%d échecs.\n\n" +
+                        "Les fichiers ont été sauvegardés dans :\n%s",
+                successCount, failCount, downloadFolder.toString()));
+
+        alert.showAndWait();
+
+        if (Desktop.isDesktopSupported() && successCount > 0) {
+            try {
+                Desktop.getDesktop().open(downloadFolder.toFile());
+            } catch (IOException e) {
+                System.err.println("Impossible d'ouvrir le dossier : " + e.getMessage());
+            }
+        }
     }
 
     private void loadOrders() {
@@ -104,6 +248,14 @@ public class Orders {
         }
 
         updatePaginationControls();
+    }
+
+    private void styleProgressDialog(Dialog<ButtonType> dialog) {
+        // Appliquer un style CSS au dialogue
+        dialog.getDialogPane().getStylesheets().add(
+                Objects.requireNonNull(getClass().getResource("/styles/Orders/progress-dialog.css")).toExternalForm()
+        );
+        dialog.getDialogPane().getStyleClass().add("progress-dialog");
     }
 
     private VBox createOrderCard(Commande commande) {
@@ -243,7 +395,6 @@ public class Orders {
         prevPageBtn.setDisable(currentPage <= 1);
         nextPageBtn.setDisable(currentPage >= totalPages);
     }
-
 
     private byte[] generateOrderPdfContent(Commande commande) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -591,7 +742,6 @@ public class Orders {
         return sb.toString();
     }
 
-    // Utility methods (same as in Facture controller)
     private Cell createTotalCell(String text, boolean isLabel) {
         Paragraph p = new Paragraph(text);
         if (isLabel) p.setBold();
