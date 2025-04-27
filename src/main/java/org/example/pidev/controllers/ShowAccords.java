@@ -241,9 +241,9 @@ public class ShowAccords implements Initializable {
 
         // Création de la ListView avec taille augmentée
         ListView<Accord> accordListView = new ListView<>();
-        accordListView.setPrefHeight(400); // Hauteur significativement augmentée
-        accordListView.setPrefWidth(500); // Largeur significativement augmentée
-        accordListView.setMinHeight(300); // Hauteur minimum garantie
+        accordListView.setPrefHeight(300); // Reduced height
+        accordListView.setPrefWidth(400); // Reduced width
+        accordListView.setMinHeight(200); // Reduced minimum height
         accordListView.setStyle("-fx-background-color: white; " +
                 "-fx-border-color: #e0e0e0; " +
                 "-fx-border-radius: 8; " +
@@ -321,18 +321,19 @@ public class ShowAccords implements Initializable {
         });
 
         // Création du conteneur principal avec espacement augmenté
-        VBox content = new VBox(20); // Espacement augmenté
-        content.setPadding(new Insets(25)); // Padding augmenté
+        VBox content = new VBox(15); // Reduced padding
+        content.setPadding(new Insets(15)); // Reduced padding
+        content.setSpacing(10); // Reduced spacing between elements
         content.getChildren().addAll(headerLabel, filterContainer, accordListView);
         content.setStyle("-fx-background-color: white;");
 
         // Style du DialogPane avec taille augmentée
         DialogPane dialogPane = popup.getDialogPane();
         dialogPane.setContent(content);
-        dialogPane.setPrefWidth(700); // Largeur augmentée
-        dialogPane.setPrefHeight(700); // Hauteur augmentée
-        dialogPane.setMinWidth(600); // Largeur minimum
-        dialogPane.setMinHeight(600); // Hauteur minimum
+        dialogPane.setPrefWidth(500); // Reduced width
+        dialogPane.setPrefHeight(500); // Reduced height
+        dialogPane.setMinWidth(400); // Reduced minimum width
+        dialogPane.setMinHeight(400); // Reduced minimum height
 
         // Style du bouton de fermeture
         ButtonType fermerButton = new ButtonType("Fermer", ButtonBar.ButtonData.OK_DONE);
