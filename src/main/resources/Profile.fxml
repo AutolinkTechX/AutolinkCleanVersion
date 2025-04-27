@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controllers.ProfileController">
+    <center>
+        <VBox style="-fx-padding: 20;" spacing="20">
+            <HBox alignment="CENTER">
+                <Label text="User Profile" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+            </HBox>
+
+            <GridPane hgap="10" vgap="10" alignment="CENTER">
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" hgrow="NEVER"/>
+                    <ColumnConstraints halignment="LEFT" hgrow="ALWAYS"/>
+                </columnConstraints>
+
+                <!-- Name Field -->
+                <Label text="Name:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="nameField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <Label fx:id="nameErrorLabel" style="-fx-text-fill: red;" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <!-- Last Name Field -->
+                <Label text="Last Name:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <TextField fx:id="lastNameField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                <Label fx:id="lastNameErrorLabel" style="-fx-text-fill: red;" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <!-- Email Field -->
+                <Label text="Email:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <TextField fx:id="emailField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                <Label fx:id="emailErrorLabel" style="-fx-text-fill: red;" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                <!-- Phone Field -->
+                <Label text="Phone:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                <TextField fx:id="phoneField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                <Label fx:id="phoneErrorLabel" style="-fx-text-fill: red;" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+                <!-- Change Password Button -->
+                <Button text="Change Password" onAction="#handleChangePassword" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+
+                <!-- Image Upload -->
+                <Label text="Profile Image:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+                <VBox GridPane.rowIndex="9" GridPane.columnIndex="1" spacing="5">
+                    <HBox spacing="10">
+                        <Button text="Browse..." onAction="#handleBrowseImage"/>
+                        <Label fx:id="imageNameLabel" text="No image selected"/>
+                    </HBox>
+                    <ImageView fx:id="profileImageView" fitHeight="100" fitWidth="100" preserveRatio="true">
+                        <image>
+                            <Image url="@images/logo.jpg"/>
+                        </image>
+                    </ImageView>
+                    <Label fx:id="imageErrorLabel" style="-fx-text-fill: red;"/>
+                </VBox>
+
+                <!-- Submit Button -->
+                <Button fx:id="submitButton" text="Save Changes" onAction="#handleSubmit" GridPane.columnIndex="1" GridPane.rowIndex="10" style="-fx-font-weight: bold;">
+                    <graphic>
+                        <ImageView fx:id="submitLoadingIcon" fitHeight="16" fitWidth="16" visible="false">
+                            <image>
+                                <Image url="@images/load.gif"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </GridPane>
+        </VBox>
+    </center>
+</BorderPane>

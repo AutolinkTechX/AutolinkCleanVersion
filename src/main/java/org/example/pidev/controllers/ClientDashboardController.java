@@ -17,9 +17,10 @@ import org.example.pidev.services.PanierService;
 import org.example.pidev.utils.AlertUtils;
 import org.example.pidev.utils.MyDatabase;
 import org.example.pidev.utils.SessionManager;
+import javafx.application.Platform;
+import java.util.prefs.BackingStoreException;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,12 +48,43 @@ public class ClientDashboardController {
 
     @FXML
     public void initialize() {
+        if (!verifySession()) {
+            return;
+        }
         setupUserMenu();
         initializeBadges();
         setupIconButtons();
         loadDefaultView();
     }
 
+    private boolean verifySession() {
+        if (SessionManager.getCurrentUser() == null && 
+            SessionManager.getCurrentEntreprise() == null) {
+            
+            System.out.println("Session verification failed - redirecting to login");
+            
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Session Expired");
+                alert.setHeaderText(null);
+                alert.setContentText("Please log in again to continue");
+                alert.showAndWait();
+    
+                try {
+                    Parent root = FXMLLoader.load(getClass().getResource("/DashboardLogin.fxml"));
+                    Stage stage = (Stage) contentArea.getScene().getWindow();
+                    stage.setScene(new Scene(root));
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            
+            return false;
+        }
+        return true;
+    }
+    
     private void loadDefaultView() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Home.fxml"));
@@ -192,9 +224,16 @@ public class ClientDashboardController {
         alert.showAndWait();
     }
 
-    private void setupUserMenu() {
+    private void setupUserMenu(){
+        
         profileMenuItem.setOnAction(e -> loadProfileView());
-        logoutMenuItem.setOnAction(e -> handleLogout());
+        logoutMenuItem.setOnAction(e -> {
+            try {
+                handleLogout();
+            } catch (BackingStoreException ex) {
+                Logger.getLogger(ClientDashboardController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
     }
 
     private void initializeBadges() {
@@ -257,7 +296,8 @@ public class ClientDashboardController {
         }
     }
 
-    private void handleLogout() {
+    private void handleLogout() throws BackingStoreException {
+        SessionManager.clearSession();
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/DashboardLogin.fxml"));
             Stage stage = (Stage) contentArea.getScene().getWindow();
