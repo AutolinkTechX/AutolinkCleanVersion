@@ -1,5 +1,8 @@
 package org.example.pidev.controllers;
 
+import javafx.application.Platform;
+import javafx.scene.web.WebEngine;
+import netscape.javascript.JSObject;
 import org.example.pidev.Enum.StatutEnum;
 import org.example.pidev.Enum.Type_materiel;
 import org.example.pidev.entities.Entreprise;
@@ -101,7 +104,15 @@ public class AjouterMaterielRecyclable implements Initializable {
                 filterSuppliersByType(newVal);
             }
         });
+
+
     }
+
+
+
+
+
+
 
     // Nouvelle méthode pour afficher le message de bienvenue
     public void displayWelcomeMessage() {
