@@ -18,7 +18,7 @@ public class EntrepriseService implements IService<Entreprise> {
 
     @Override
     public void ajouter(Entreprise entreprise) throws SQLException {
-        String query = "INSERT INTO entreprise (role_id, company_name, email, phone, tax_code, created_at, supplier, password, field, image_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO entreprise (role_id, company_name, email, phone, tax_code, created_at, supplier, password, field) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, 3); // role_id for entreprise
@@ -28,9 +28,9 @@ public class EntrepriseService implements IService<Entreprise> {
             ps.setString(5, entreprise.getTaxCode());
             ps.setTimestamp(6, Timestamp.valueOf(java.time.LocalDateTime.now()));
             ps.setBoolean(7, entreprise.getSupplier());
-            ps.setString(8, entreprise.getPassword());
+            String hashedPassword = BCrypt.hashpw(entreprise.getPassword(), BCrypt.gensalt());
+            ps.setString(8, hashedPassword);
             ps.setString(9, entreprise.getField());
-            ps.setString(10, entreprise.getImagePath());
             
             ps.executeUpdate();
             
