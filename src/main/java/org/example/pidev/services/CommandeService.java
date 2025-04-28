@@ -110,8 +110,7 @@ public class CommandeService {
             throw new SQLException("Erreur lors de la sérialisation des quantités : " + e.getMessage(), e);
         }
     }
-
-
+  /*
     public List<Commande> getAllCommandes(int page, int itemsPerPage) {
         List<Commande> commandes = new ArrayList<>();
         int offset = (page - 1) * itemsPerPage;
@@ -133,6 +132,28 @@ public class CommandeService {
         }
         return commandes;
     }
+*/
+  public List<Commande> getAllCommandes(int page, int itemsPerPage) {
+      List<Commande> commandes = new ArrayList<>();
+      int offset = (page - 1) * itemsPerPage;
+
+      String query = "SELECT c.*, u.name, u.last_name, u.email FROM commande c " + // Ajout de u.email
+              "JOIN user u ON c.client_id = u.id " +
+              "ORDER BY c.date_commande DESC LIMIT ? OFFSET ?";
+
+      try (PreparedStatement stmt = connection.prepareStatement(query)) {
+          stmt.setInt(1, itemsPerPage);
+          stmt.setInt(2, offset);
+
+          ResultSet rs = stmt.executeQuery();
+          while (rs.next()) {
+              commandes.add(mapResultSetToCommande(rs));
+          }
+      } catch (SQLException e) {
+          e.printStackTrace();
+      }
+      return commandes;
+  }
 
     public List<Commande> getCommandesByDate(LocalDate date, int page, int itemsPerPage) {
         List<Commande> commandes = new ArrayList<>();
@@ -196,6 +217,7 @@ public class CommandeService {
         client.setId(rs.getInt("client_id"));
         client.setName(rs.getString("name"));
         client.setLastName(rs.getString("last_name"));
+        client.setEmail(rs.getString("email"));
         commande.setClient(client);
 
         commande.setArticleIds(rs.getString("article_ids"));
@@ -203,7 +225,6 @@ public class CommandeService {
 
         return commande;
     }
-
 
     public Map<String, Long> getPaymentMethodStatistics() throws SQLException {
         Map<String, Long> paymentStats = new HashMap<>();
@@ -225,7 +246,6 @@ public class CommandeService {
 
         return paymentStats;
     }
-
 
     public Map<LocalDate, List<String>> getCommandesGroupedByDateWithClientNames() throws SQLException {
         Map<LocalDate, List<String>> commandesByDate = new HashMap<>();
@@ -250,7 +270,7 @@ public class CommandeService {
         return commandesByDate;
     }
 
-
+    /*
     public List<Commande> getAllCommandees() {
         try {
             List<Commande> commandes = new ArrayList<>();
@@ -273,6 +293,44 @@ public class CommandeService {
                     User client = new User();
                     client.setName(resultSet.getString("client_name"));
                     client.setLastName(resultSet.getString("last_name"));
+                    commande.setClient(client);
+
+                    commande.setTotal(resultSet.getDouble("total"));
+
+                    commandes.add(commande);
+                }
+            }
+            return commandes;
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to retrieve commandes", e);
+        }
+    }
+*/
+
+    public List<Commande> getAllCommandees() {
+        try {
+            List<Commande> commandes = new ArrayList<>();
+            String query = "SELECT c.id, c.date_commande, c.total, " +
+                    "u.name as client_name, u.last_name, u.email " + // Ajout de u.email
+                    "FROM commande c " +
+                    "JOIN user u ON c.client_id = u.id ";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query);
+                 ResultSet resultSet = preparedStatement.executeQuery()) {
+
+                while (resultSet.next()) {
+                    Commande commande = new Commande();
+                    commande.setId(resultSet.getInt("id"));
+
+                    Timestamp timestamp = resultSet.getTimestamp("date_commande");
+                    if (timestamp != null) {
+                        commande.setDateCommande(timestamp.toLocalDateTime());
+                    }
+
+                    User client = new User();
+                    client.setName(resultSet.getString("client_name"));
+                    client.setLastName(resultSet.getString("last_name"));
+                    client.setEmail(resultSet.getString("email")); // Ajout de l'email
                     commande.setClient(client);
 
                     commande.setTotal(resultSet.getDouble("total"));
