@@ -101,11 +101,21 @@ public class Favorie implements Initializable {
         nextPageBtn.setOnAction(e -> navigateToPage(currentPage + 1));
         searchField.textProperty().addListener((obs, oldVal, newVal) -> filterArticles(newVal));
     }
+  
 
     private void loadFavoriteArticles() {
         try {
+            int initialCount = allFavorites.size();
             allFavorites = favorieService.getFavoriteArticlesByUser(currentUser.getId());
             totalPages = (int) Math.ceil((double) allFavorites.size() / ITEMS_PER_PAGE);
+
+            // Notifier l'utilisateur si des articles ont été retirés
+            if (initialCount > 0 && allFavorites.size() < initialCount) {
+                int removedCount = initialCount - allFavorites.size();
+                AlertUtils.showInformationAlert("Mise à jour des favoris",
+                        removedCount + " article(s) ont été retiré(s) de vos favoris car ils ne sont plus disponibles en stock.");
+            }
+
             updatePageIndicators();
             updateDisplayedArticles();
         } catch (SQLException e) {
