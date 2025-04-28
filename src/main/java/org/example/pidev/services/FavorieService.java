@@ -13,6 +13,7 @@ public class FavorieService {
     private final Connection connection = MyDatabase.getInstance().getMyConnection();
     private final ArticleService articleService = new ArticleService(); // Utilisation d'ArticleService pour récupérer les articles
 
+    // Ajouter un article aux favoris d'un utilisateur
     public void addToFavorites(Integer articleId, Integer userId) throws SQLException {
         String query = "INSERT INTO favorie (article_id, user_id, date_creation, date_expiration) VALUES (?, ?, ?, ?)";
 
@@ -28,6 +29,7 @@ public class FavorieService {
         }
     }
 
+    // Retirer un article des favoris d'un utilisateur
     public void removeFromFavorites(Integer articleId, Integer userId) throws SQLException {
         String query = "DELETE FROM favorie WHERE article_id = ? AND user_id = ?";
 
@@ -38,12 +40,11 @@ public class FavorieService {
         }
     }
 
+    // Récupérer tous les articles favoris d'un utilisateur
+
     public List<Article> getFavoriteArticlesByUser(int userId) throws SQLException {
         List<Article> favoriteArticles = new ArrayList<>();
-        // Modifiez la requête pour joindre la table article et filtrer par quantité > 0
-        String query = "SELECT f.article_id FROM favorie f " +
-                "JOIN article a ON f.article_id = a.id " +
-                "WHERE f.user_id = ? AND f.date_expiration > NOW() AND a.quantitestock > 0";
+        String query = "SELECT article_id FROM favorie WHERE user_id = ? AND date_expiration > NOW()";
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, userId);
@@ -58,29 +59,11 @@ public class FavorieService {
                 }
             }
         }
-
-        // Supprimer automatiquement les favoris pour les articles épuisés
-        removeOutOfStockFavorites(userId);
-
         return favoriteArticles;
     }
 
-    private void removeOutOfStockFavorites(int userId) throws SQLException {
-        String query = "DELETE f FROM favorie f " +
-                "JOIN article a ON f.article_id = a.id " +
-                "WHERE f.user_id = ? AND a.quantitestock <= 0";
-
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, userId);
-            statement.executeUpdate();
-        }
-    }
-
     public int getFavoriteCount(int userId) throws SQLException {
-        String query = "SELECT COUNT(*) FROM favorie f " +
-                "JOIN article a ON f.article_id = a.id " +
-                "WHERE f.user_id = ? AND f.date_expiration > NOW() " +
-                "AND a.quantitestock > 0";
+        String query = "SELECT COUNT(*) FROM favorie WHERE user_id = ? AND date_expiration > NOW()";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, userId);
             ResultSet rs = statement.executeQuery();
@@ -88,12 +71,9 @@ public class FavorieService {
         }
     }
 
+    // Vérifier si un article est déjà dans les favoris d'un utilisateur
     public boolean isArticleInFavorites(Integer articleId, Integer userId) throws SQLException {
-        String query = "SELECT 1 FROM favorie f " +
-                "JOIN article a ON f.article_id = a.id " +
-                "WHERE f.article_id = ? AND f.user_id = ? " +
-                "AND f.date_expiration > NOW() AND a.quantitestock > 0 " +
-                "LIMIT 1";
+        String query = "SELECT 1 FROM favorie WHERE article_id = ? AND user_id = ? AND date_expiration > NOW() LIMIT 1";
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, articleId);
@@ -105,9 +85,11 @@ public class FavorieService {
         }
     }
 
+    // Récupérer toutes les catégories d'articles
     public List<String> getAllCategories() throws SQLException {
         return articleService.getAllCategories(); // Utiliser la méthode d'ArticleService pour obtenir les catégories
     }
+
 
     public int getFavorisCountForUser(int userId) {
         String query = "SELECT COUNT(*) FROM favorie WHERE user_id = ?";
@@ -123,6 +105,7 @@ public class FavorieService {
         }
         return 0;
     }
+
 
     public void deleteByArticleId(int articleId) throws SQLException {
         String sql = "DELETE FROM favorie WHERE article_id = ?";

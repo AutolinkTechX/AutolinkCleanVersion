@@ -101,20 +101,7 @@ public class Favorie implements Initializable {
         nextPageBtn.setOnAction(e -> navigateToPage(currentPage + 1));
         searchField.textProperty().addListener((obs, oldVal, newVal) -> filterArticles(newVal));
     }
-
-    /*
-    private void loadFavoriteArticles() {
-        try {
-            allFavorites = favorieService.getFavoriteArticlesByUser(currentUser.getId());
-            totalPages = (int) Math.ceil((double) allFavorites.size() / ITEMS_PER_PAGE);
-            updatePageIndicators();
-            updateDisplayedArticles();
-        } catch (SQLException e) {
-            AlertUtils.showErrorAlert("Erreur", "Impossible de charger les favoris", e.getMessage());
-        }
-    }
-*/
-
+  
 
     private void loadFavoriteArticles() {
         try {
@@ -162,7 +149,6 @@ public class Favorie implements Initializable {
         articlesContainer.getChildren().add(noResults);
     }
 
-    /*
     private void displayArticles(List<Article> articles) {
         articlesContainer.getChildren().clear();
 
@@ -170,22 +156,6 @@ public class Favorie implements Initializable {
             VBox card = createArticleCard(article);
             articlesContainer.getChildren().add(card);
             animateCardAppearance(card);
-        }
-
-        updateNavigationButtons();
-    }
-*/
-
-    private void displayArticles(List<Article> articles) {
-        articlesContainer.getChildren().clear();
-
-        for (Article article : articles) {
-            // Vérification supplémentaire (au cas où)
-            if (article.getQuantitestock() > 0) {
-                VBox card = createArticleCard(article);
-                articlesContainer.getChildren().add(card);
-                animateCardAppearance(card);
-            }
         }
 
         updateNavigationButtons();
