@@ -556,6 +556,7 @@ public class ArticleService {
 
 
 
+
     // Méthode pour trouver le prix minimum
     public double findMinPrice() throws SQLException {
         String query = "SELECT MIN(prix) FROM article WHERE quantitestock > 0";
@@ -613,5 +614,6 @@ public class ArticleService {
         }
         return articles;
     }
+
 
 }

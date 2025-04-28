@@ -20,6 +20,9 @@ module pidev {
     requires javafx.swing;
     requires twilio;
     requires stripe.java;
+  
+    requires itextpdf;        // pour io-7.2.5.jar
+
     requires com.google.gson;
 
 

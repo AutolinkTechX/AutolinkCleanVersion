@@ -597,6 +597,7 @@ public class Payement implements Initializable {
     private Panier parentController;
     private Stage paymentStage;
 
+
     // Ajoutez cette méthode
     public void setParentController(Panier parentController) {
         this.parentController = parentController;
@@ -1153,7 +1154,9 @@ public class Payement implements Initializable {
         cashForm.setVisible(!isOnline);
     }
 
+
 /*
+
     @FXML
     private void handleStripePayment() {
         try {
@@ -1167,6 +1170,7 @@ public class Payement implements Initializable {
             AlertUtils.showErrorAlert("Erreur Stripe", "Échec du paiement", e.getMessage());
         }
     }
+
 */
 
     @FXML
@@ -1187,9 +1191,11 @@ public class Payement implements Initializable {
         }
     }
     /*
+
     private void showStripePaymentForm(String clientSecret) {
         stripePopup.setVisible(true);
         WebEngine webEngine = stripeWebView.getEngine();
+
 
         // Utilisez des URLs locales pour gérer le résultat
         String successUrl = "http://localhost/success?session_id={CHECKOUT_SESSION_ID}";
@@ -1298,6 +1304,7 @@ public class Payement implements Initializable {
     @FXML
     private void closeStripePopup() {
         stripePopup.setVisible(false);
+
         stripeWebView.getEngine().loadContent(""); // Vider le contenu
 
         // Optionnel: fermer aussi le dialog principal si nécessaire
