@@ -114,6 +114,8 @@ public class Favorie implements Initializable {
         }
     }
 */
+
+
     private void loadFavoriteArticles() {
         try {
             int initialCount = allFavorites.size();
