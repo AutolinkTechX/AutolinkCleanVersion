@@ -106,3 +106,53 @@
     -fx-border-radius: 5px;
     -fx-padding: 5px;
 }
+
+
+/*****css chtbot***/
+.chat-icon {
+    -fx-background-radius: 50%;
+    -fx-background-color: #a05a2c;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 5, 5);
+}
+
+.chat-icon:hover {
+    -fx-background-color: #c47a4a;
+    -fx-cursor: hand;
+}
+
+#chatHistory {
+    -fx-font-family: 'Arial';
+    -fx-background-color: white;
+    -fx-border-radius: 5px;
+}
+
+
+.draggable-chatbot:pressed {
+    -fx-cursor: closed-hand;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 3);
+}
+
+@keyframes pulse {
+    0% { -fx-scale-x: 1; -fx-scale-y: 1; }
+    50% { -fx-scale-x: 1.05; -fx-scale-y: 1.05; }
+    100% { -fx-scale-x: 1; -fx-scale-y: 1; }
+}
+
+.draggable-chatbot {
+    -fx-background-color: #a05a2c;
+    -fx-background-radius: 30px;
+    -fx-padding: 15px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 3);
+    -fx-cursor: hand;
+    -fx-z-index: 1000;
+}
+
+.draggable-chatbot:hover {
+    -fx-background-color: #c47a4b;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 5);
+}
+
+#chatbotPane {
+    -fx-padding: 0 20 20 0;
+    -fx-z-index: 1000;
+}

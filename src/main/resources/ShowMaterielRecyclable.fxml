@@ -1,71 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.FlowPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.ToolBar?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
-<?import javafx.geometry.Pos?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
 
-<?import javafx.scene.layout.BorderPane?>
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="org.example.pidev.controllers.ShowMaterielRecyclable"
             stylesheets="@styles/MaterielRecyclable/style.css"
             prefWidth="1200" minWidth="800" prefHeight="700" minHeight="600">
 
-
-    <!-- ✅ CONTENU PRINCIPAL -->
     <center>
-        <VBox spacing="15" alignment="TOP_CENTER" prefWidth="1500">
-            <padding>
-                <Insets top="15" right="20" bottom="15" left="20"/>
-            </padding>
+        <AnchorPane>
+            <!-- Contenu principal -->
+            <VBox spacing="15" alignment="TOP_CENTER"
+                  AnchorPane.topAnchor="0"
+                  AnchorPane.bottomAnchor="0"
+                  AnchorPane.leftAnchor="0"
+                  AnchorPane.rightAnchor="0">
 
-            <!-- Titre -->
-            <HBox alignment="CENTER">
-                <Label text="LISTE DES MATÉRIAUX RECYCLABLES"
-                       style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #a05a2c;" />
-            </HBox>
+                <padding>
+                    <Insets top="15" right="20" bottom="15" left="20"/>
+                </padding>
 
-            <!-- Barre de recherche et filtres -->
-            <VBox spacing="8" styleClass="search-section">
-                <ToolBar style="-fx-background-color: #f5f5f5; -fx-background-radius: 10; -fx-border-color: #a05a2c;">
-                    <Label text="Recherche:" style="-fx-text-fill: #a05a2c;" />
-                    <TextField fx:id="searchField" promptText="Rechercher par nom..."
-                               style="-fx-pref-width: 250; -fx-background-radius: 20;" />
+                <!-- Titre -->
+                <HBox alignment="CENTER">
+                    <Label text="LISTE DES MATÉRIAUX RECYCLABLES"
+                           style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #a05a2c;" />
+                </HBox>
 
-                    <Region HBox.hgrow="ALWAYS" />
+                <!-- Barre de recherche et filtres -->
+                <VBox spacing="8">
+                    <ToolBar style="-fx-background-color: #f5f5f5; -fx-background-radius: 10; -fx-border-color: #a05a2c;">
+                        <Label text="Recherche:" style="-fx-text-fill: #a05a2c;" />
+                        <TextField fx:id="searchField" promptText="Rechercher par nom..."
+                                   style="-fx-pref-width: 250; -fx-background-radius: 20;" />
 
-                    <Label text="Trier par date:" style="-fx-text-fill: #a05a2c;" />
-                    <ComboBox fx:id="dateSortComboBox" style="-fx-pref-width: 150;" />
+                        <Region HBox.hgrow="ALWAYS" />
 
-                    <Label text="Filtrer par statut:" style="-fx-text-fill: #a05a2c;" />
-                    <ComboBox fx:id="statusFilterComboBox" style="-fx-pref-width: 150;" />
+                        <Label text="Trier par date:" style="-fx-text-fill: #a05a2c;" />
+                        <ComboBox fx:id="dateSortComboBox" style="-fx-pref-width: 150;" />
 
-                    <Button fx:id="resetButton" text="Réinitialiser" style="-fx-background-color: #a05a2c; -fx-text-fill: white;" />
-                    <Button fx:id="addButton" text="Ajouter" style="-fx-background-color: #a05a2c; -fx-text-fill: white;" />
-                </ToolBar>
+                        <Label text="Filtrer par statut:" style="-fx-text-fill: #a05a2c;" />
+                        <ComboBox fx:id="statusFilterComboBox" style="-fx-pref-width: 150;" />
+
+                        <Button fx:id="resetButton" text="Réinitialiser"
+                                style="-fx-background-color: #a05a2c; -fx-text-fill: white;" />
+                        <Button fx:id="addButton" text="Ajouter"
+                                style="-fx-background-color: #a05a2c; -fx-text-fill: white;" />
+                    </ToolBar>
+                </VBox>
+
+                <!-- Liste des cartes avec défilement -->
+                <ScrollPane fitToWidth="true"
+                            style="-fx-background-color: transparent;"
+                            VBox.vgrow="ALWAYS">
+                    <FlowPane fx:id="materielContainer"
+                              hgap="20"
+                              vgap="15"
+                              alignment="CENTER"
+                              maxWidth="Infinity">
+                        <padding>
+                            <Insets bottom="15" left="20" right="20" top="15" />
+                        </padding>
+                    </FlowPane>
+                </ScrollPane>
             </VBox>
 
-            <!-- Liste des cartes -->
-            <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
-                <FlowPane fx:id="materielContainer" hgap="20" vgap="15" alignment="CENTER">
-                    <padding>
-                        <Insets bottom="15" left="20" right="20" top="15" />
-                    </padding>
-                </FlowPane>
-            </ScrollPane>
-        </VBox>
+            <!-- Bouton Chatbot en position flottante -->
+            <Pane fx:id="chatbotPane"
+                  AnchorPane.bottomAnchor="20"
+                  AnchorPane.rightAnchor="20" >
+                <Button fx:id="chatbotButton"
+                        styleClass="draggable-chatbot" onAction="#openChatbot">
+                    <graphic>
+                        <ImageView fitWidth="40" fitHeight="40" preserveRatio="true">
+                            <Image url="@icons/chatbot-icon.png"/>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </Pane>
+        </AnchorPane>
     </center>
 </BorderPane>
-
