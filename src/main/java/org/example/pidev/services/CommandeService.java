@@ -116,7 +116,7 @@ public class CommandeService {
         List<Commande> commandes = new ArrayList<>();
         int offset = (page - 1) * itemsPerPage;
 
-        String query = "SELECT c.*, u.name, u.last_name FROM commande c " +
+        String query = "SELECT c.*, u.name, u.last_name, u.email FROM commande c " + // Ajout de u.email
                 "JOIN user u ON c.client_id = u.id " +
                 "ORDER BY c.date_commande DESC LIMIT ? OFFSET ?";
 
@@ -196,6 +196,7 @@ public class CommandeService {
         client.setId(rs.getInt("client_id"));
         client.setName(rs.getString("name"));
         client.setLastName(rs.getString("last_name"));
+        client.setEmail(rs.getString("email")); // Ajout de l'email
         commande.setClient(client);
 
         commande.setArticleIds(rs.getString("article_ids"));
@@ -203,7 +204,6 @@ public class CommandeService {
 
         return commande;
     }
-
 
     public Map<String, Long> getPaymentMethodStatistics() throws SQLException {
         Map<String, Long> paymentStats = new HashMap<>();
@@ -254,7 +254,8 @@ public class CommandeService {
     public List<Commande> getAllCommandees() {
         try {
             List<Commande> commandes = new ArrayList<>();
-            String query = "SELECT c.id, c.date_commande, c.total, u.name as client_name, u.last_name " +
+            String query = "SELECT c.id, c.date_commande, c.total, " +
+                    "u.name as client_name, u.last_name, u.email " + // Ajout de u.email
                     "FROM commande c " +
                     "JOIN user u ON c.client_id = u.id ";
 
@@ -273,6 +274,7 @@ public class CommandeService {
                     User client = new User();
                     client.setName(resultSet.getString("client_name"));
                     client.setLastName(resultSet.getString("last_name"));
+                    client.setEmail(resultSet.getString("email")); // Ajout de l'email
                     commande.setClient(client);
 
                     commande.setTotal(resultSet.getDouble("total"));

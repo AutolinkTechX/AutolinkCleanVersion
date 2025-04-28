@@ -225,6 +225,7 @@ public class CalendarController implements Initializable {
 
     private void handleDayClick(LocalDate date, List<Commande> commandesForDay) {
         if (!commandesForDay.isEmpty()) {
+
             Dialog<Void> dialog = new Dialog<>();
             dialog.setTitle("Détails des commandes");
             dialog.setHeaderText("Commandes du " + date.format(DateTimeFormatter.ofPattern("EEEE d MMMM yyyy", Locale.FRENCH)));
@@ -238,17 +239,20 @@ public class CalendarController implements Initializable {
             int pageCount = (int) Math.ceil((double) commandesForDay.size() / itemsPerPage);
 
             Pagination pagination = new Pagination(pageCount, 0);
+          
             pagination.getStyleClass().add("custom-pagination");
 
             pagination.setPageFactory(pageIndex -> {
                 VBox pageContent = new VBox(5);
                 pageContent.getStyleClass().add("page-content");
 
+
                 int fromIndex = pageIndex * itemsPerPage;
                 int toIndex = Math.min(fromIndex + itemsPerPage, commandesForDay.size());
 
                 for (int i = fromIndex; i < toIndex; i++) {
                     Commande commande = commandesForDay.get(i);
+
 
                     VBox card = new VBox(5);
                     card.getStyleClass().add("commande-card");
@@ -274,6 +278,7 @@ public class CalendarController implements Initializable {
 
             dialog.getDialogPane().setContent(pagination);
             dialog.getDialogPane().setPrefSize(450, 350);
+
             dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
             dialog.showAndWait();
         }

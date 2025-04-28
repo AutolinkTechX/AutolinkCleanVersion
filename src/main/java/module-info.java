@@ -20,6 +20,9 @@ module pidev {
     requires javafx.swing;
     requires twilio;
     requires stripe.java;
+  
+    requires itextpdf;        // pour io-7.2.5.jar
+
     requires com.google.gson;
 
 
@@ -27,7 +30,11 @@ module pidev {
     requires javax.mail;
     requires Java.WebSocket;        // pour io-7.2.5.jar
     requires java.prefs;
+
     requires webcam.capture;
+  
+    requires java.net.http;
+
 
 
     opens org.example.pidev to javafx.fxml;

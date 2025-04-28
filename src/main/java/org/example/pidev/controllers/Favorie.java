@@ -104,8 +104,17 @@ public class Favorie implements Initializable {
 
     private void loadFavoriteArticles() {
         try {
+            int initialCount = allFavorites.size();
             allFavorites = favorieService.getFavoriteArticlesByUser(currentUser.getId());
             totalPages = (int) Math.ceil((double) allFavorites.size() / ITEMS_PER_PAGE);
+
+            // Notifier l'utilisateur si des articles ont été retirés
+            if (initialCount > 0 && allFavorites.size() < initialCount) {
+                int removedCount = initialCount - allFavorites.size();
+                AlertUtils.showInformationAlert("Mise à jour des favoris",
+                        removedCount + " article(s) ont été retiré(s) de vos favoris car ils ne sont plus disponibles en stock.");
+            }
+
             updatePageIndicators();
             updateDisplayedArticles();
         } catch (SQLException e) {
@@ -143,9 +152,12 @@ public class Favorie implements Initializable {
         articlesContainer.getChildren().clear();
 
         for (Article article : articles) {
-            VBox card = createArticleCard(article);
-            articlesContainer.getChildren().add(card);
-            animateCardAppearance(card);
+            // Vérification supplémentaire (au cas où)
+            if (article.getQuantitestock() > 0) {
+                VBox card = createArticleCard(article);
+                articlesContainer.getChildren().add(card);
+                animateCardAppearance(card);
+            }
         }
 
         updateNavigationButtons();

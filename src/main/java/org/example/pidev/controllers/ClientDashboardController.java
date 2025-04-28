@@ -64,18 +64,18 @@ public class ClientDashboardController {
     }
 
     private boolean verifySession() {
-        if (SessionManager.getCurrentUser() == null && 
-            SessionManager.getCurrentEntreprise() == null) {
-            
+        if (SessionManager.getCurrentUser() == null &&
+                SessionManager.getCurrentEntreprise() == null) {
+
             System.out.println("Session verification failed - redirecting to login");
-            
+
             Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Session Expired");
                 alert.setHeaderText(null);
                 alert.setContentText("Please log in again to continue");
                 alert.showAndWait();
-    
+
                 try {
                     Parent root = FXMLLoader.load(getClass().getResource("/DashboardLogin.fxml"));
                     Stage stage = (Stage) contentArea.getScene().getWindow();
@@ -85,12 +85,12 @@ public class ClientDashboardController {
                     e.printStackTrace();
                 }
             });
-            
+
             return false;
         }
         return true;
     }
-    
+
     private void loadDefaultView() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Home.fxml"));
@@ -238,7 +238,7 @@ public class ClientDashboardController {
                 Logger.getLogger(ClientDashboardController.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
-        
+
         logoutMenuItem.setOnAction(e -> {
             try {
                 handleLogout();
@@ -251,20 +251,20 @@ public class ClientDashboardController {
     private void initializeBadges() {
         favoriteBadge.setVisible(false);
         cartBadge.setVisible(false);
-        
+
     }
 
     private void loadProfileView() throws IOException {
-    try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Profile.fxml"));
-        Node view = loader.load();
-        
-        // Get the controller and set the dashboard reference
-        ProfileController profileController = loader.getController();
-        profileController.setDashboardController(this);
-        
-        contentArea.getChildren().setAll(view);
-    } catch (IOException e) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Profile.fxml"));
+            Node view = loader.load();
+
+            // Get the controller and set the dashboard reference
+            ProfileController profileController = loader.getController();
+            profileController.setDashboardController(this);
+
+            contentArea.getChildren().setAll(view);
+        } catch (IOException e) {
             showError("Error", "Failed to load profile view: " + e.getMessage());
         }
     }
@@ -319,29 +319,29 @@ public class ClientDashboardController {
         alert.setTitle("Logout Confirmation");
         alert.setHeaderText(null);
         alert.setContentText("Are you sure you want to logout?");
-        
+
         // Customize the dialog buttons
         ButtonType cancelButtonType = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
         ButtonType logoutButtonType = new ButtonType("Logout", ButtonData.OK_DONE);
         alert.getButtonTypes().setAll(cancelButtonType, logoutButtonType);
-        
+
         // Get the dialog pane to customize it
         DialogPane dialogPane = alert.getDialogPane();
-        
+
         // Add the dialog CSS file
         dialogPane.getStylesheets().add(getClass().getResource("/styles/dialog.css").toExternalForm());
-        
+
         // Add CSS classes to the dialog pane
         dialogPane.getStyleClass().add("dialog-pane");
-        
+
         // Get the buttons to customize them
         Button logoutButton = (Button) dialogPane.lookupButton(logoutButtonType);
         Button cancelButton = (Button) dialogPane.lookupButton(cancelButtonType);
-        
+
         // Add CSS classes to the buttons
         logoutButton.getStyleClass().add("logout-button");
         cancelButton.getStyleClass().add("cancel-button");
-        
+
         // Show the dialog and wait for user response
         Optional<ButtonType> result = alert.showAndWait();
 
@@ -399,7 +399,7 @@ public class ClientDashboardController {
         updateBadges();
         updateUserMenu();
     }
-    
+
 
     public void updateBadges() {
         if (currentUser != null) {
@@ -566,7 +566,7 @@ public class ClientDashboardController {
     }
 
 
-/**********code farah****/
+    /**********code farah****/
 
     @FXML
     private void loadAddProductView() {

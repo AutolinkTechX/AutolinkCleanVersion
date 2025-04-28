@@ -44,7 +44,10 @@ public class FavorieService {
 
     public List<Article> getFavoriteArticlesByUser(int userId) throws SQLException {
         List<Article> favoriteArticles = new ArrayList<>();
-        String query = "SELECT article_id FROM favorie WHERE user_id = ? AND date_expiration > NOW()";
+        // Modifiez la requête pour joindre la table article et filtrer par quantité > 0
+        String query = "SELECT f.article_id FROM favorie f " +
+                "JOIN article a ON f.article_id = a.id " +
+                "WHERE f.user_id = ? AND f.date_expiration > NOW() AND a.quantitestock > 0";
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, userId);
@@ -59,11 +62,30 @@ public class FavorieService {
                 }
             }
         }
+
+        // Supprimer automatiquement les favoris pour les articles épuisés
+        removeOutOfStockFavorites(userId);
+
         return favoriteArticles;
     }
 
+    // Nouvelle méthode pour supprimer les favoris des articles épuisés
+    private void removeOutOfStockFavorites(int userId) throws SQLException {
+        String query = "DELETE f FROM favorie f " +
+                "JOIN article a ON f.article_id = a.id " +
+                "WHERE f.user_id = ? AND a.quantitestock <= 0";
+
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, userId);
+            statement.executeUpdate();
+        }
+    }
+
     public int getFavoriteCount(int userId) throws SQLException {
-        String query = "SELECT COUNT(*) FROM favorie WHERE user_id = ? AND date_expiration > NOW()";
+        String query = "SELECT COUNT(*) FROM favorie f " +
+                "JOIN article a ON f.article_id = a.id " +
+                "WHERE f.user_id = ? AND f.date_expiration > NOW() " +
+                "AND a.quantitestock > 0";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, userId);
             ResultSet rs = statement.executeQuery();
@@ -73,7 +95,11 @@ public class FavorieService {
 
     // Vérifier si un article est déjà dans les favoris d'un utilisateur
     public boolean isArticleInFavorites(Integer articleId, Integer userId) throws SQLException {
-        String query = "SELECT 1 FROM favorie WHERE article_id = ? AND user_id = ? AND date_expiration > NOW() LIMIT 1";
+        String query = "SELECT 1 FROM favorie f " +
+                "JOIN article a ON f.article_id = a.id " +
+                "WHERE f.article_id = ? AND f.user_id = ? " +
+                "AND f.date_expiration > NOW() AND a.quantitestock > 0 " +
+                "LIMIT 1";
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, articleId);
