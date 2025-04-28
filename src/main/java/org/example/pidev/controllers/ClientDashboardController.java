@@ -7,6 +7,8 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar.ButtonData;
 
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
@@ -20,7 +22,9 @@ import org.example.pidev.utils.SessionManager;
 import javafx.application.Platform;
 import java.util.prefs.BackingStoreException;
 import javafx.scene.image.Image;
+import java.util.prefs.Preferences;
 
+import java.util.Optional;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -247,6 +251,7 @@ public class ClientDashboardController {
     private void initializeBadges() {
         favoriteBadge.setVisible(false);
         cartBadge.setVisible(false);
+        
     }
 
     private void loadProfileView() throws IOException {
@@ -310,14 +315,59 @@ public class ClientDashboardController {
     }
 
     private void handleLogout() throws BackingStoreException {
-        SessionManager.clearSession();
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/DashboardLogin.fxml"));
-            Stage stage = (Stage) contentArea.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            showError("Logout Error", "Failed to logout: " + e.getMessage());
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Logout Confirmation");
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to logout?");
+        
+        // Customize the dialog buttons
+        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+        ButtonType logoutButtonType = new ButtonType("Logout", ButtonData.OK_DONE);
+        alert.getButtonTypes().setAll(cancelButtonType, logoutButtonType);
+        
+        // Get the dialog pane to customize it
+        DialogPane dialogPane = alert.getDialogPane();
+        
+        // Add the dialog CSS file
+        dialogPane.getStylesheets().add(getClass().getResource("/styles/dialog.css").toExternalForm());
+        
+        // Add CSS classes to the dialog pane
+        dialogPane.getStyleClass().add("dialog-pane");
+        
+        // Get the buttons to customize them
+        Button logoutButton = (Button) dialogPane.lookupButton(logoutButtonType);
+        Button cancelButton = (Button) dialogPane.lookupButton(cancelButtonType);
+        
+        // Add CSS classes to the buttons
+        logoutButton.getStyleClass().add("logout-button");
+        cancelButton.getStyleClass().add("cancel-button");
+        
+        // Show the dialog and wait for user response
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.isPresent() && result.get() == logoutButtonType){
+            SessionManager.clearSession();
+            // Clear saved credentials from preferences
+            Preferences prefs = Preferences.userRoot().node("pidev_app_prefs");
+            prefs.remove("remember_me");
+            prefs.remove("saved_email");
+            prefs.remove("saved_password");
+            prefs.remove("user_type");
+            try {
+                prefs.flush();
+            } catch (BackingStoreException e) {
+                logger.log(Level.SEVERE, "Failed to clear saved credentials", e);
+            }
+            try {
+                Parent root = FXMLLoader.load(getClass().getResource("/DashboardLogin.fxml"));
+                Stage stage = (Stage) contentArea.getScene().getWindow();
+                stage.setScene(new Scene(root));
+                stage.show();
+            } catch (IOException e) {
+                showError("Logout Error", "Failed to logout: " + e.getMessage());
+            }
+        }else{
+            System.out.println("Logout cancelled");
         }
     }
 

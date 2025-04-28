@@ -16,6 +16,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.pidev.utils.SessionManager;
 import javafx.application.Platform;
+import java.util.prefs.Preferences;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import java.io.IOException;
 import java.net.URL;
@@ -57,6 +60,8 @@ public class AdminDashboardController {
     @FXML private MenuItem OrdersMenuItem;
     @FXML private MenuItem CalendarMenuItem;
     @FXML private MenuItem StatisticsMenuItem;
+
+    private static final Logger logger = Logger.getLogger(ClientDashboardController.class.getName());
 
     @FXML
     private void initialize() {
@@ -239,6 +244,17 @@ public class AdminDashboardController {
             
             // Clear the session
             SessionManager.clearSession();
+            // Clear saved credentials from preferences
+            Preferences prefs = Preferences.userRoot().node("pidev_app_prefs");
+            prefs.remove("remember_me");
+            prefs.remove("saved_email");
+            prefs.remove("saved_password");
+            prefs.remove("user_type");
+            try {
+                prefs.flush();
+            } catch (BackingStoreException e) {
+                logger.log(Level.SEVERE, "Failed to clear saved credentials", e);
+            }
             
             try {
                 // Load the login page

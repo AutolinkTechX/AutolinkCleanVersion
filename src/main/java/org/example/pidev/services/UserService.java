@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 
 
 
+
 public class UserService implements IService<User> {
 
     private final Connection connection;
@@ -382,6 +383,33 @@ public class UserService implements IService<User> {
             
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
+        }
+    }
+    
+    public boolean updateUserPassword(User user) throws SQLException {
+        String sql = "UPDATE user SET password = ? WHERE id = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, user.getPassword());
+            stmt.setInt(2, user.getId());
+            
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
+    public boolean verifyPassword(User user, String password) {
+        // Compare hashed password with input
+        return BCrypt.checkpw(password, user.getPassword());
+    }
+    
+    public boolean changePassword(User user, String newPassword) {
+        // Update password in database
+        user.setPassword(BCrypt.hashpw(newPassword, BCrypt.gensalt()));
+        try {
+            return updateUserPassword(user);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

@@ -37,7 +37,7 @@
             <children>
                 <VBox alignment="CENTER" layoutX="100.0" layoutY="150" prefHeight="333.0" prefWidth="366.0" spacing="10">
                     <children>
-                        <Label styleClass="login-title" text="Admin Login">
+                        <Label styleClass="login-title" text="Login">
                             <font>
                                 <Font size="28" />
                             </font>

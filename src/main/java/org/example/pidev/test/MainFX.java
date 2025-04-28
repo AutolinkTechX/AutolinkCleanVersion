@@ -7,7 +7,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
-import org.example.pidev.utils.SessionManager;
 import java.io.IOException;
 
 import java.net.URI;
@@ -21,14 +20,6 @@ public class MainFX extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException{
         try {
-            // 1. First try to restore any saved session
-            if (SessionManager.restoreSession()) {
-                System.out.println("Proceeding to dashboard...");
-                loadAppropriateDashboard(primaryStage);
-                return;
-            }
-
-            // 2. Handle deep links (password reset)
             if (handleDeepLinks(primaryStage)) {
                 return;
             }
@@ -83,31 +74,6 @@ public class MainFX extends Application {
             System.err.println("Error handling deep link: " + e.getMessage());
         }
         return false;
-    }
-
-    private void loadAppropriateDashboard(Stage primaryStage) throws IOException {
-        String userType = SessionManager.getCurrentUserType();
-        String fxmlPath;
-        String title;
-
-        if ("USER".equals(userType)) {
-            fxmlPath = "/ClientDashboard.fxml";
-            title = "Client Dashboard";
-        } else if ("ENTREPRISE".equals(userType)) {
-            fxmlPath = "/DashboardEntreprise.fxml";
-            title = "Enterprise Dashboard";
-        } else {
-            System.out.println("Unknown user type - falling back to login");
-            loadLoginPage(primaryStage);
-            return;
-        }
-
-        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-        Parent root = loader.load();
-        primaryStage.setTitle(title);
-        primaryStage.setScene(new Scene(root));
-        primaryStage.setMaximized(true);
-        primaryStage.show();
     }
 
     private void loadLoginPage(Stage primaryStage) throws IOException {

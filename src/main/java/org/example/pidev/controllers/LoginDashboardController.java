@@ -16,6 +16,8 @@ import org.example.pidev.services.EntrepriseService;
 import org.example.pidev.services.UserService;
 import org.example.pidev.utils.SessionManager;
 import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
+import javafx.application.Platform;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -38,11 +40,16 @@ public class LoginDashboardController {
     private final UserService userService = new UserService();
     private final EntrepriseService entrepriseService = new EntrepriseService();
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
+    private static final String PREFS_NAME = "pidev_app_prefs";
+    private static final String REMEMBER_ME_KEY = "remember_me";
+    private static final String EMAIL_KEY = "saved_email";
+    private static final String PASSWORD_KEY = "saved_password";
+    private static final String USER_TYPE_KEY = "user_type";
 
     @FXML
     public void initialize() {
-        checkSavedSession();
-        // Set up event handlers
+        loadSavedCredentials();
+
         loginButton.setOnAction(event -> {
             try {
                 handleLogin();
@@ -71,26 +78,76 @@ public class LoginDashboardController {
 
     }
 
-    private void checkSavedSession() {
-        if (SessionManager.hasSavedSession()) {
-            String userType = SessionManager.getSavedUserType();
-            if ("USER".equals(userType)) {
-                int userId = SessionManager.getSavedUserId();
-                String email = SessionManager.getSavedUserEmail();
-                if (userId != -1 && email != null) {
-                    emailField.setText(email);
-                    rememberMeCheckBox.setSelected(true);
-                    // Optionally attempt auto-login here
+    private void loadSavedCredentials() {
+        Preferences prefs = Preferences.userRoot().node(PREFS_NAME);
+        boolean rememberMe = prefs.getBoolean(REMEMBER_ME_KEY, false);
+        
+        if (rememberMe) {
+            String savedEmail = prefs.get(EMAIL_KEY, "");
+            String savedPassword = prefs.get(PASSWORD_KEY, "");
+            String userType = prefs.get(USER_TYPE_KEY, "");
+            
+            // Set the fields for visual feedback
+            emailField.setText(savedEmail);
+            passwordField.setText(savedPassword);
+            rememberMeCheckBox.setSelected(true);
+            
+            // Schedule auto-login to run after the scene is fully initialized
+            Platform.runLater(() -> {
+                if (!savedEmail.isEmpty() && !savedPassword.isEmpty()) {
+                    try {
+                        if ("USER".equals(userType)) {
+                            User user = userService.authenticate(savedEmail, savedPassword);
+                            if (user != null) {
+                                SessionManager.setCurrentUser(user);
+                                redirectBasedOnRole(user.getRoleId(), user);
+                            } else {
+                                clearSavedCredentials();
+                                System.out.println("Auto-login failed: Invalid credentials");
+                            }
+                        } else if ("ENTREPRISE".equals(userType)) {
+                            Entreprise entreprise = entrepriseService.authenticate(savedEmail, savedPassword);
+                            if (entreprise != null) {
+                                SessionManager.setCurrentEntreprise(entreprise);
+                                redirectBasedOnRole(entreprise.getRoleId(), null);
+                            } else {
+                                clearSavedCredentials();
+                                System.out.println("Auto-login failed: Invalid credentials");
+                            }
+                        }
+                    } catch (Exception e) {
+                        clearSavedCredentials();
+                        System.out.println("Auto-login failed: " + e.getMessage());
+                        e.printStackTrace();
+                    }
                 }
-            } else if ("ENTREPRISE".equals(userType)) {
-                int entrepriseId = SessionManager.getSavedEntrepriseId();
-                String email = SessionManager.getSavedEntrepriseEmail();
-                if (entrepriseId != -1 && email != null) {
-                    emailField.setText(email);
-                    rememberMeCheckBox.setSelected(true);
-                    // Optionally attempt auto-login here
-                }
-            }
+            });
+        }
+    }
+
+    private void saveCredentials(String email, String password, String userType) {
+        Preferences prefs = Preferences.userRoot().node(PREFS_NAME);
+        prefs.putBoolean(REMEMBER_ME_KEY, true);
+        prefs.put(EMAIL_KEY, email);
+        prefs.put(PASSWORD_KEY, password);
+        prefs.put(USER_TYPE_KEY, userType);
+        try {
+            prefs.flush();
+        } catch (BackingStoreException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void clearSavedCredentials() {
+        Preferences prefs = Preferences.userRoot().node(PREFS_NAME);
+        prefs.remove(REMEMBER_ME_KEY);
+        prefs.remove(EMAIL_KEY);
+        prefs.remove(PASSWORD_KEY);
+        prefs.remove(USER_TYPE_KEY);
+        try {
+            prefs.flush();
+        } catch (BackingStoreException e) {
+            e.printStackTrace();
         }
     }
 
@@ -153,48 +210,42 @@ public class LoginDashboardController {
         String password = passwordField.getText().trim();
 
         try {
-            // First try to authenticate as a user
             try {
                 User authenticatedUser = userService.authenticate(email, password);
                 SessionManager.setCurrentUser(authenticatedUser);
-                
-                // Save session if "Remember Me" is checked
-                boolean rememberMe = rememberMeCheckBox != null && rememberMeCheckBox.isSelected();
-                SessionManager.saveSession(rememberMe);
-                
-                System.out.println("Login successful - rememberMe: " + rememberMe);
-                
-                // Get role name from database
-                String roleName = userService.getRoleName(authenticatedUser.getRoleId());
-                
-                // Route to appropriate dashboard
-                if ("ROLE_ADMIN".equals(roleName)) {
-                    loadAdminDashboard();
-                } else if ("ROLE_CLIENT".equals(roleName)) {
-                    loadClientDashboard(authenticatedUser);
+
+                // Save credentials if "Remember Me" is checked
+                if (rememberMeCheckBox.isSelected()) {
+                    saveCredentials(email, password, "USER");
                 } else {
-                    showError("Invalid user role");
+                    clearSavedCredentials();
                 }
+
+                try {
+                    redirectBasedOnRole(authenticatedUser.getRoleId(), authenticatedUser);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
             } catch (IllegalArgumentException e1) {
-                // If user authentication fails, try enterprise authentication
+                // If not User, try Entreprise
                 try {
                     Entreprise authenticatedEntreprise = entrepriseService.authenticate(email, password);
                     SessionManager.setCurrentEntreprise(authenticatedEntreprise);
                     
-                    // Save session if "Remember Me" is checked
-                    boolean rememberMe = rememberMeCheckBox != null && rememberMeCheckBox.isSelected();
-                    SessionManager.saveSession(rememberMe);
-                    
-                    System.out.println("Login successful - rememberMe: " + rememberMe);
-                    
-                    // Get role name from database
-                    String roleName = entrepriseService.getRoleName(authenticatedEntreprise.getRoleId());
-                    if ("ROLE_ENTREPRISE".equals(roleName)) {
-                        loadEntrepriseDashboard();
+                    // Save credentials if "Remember Me" is checked
+                    if (rememberMeCheckBox.isSelected()) {
+                        saveCredentials(email, password, "ENTREPRISE");
                     } else {
-                        showError("Invalid user role");
+                        clearSavedCredentials();
                     }
-                    
+
+                    try {
+                        redirectBasedOnRole(authenticatedEntreprise.getRoleId(), null);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
                 } catch (IllegalArgumentException e2) {
                     // Both authentications failed
                     emailErrorLabel.setVisible(false);
@@ -204,6 +255,25 @@ public class LoginDashboardController {
             }
         } catch (SQLException e) {
             showError("Database error: " + e.getMessage());
+        }
+    }
+
+    private void redirectBasedOnRole(int roleId, User user) throws SQLException, IOException {
+        String roleName;
+        if (user != null) {
+            roleName = userService.getRoleName(roleId);
+        } else {
+            roleName = entrepriseService.getRoleName(roleId);
+        }
+        
+        if ("ROLE_ADMIN".equals(roleName)) {
+            loadAdminDashboard();
+        } else if ("ROLE_CLIENT".equals(roleName)) {
+            loadClientDashboard(user);
+        } else if ("ROLE_ENTREPRISE".equals(roleName)) {
+            loadEntrepriseDashboard();
+        } else {
+            showError("Invalid user role");
         }
     }
 

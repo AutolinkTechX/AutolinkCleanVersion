@@ -7,10 +7,17 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.Image;
 import java.io.File;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import org.example.pidev.services.UserService;
 import org.example.pidev.utils.SessionManager;
 import org.example.pidev.entities.User;
+
 
 import javafx.scene.control.Alert;
 import java.io.IOException;
@@ -92,7 +99,33 @@ public class ProfileController {
 
     @FXML
     void handleChangePassword(ActionEvent event) {
-
+        try {
+            // Load the FXML file for the password change dialog
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/changePassword.fxml"));
+            Parent root = loader.load();
+            
+            // Get the controller and set the current user
+            ChangePasswordController controller = loader.getController();
+            controller.setCurrentUser(currentUser);
+            
+            // Create a new stage for the dialog
+            Stage dialogStage = new Stage();
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initStyle(StageStyle.UTILITY);
+            dialogStage.setTitle("Change Password");
+            dialogStage.setScene(new Scene(root));
+            
+            // Set the owner of the dialog to the main window
+            Stage mainStage = (Stage) nameField.getScene().getWindow();
+            dialogStage.initOwner(mainStage);
+            
+            // Show the dialog and wait for it to be closed
+            dialogStage.showAndWait();
+            
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to load password change dialog");
+            e.printStackTrace();
+        }
     }
 
     @FXML
