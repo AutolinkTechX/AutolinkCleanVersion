@@ -16,22 +16,13 @@
       xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.pidev.controllers.ChatbotController"
-      style="-fx-background-color: #f8f9fa; -fx-border-color: #e9ecef; -fx-border-width: 1px;"
+      style="-fx-background-color: #d3d3d3; -fx-border-color: #e9ecef; -fx-border-width: 1px; -fx-border-radius: 15px;"
       prefWidth="400"
       prefHeight="600"
-      spacing="0">
+      spacing="0"
+      alignment="TOP_RIGHT">
 
-    <!-- En-tête raffiné -->
-    <HBox style="-fx-background-color: #b5602c; -fx-padding: 20px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 3);">
-        <Label text="RecycloTech Assistant"
-               style="-fx-text-fill: white;
-                      -fx-font-size: 20px;
-                      -fx-font-weight: 800;
-                      -fx-font-family: 'Segoe UI';
-                      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);"/>
-    </HBox>
-
-    <!-- Zone de messages améliorée -->
+    <!-- Zone de conversation -->
     <ScrollPane fx:id="scrollPane"
                 style="-fx-background: transparent; -fx-border-color: transparent;"
                 fitToWidth="true"
@@ -41,9 +32,12 @@
               style="-fx-padding: 20px;"/>
     </ScrollPane>
 
-    <!-- Zone de saisie premium -->
+    <!-- Zone de saisie améliorée -->
     <HBox spacing="12"
-          style="-fx-padding: 20px; -fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 6, 0, 0, -3);"
+          style="-fx-padding: 20px;
+                 -fx-background-color: white;
+                 -fx-border-color: #e9ecef;
+                 -fx-border-width: 1px 0 0 0;"
           VBox.vgrow="NEVER">
         <TextField fx:id="userInput"
                    promptText="Écrivez votre message..."
@@ -59,7 +53,7 @@
         <Button text="➤"
                 onAction="#handleSend"
                 style="-fx-background-color: #b5602c;
-                       -fx-text-fill: white;
+                   /*    -fx-text-fill: white;*/
                        -fx-font-weight: bold;
                        -fx-background-radius: 20px;
                        -fx-min-width: 45px;
