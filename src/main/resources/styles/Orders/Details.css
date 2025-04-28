@@ -1,86 +1,155 @@
 /* Fenêtre principale */
 .details-dialog {
-    -fx-background-color: white;
-    -fx-background-radius: 10px;
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 2);
     -fx-padding: 0;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0);
 }
 
 /* En-tête */
 .details-header {
-    -fx-background-color: #ca8a62;
-    -fx-background-radius: 10px 10px 0 0;
-    -fx-padding: 15px 20px;
+    -fx-background-color: linear-gradient(to right, #ca8a62, #d4a373);
+    -fx-background-radius: 8 8 0 0;
+    -fx-padding: 15 20;
+    -fx-spacing: 5;
 }
 
 .details-title {
-    -fx-font-size: 18px;
+    -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-text-fill: white;
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-/* Contenu */
+/* Contenu principal */
 .details-content {
-    -fx-padding: 20px;
-    -fx-spacing: 15px;
+    -fx-padding: 20;
+    -fx-spacing: 15;
+    -fx-background-color: #f8f9fa;
 }
 
+/* Sections */
 .details-section {
-    -fx-spacing: 10px;
+    -fx-spacing: 8;
+    -fx-padding: 0 0 10 0;
 }
 
 .details-label {
-    -fx-font-size: 16px;
-    -fx-text-fill: #495057;
+    -fx-font-size: 14px;
+    -fx-text-fill: #6c757d;
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
 }
 
 .details-value {
-    -fx-font-size: 16px;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
-    -fx-text-fill: #212529;
+    -fx-text-fill: #343a40;
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
 }
 
+/* Séparateurs */
 .details-separator {
-    -fx-padding: 10px 0;
+    -fx-padding: 5 0 15 0;
+}
+
+.separator .line {
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
 }
 
 /* Liste des articles */
-.articles-list {
-    -fx-padding: 0 0 0 20px;
-    -fx-spacing: 8px;
+.articles-container {
+    -fx-padding: 0 0 0 15;
+    -fx-spacing: 10;
 }
 
 .article-item {
     -fx-font-size: 14px;
     -fx-text-fill: #495057;
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-.article-item .quantity {
+.article-name {
+    -fx-font-weight: normal;
+    -fx-text-fill: #495057;
+}
+
+.article-quantity {
     -fx-font-weight: bold;
     -fx-text-fill: #ca8a62;
 }
 
-/* Total */
+.article-price {
+    -fx-font-weight: bold;
+    -fx-text-fill: #28a745;
+}
+
+/* Section Total */
 .total-section {
-    -fx-padding: 15px 0 0 0;
+    -fx-padding: 15 0 0 0;
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 5;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
 }
 
 .total-label {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-text-fill: #ca8a62;
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-/* Bouton de fermeture */
+/* Boutons */
+.button-container {
+    -fx-padding: 20 0 0 0;
+    -fx-alignment: CENTER_RIGHT;
+}
+
 .close-button {
-    -fx-background-color: #ca8a62;
+    -fx-background-color: linear-gradient(to right, #ca8a62, #d4a373);
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-background-radius: 5px;
-    -fx-padding: 8px 20px;
+    -fx-font-size: 14px;
+    -fx-background-radius: 5;
+    -fx-padding: 8 20;
     -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
 }
 
 .close-button:hover {
-    -fx-background-color: #b07a52;
+    -fx-background-color: linear-gradient(to right, #b07a52, #c49263);
+}
+
+.close-button:pressed {
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);
+}
+
+/* Styles spécifiques pour les labels */
+#orderIdLabel {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #343a40;
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+#clientNameLabel, #dateLabel, #paymentLabel {
+    -fx-font-size: 15px;
+    -fx-text-fill: #495057;
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+#clientNameLabel {
+    -fx-font-weight: bold;
+}
+
+#totalLabel {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ca8a62;
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
 }

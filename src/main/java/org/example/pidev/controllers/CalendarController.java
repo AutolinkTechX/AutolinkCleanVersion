@@ -19,6 +19,7 @@ import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
@@ -224,41 +225,60 @@ public class CalendarController implements Initializable {
 
     private void handleDayClick(LocalDate date, List<Commande> commandesForDay) {
         if (!commandesForDay.isEmpty()) {
-            // Create dialog with pagination
+
             Dialog<Void> dialog = new Dialog<>();
             dialog.setTitle("Détails des commandes");
-            dialog.setHeaderText("Commandes du " + date);
+            dialog.setHeaderText("Commandes du " + date.format(DateTimeFormatter.ofPattern("EEEE d MMMM yyyy", Locale.FRENCH)));
+
+            // Appliquer le style au dialog
+            dialog.getDialogPane().getStylesheets().add(getClass().getResource("/styles/Orders/calendar.css").toExternalForm());
+            dialog.getDialogPane().getStyleClass().add("custom-dialog");
 
             // Create pagination
             int itemsPerPage = 3;
             int pageCount = (int) Math.ceil((double) commandesForDay.size() / itemsPerPage);
 
             Pagination pagination = new Pagination(pageCount, 0);
+          
+            pagination.getStyleClass().add("custom-pagination");
+
             pagination.setPageFactory(pageIndex -> {
                 VBox pageContent = new VBox(5);
-                pageContent.setPadding(new Insets(10));
+                pageContent.getStyleClass().add("page-content");
+
 
                 int fromIndex = pageIndex * itemsPerPage;
                 int toIndex = Math.min(fromIndex + itemsPerPage, commandesForDay.size());
 
                 for (int i = fromIndex; i < toIndex; i++) {
                     Commande commande = commandesForDay.get(i);
-                    Label commandeLabel = new Label(
-                            "Commande #" + commande.getId() +
-                                    "\nClient: " + commande.getClient().getName() +
-                                    "\nTotal: " + commande.getTotal() + " €"
-                    );
-                    commandeLabel.setStyle("-fx-border-color: lightgray; -fx-border-width: 0 0 1 0; -fx-padding: 5;");
-                    commandeLabel.setWrapText(true);
-                    pageContent.getChildren().add(commandeLabel);
+
+
+                    VBox card = new VBox(5);
+                    card.getStyleClass().add("commande-card");
+
+                    Label title = new Label("Commande #" + commande.getId());
+                    title.getStyleClass().add("title");
+
+                    Label client = new Label("Client: " + commande.getClient().getName());
+                    Label total = new Label("Total: " + commande.getTotal() + " DT");
+
+                    Region separator = new Region();
+                    separator.getStyleClass().add("separator");
+
+                    card.getChildren().addAll(title, separator, client, total);
+                    pageContent.getChildren().add(card);
                 }
 
-                return new ScrollPane(pageContent);
+                ScrollPane scrollPane = new ScrollPane(pageContent);
+                scrollPane.setFitToWidth(true);
+                scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                return scrollPane;
             });
 
-            // Add pagination to dialog
             dialog.getDialogPane().setContent(pagination);
-            dialog.getDialogPane().setPrefSize(400, 300);
+            dialog.getDialogPane().setPrefSize(450, 350);
+
             dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
             dialog.showAndWait();
         }

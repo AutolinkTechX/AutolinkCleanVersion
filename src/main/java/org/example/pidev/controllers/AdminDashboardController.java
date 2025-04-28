@@ -15,10 +15,15 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.pidev.utils.SessionManager;
+import javafx.application.Platform;
+import java.util.prefs.Preferences;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
+import java.util.prefs.BackingStoreException;
 
 public class AdminDashboardController {
 
@@ -56,14 +61,23 @@ public class AdminDashboardController {
     @FXML private MenuItem CalendarMenuItem;
     @FXML private MenuItem StatisticsMenuItem;
 
+    private static final Logger logger = Logger.getLogger(ClientDashboardController.class.getName());
+
     @FXML
     private void initialize() {
+        if (!verifySession()) {
+            return;
+        }
         System.out.println("AdminDashboardController initialized");
         if (LogoutButton != null) {
             System.out.println("LogoutButton is not null");
             LogoutButton.setOnAction(event -> {
                 System.out.println("Logout button clicked");
-                handleLogout();
+                try {
+                    handleLogout();
+                } catch (BackingStoreException e) {
+                    e.printStackTrace();
+                }
             });
         } else {
             System.out.println("LogoutButton is null - FXML injection failed");
@@ -160,8 +174,36 @@ public class AdminDashboardController {
         ServicesMenuButton.setText(""); // Clear the text since we're using a custom graphic
     }
 
+    private boolean verifySession() {
+        if (SessionManager.getCurrentUser() == null && 
+            SessionManager.getCurrentEntreprise() == null) {
+            
+            System.out.println("Session verification failed - redirecting to login");
+            
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Session Expired");
+                alert.setHeaderText(null);
+                alert.setContentText("Please log in again to continue");
+                alert.showAndWait();
+    
+                try {
+                    Parent root = FXMLLoader.load(getClass().getResource("/DashboardLogin.fxml"));
+                    Stage stage = (Stage) contentArea.getScene().getWindow();
+                    stage.setScene(new Scene(root));
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            
+            return false;
+        }
+        return true;
+    }
+
     @FXML
-    private void handleLogout() {
+    private void handleLogout() throws BackingStoreException {
         System.out.println("handleLogout method called");
         
         // Create a custom alert dialog
@@ -202,6 +244,17 @@ public class AdminDashboardController {
             
             // Clear the session
             SessionManager.clearSession();
+            // Clear saved credentials from preferences
+            Preferences prefs = Preferences.userRoot().node("pidev_app_prefs");
+            prefs.remove("remember_me");
+            prefs.remove("saved_email");
+            prefs.remove("saved_password");
+            prefs.remove("user_type");
+            try {
+                prefs.flush();
+            } catch (BackingStoreException e) {
+                logger.log(Level.SEVERE, "Failed to clear saved credentials", e);
+            }
             
             try {
                 // Load the login page

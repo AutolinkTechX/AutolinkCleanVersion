@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>C:\Users\youss\OneDrive\Bureau\AutolinkCleanVersion\target\pidev-1.0-SNAPSHOT-jar-with-dependencies.jar</jar>
+  <outfile>C:\Users\youss\OneDrive\Bureau\AutolinkCleanVersion\target\Autolink.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir>.</chdir>
+  <priority>normal</priority>
+  <downloadUrl></downloadUrl>
+  <supportUrl></supportUrl>
+  <stayAlive>false</stayAlive>
+  <restartOnCrash>false</restartOnCrash>
+  <manifest></manifest>
+  <icon></icon>
+  <classPath>
+    <mainClass>org.example.pidev.test.MainFX</mainClass>
+    <cp>C:\Users\youss\OneDrive\Bureau\AutolinkCleanVersion\target\pidev-1.0-SNAPSHOT-jar-with-dependencies.jar</cp>
+  </classPath>
+  <jre>
+    <path>%JAVA_HOME%;%PATH%</path>
+    <requiresJdk>false</requiresJdk>
+    <requires64Bit>false</requires64Bit>
+    <minVersion></minVersion>
+    <maxVersion></maxVersion>
+    <opt>--module-path C:\java\javafx-sdk-17.0.15\lib --add-modules javafx.controls,javafx.fxml</opt>
+  </jre>
+</launch4jConfig>

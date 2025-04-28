@@ -1,5 +1,6 @@
 package org.example.pidev.controllers;
 import javafx.geometry.Pos;
+import javafx.scene.input.MouseButton;
 import org.example.pidev.Enum.StatutEnum;
 import org.example.pidev.entities.MaterielRecyclable;
 import org.example.pidev.entities.User;
@@ -60,6 +61,14 @@ public class ShowMaterielRecyclable implements Initializable {
 
     @FXML
     private Button addButton;
+    private double xOffset = 0;
+    private double yOffset = 0;
+    @FXML
+    private Button chatbotButton;
+
+    private boolean isDragging = false;
+
+
 
     private ServiceMaterielRecyclable materielService = new ServiceMaterielRecyclable();
     private List<MaterielRecyclable> allMateriaux;
@@ -88,7 +97,69 @@ public class ShowMaterielRecyclable implements Initializable {
         // Écouteurs de changement pour les ComboBox
         dateSortComboBox.valueProperty().addListener((obs, oldVal, newVal) -> handleSearch());
         statusFilterComboBox.valueProperty().addListener((obs, oldVal, newVal) -> handleSearch());
+        // Rendre le bouton chatbot déplaçable
+        setupDragHandlers();
     }
+
+    private void setupDragHandlers() {
+        // Gestion du déplacement
+        chatbotButton.setOnMousePressed(event -> {
+            if (event.isPrimaryButtonDown()) {
+                xOffset = event.getSceneX() - chatbotButton.getLayoutX();
+                yOffset = event.getSceneY() - chatbotButton.getLayoutY();
+                isDragging = false;
+            }
+        });
+
+        chatbotButton.setOnMouseDragged(event -> {
+            if (event.isPrimaryButtonDown()) {
+                isDragging = true;
+                double newX = event.getSceneX() - xOffset;
+                double newY = event.getSceneY() - yOffset;
+
+                // Limites du parent
+                newX = Math.max(0, Math.min(newX, chatbotButton.getParent().getLayoutBounds().getWidth() - chatbotButton.getWidth()));
+                newY = Math.max(0, Math.min(newY, chatbotButton.getParent().getLayoutBounds().getHeight() - chatbotButton.getHeight()));
+
+                chatbotButton.setLayoutX(newX);
+                chatbotButton.setLayoutY(newY);
+            }
+        });
+
+        // Gestion du clic
+        chatbotButton.setOnMouseReleased(event -> {
+            if (!isDragging && event.isPrimaryButtonDown()) {
+                openChatbot();
+            }
+            isDragging = false;
+        });
+    }
+
+
+
+
+
+   /* private void makeDraggable(Node node) {
+        node.setOnMousePressed(event -> {
+            xOffset = event.getSceneX() - node.getLayoutX();
+            yOffset = event.getSceneY() - node.getLayoutY();
+            event.consume();
+        });
+
+        node.setOnMouseDragged(event -> {
+            double newX = event.getSceneX() - xOffset;
+            double newY = event.getSceneY() - yOffset;
+
+            // Garder dans les limites du parent
+            newX = Math.max(0, Math.min(newX, node.getParent().getLayoutBounds().getWidth() - node.getBoundsInParent().getWidth()));
+            newY = Math.max(0, Math.min(newY, node.getParent().getLayoutBounds().getHeight() - node.getBoundsInParent().getHeight()));
+
+            node.setLayoutX(newX);
+            node.setLayoutY(newY);
+            event.consume();
+        });
+    }*/
+
 
     private void initializeDateSortComboBox() {
         dateSortComboBox.setItems(FXCollections.observableArrayList(
@@ -424,6 +495,25 @@ public class ShowMaterielRecyclable implements Initializable {
         this.dashboardController = dashboardController;
     }
 
+
+    @FXML
+    private void openChatbot() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ChatbotWindow.fxml"));
+            Parent root = loader.load();
+            // Passer l'utilisateur actuel si nécessaire
+            // ChatbotController controller = loader.getController();
+            //  controller.setCurrentUser(this.currentUser);
+
+            Stage stage = new Stage();
+            stage.setTitle("Assistant Recyclage");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
 
 

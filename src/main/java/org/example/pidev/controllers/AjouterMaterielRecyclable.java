@@ -1,5 +1,8 @@
 package org.example.pidev.controllers;
 
+import javafx.application.Platform;
+import javafx.scene.web.WebEngine;
+import netscape.javascript.JSObject;
 import org.example.pidev.Enum.StatutEnum;
 import org.example.pidev.Enum.Type_materiel;
 import org.example.pidev.entities.Entreprise;
@@ -25,6 +28,9 @@ import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.control.DatePicker;
+import org.example.pidev.utils.WebSocketNotifier;
+import org.example.pidev.websocket.NotificationClient;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 
@@ -71,6 +77,8 @@ public class AjouterMaterielRecyclable implements Initializable {
     @FXML private Label typeErrorLabel;
     @FXML private Label imageErrorLabel;
 
+    private NotificationClient notificationClient;
+
 
     private ServiceMaterielRecyclable m = new ServiceMaterielRecyclable();
     private EntrepriseService serviceEntreprise = new EntrepriseService();
@@ -96,7 +104,15 @@ public class AjouterMaterielRecyclable implements Initializable {
                 filterSuppliersByType(newVal);
             }
         });
+
+
     }
+
+
+
+
+
+
 
     // Nouvelle méthode pour afficher le message de bienvenue
     public void displayWelcomeMessage() {
@@ -262,6 +278,7 @@ public class AjouterMaterielRecyclable implements Initializable {
             accord.setEntreprise(entrepriseObj);
 
             serviceAccord.ajouter(accord);
+            WebSocketNotifier.sendNotification("Un nouvel accord a été créé !");
 
             // Afficher un message de succès
             showAlert("Succès", "Matériau ajouté avec succès et accord créé!", Alert.AlertType.INFORMATION);

@@ -118,6 +118,7 @@ public class FactureController implements Initializable {
     public void setDashboardController(ClientDashboardController controller) {
         this.dashboardController = controller;
     }
+
     public void setCurrentUser(User user) {
         this.currentUser = user;
         if (this.currentUser != null) {
