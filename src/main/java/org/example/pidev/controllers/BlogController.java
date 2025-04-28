@@ -14,12 +14,16 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.example.pidev.entities.Blog;
+import org.example.pidev.entities.Comment;
 import org.example.pidev.services.ServiceBlog;
+import org.example.pidev.services.ServiceComment;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 
 public class BlogController {
 
@@ -69,53 +73,37 @@ public class BlogController {
         // Partie Image
         ImageView imageView = new ImageView();
         try {
-            String imagePath = blog.getImage(); // ou blog.getImage() si c'est une instance
-            System.out.println("Chemin de l'image: " + imagePath); // Debug
-
-            if (imagePath != null && !imagePath.isEmpty()) {
-                if (imagePath.startsWith("http")) {
-                    // Image en ligne
-                    imageView.setImage(new Image(imagePath, true));
+            Image image;
+            if (blog.getImage() != null && !blog.getImage().isEmpty()) {
+                // Handle file:/ protocol paths correctly - don't add another file:///
+                if (blog.getImage().startsWith("file:/")) {
+                    image = new Image(blog.getImage());
+                } else if (blog.getImage().matches("^[a-zA-Z]:\\\\.*")) {
+                    // For Windows paths without file:/ prefix
+                    image = new Image("file:///" + blog.getImage().replace("\\", "/"));
                 } else {
-                    // Image locale (dans les ressources)
-                    InputStream imageStream = getClass().getResourceAsStream(imagePath.startsWith("/") ? imagePath : "/" + imagePath);
-                    if (imageStream != null) {
-                        imageView.setImage(new Image(imageStream)); // Image depuis les ressources
-                    } else {
-                        System.out.println("Image introuvable, chargement de l'image par défaut.");
-                        imageStream = getClass().getResourceAsStream("/images/logo.jpg");
-                        if (imageStream != null) {
-                            imageView.setImage(new Image(imageStream));
-                        } else {
-                            System.out.println("Image par défaut introuvable.");
-                        }
-                    }
+                    // For resource paths
+                    InputStream resourceStream = getClass().getResourceAsStream("/" + blog.getImage());
+                    image = (resourceStream != null) ? new Image(resourceStream)
+                            : new Image(getClass().getResourceAsStream("/images/logo.jpg"));
                 }
             } else {
-                // Si le chemin est null ou vide, charge l'image par défaut
-                InputStream imageStream = getClass().getResourceAsStream("/images/logo.jpg");
-                if (imageStream != null) {
-                    imageView.setImage(new Image(imageStream));
-                } else {
-                    System.out.println("Image par défaut introuvable.");
-                }
+                // Default image
+                image = new Image(getClass().getResourceAsStream("/images/logo.jpg"));
             }
-        } catch (Exception e) {
-            System.out.println("Erreur lors du chargement de l'image : " + e.getMessage());
-            InputStream imageStream = getClass().getResourceAsStream("/images/logo.jpg");
-            if (imageStream != null) {
-                imageView.setImage(new Image(imageStream));
-            } else {
-                System.out.println("Image par défaut introuvable.");
+            imageView.setImage(image);
+
+        } catch (Exception ex) {
+            try {
+                imageView.setImage(new Image(getClass().getResourceAsStream("/images/logo.jpg")));
+            } catch (Exception e) {
             }
         }
 
-// Paramètres d'affichage
-        imageView.setFitWidth(200);
-        imageView.setFitHeight(200);
-        imageView.setPreserveRatio(true); // Vous pouvez changer cette ligne en fonction de votre préférence
-        imageView.setSmooth(true);
-        imageView.setCache(true);
+        imageView.setFitWidth(250);
+        imageView.setFitHeight(150);
+        imageView.setPreserveRatio(true);
+
 
 
 // Conteneur
@@ -134,8 +122,8 @@ public class BlogController {
         editButton.setOnAction(e -> openModifyBlogWindow(blog));
         editButton.setStyle("-fx-font-size: 14px; -fx-background-color: transparent; -fx-cursor: hand;");
 
-        Button test = new Button("test");
-        test.setOnAction(e -> openBlogDetailsView(blog));
+        Button test = new Button("Comments");
+        test.setOnAction(e -> openCommentWindow(blog));
         test.setStyle("-fx-font-size: 14px; -fx-background-color: transparent; -fx-cursor: hand;");
 
         Button deleteButton = new Button("🗑️");
@@ -246,6 +234,23 @@ public class BlogController {
         } catch (IOException e) {
             showAlert("Erreur", "Impossible de charger " + fxmlPath);
             e.printStackTrace();
+        }
+    }
+
+    private void openCommentWindow(Blog blog) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AdminCommentView.fxml"));
+            Parent commentView = loader.load();
+
+            AdminCommentController controller = loader.getController();
+            controller.setBlog(blog);
+
+            Stage stage = new Stage();
+            stage.setTitle("Comments: " + blog.getTitle());
+            stage.setScene(new Scene(commentView));
+            stage.show();
+        } catch (Exception e) {
+            showAlert("Error", "Failed to open comment window");
         }
     }
 

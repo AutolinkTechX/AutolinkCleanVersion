@@ -234,10 +234,16 @@ public class LoginDashboardController {
 
         dialog.showAndWait().ifPresent(email -> {
             try {
-                userService.sendPasswordReset(email);
-                showAlert(Alert.AlertType.INFORMATION,
-                        "Password Reset",
-                        "If this email exists in our system, you'll receive a reset link.");
+                if (userService.emailExists(email)) {
+                    userService.sendPasswordReset(email);
+                    showAlert(Alert.AlertType.INFORMATION,
+                            "Password Reset",
+                            "A password reset link has been sent to your email.");
+                } else {
+                    showAlert(Alert.AlertType.ERROR,
+                            "Error",
+                            "Email doesn't exist in our system.");
+                }
             } catch (Exception e) {
                 showAlert(Alert.AlertType.ERROR,
                         "Error",

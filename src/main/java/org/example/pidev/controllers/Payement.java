@@ -2,7 +2,12 @@ package org.example.pidev.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
 import javafx.application.Platform;
+import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,11 +21,13 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import netscape.javascript.JSObject;
 import org.example.pidev.entities.*;
 import org.example.pidev.services.*;
 import org.example.pidev.utils.AlertUtils;
 import org.example.pidev.utils.MyDatabase;
 import org.example.pidev.utils.SessionManager;
+import org.example.pidev.utils.SmsService;
 
 import java.io.IOException;
 import java.net.URL;
@@ -28,6 +35,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
+import com.stripe.exception.StripeException;
+import javafx.scene.web.WebView;
+import javafx.scene.web.WebEngine;
+import org.example.pidev.services.StripeService;
 
 public class Payement implements Initializable {
 
@@ -45,6 +56,15 @@ public class Payement implements Initializable {
     @FXML private TextField phoneField;
     @FXML private Button confirmPaymentButton;
     @FXML private StackPane cashPopup;
+    private StripeService stripeService;
+    private Stage stripePaymentStage;
+    private String paymentIntentId;
+    @FXML private ToggleGroup paymentMethodGroup; // Keep this in controller
+
+
+    @FXML private StackPane stripePopup;
+    @FXML private WebView stripeWebView;
+
 
 
     // Navbar elements
@@ -54,9 +74,7 @@ public class Payement implements Initializable {
     @FXML private Label cartBadge;
     @FXML private Button invoiceIconButton;
     @FXML private Button userIconButton;
-    @FXML private ListView<String> cartItemsList;
-    @FXML
-    private ToggleGroup paymentMethodGroup; // Doit correspondre au fx:id dans FXML
+    @FXML private ListView<String> cartItemsList; // Doit correspondre au fx:id dans FXML
 
     private Double totalAmount;
     private User currentUser;
@@ -75,7 +93,6 @@ public class Payement implements Initializable {
         this.dashboardController = controller;
     }
 
-    // Ajoutez cette ligne
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
@@ -85,6 +102,7 @@ public class Payement implements Initializable {
             this.commandeService = new CommandeService(connection);
             this.factureService = new FactureService(connection);
             this.articleService = new ArticleService();
+            this.stripeService = new StripeService();
 
             this.currentUser = SessionManager.getCurrentUser();
             if (!isValidUser(this.currentUser)) {
@@ -95,6 +113,12 @@ public class Payement implements Initializable {
                 return;
             }
 
+            // Initialize UI components after checking FXML injection
+            if (expiryMonthCombo != null && expiryYearCombo != null) {
+                setupExpiryDateComboBoxes();
+            } else {
+                System.err.println("Warning: ComboBoxes not initialized from FXML");
+            }
 
             initializeUIComponents();
 
@@ -102,7 +126,6 @@ public class Payement implements Initializable {
             handleUnexpectedError(e);
         }
     }
-
 
     // Méthodes auxiliaires pour une meilleure organisation
     private boolean isValidUser(User user) {
@@ -232,28 +255,28 @@ public class Payement implements Initializable {
     }
 
     private void setupNavbarActions() {
-            // Vérification supplémentaire
-            if (favoriteIconButton == null || cartIconButton == null
-                    || invoiceIconButton == null || userIconButton == null) {
-                System.err.println("Certains boutons de la navbar ne sont pas initialisés");
-                return;
+        // Vérification supplémentaire
+        if (favoriteIconButton == null || cartIconButton == null
+                || invoiceIconButton == null || userIconButton == null) {
+            System.err.println("Certains boutons de la navbar ne sont pas initialisés");
+            return;
+        }
+
+        favoriteIconButton.setOnAction(event -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/Favorie.fxml"));
+                Parent root = loader.load();
+                Stage stage = (Stage) favoriteIconButton.getScene().getWindow();
+                stage.setScene(new Scene(root));
+                stage.show();
+            } catch (Exception e) {
+                e.printStackTrace();
+                AlertUtils.showErrorAlert("Erreur de navigation", "Impossible d'ouvrir les favoris", e.getMessage());
             }
-
-            favoriteIconButton.setOnAction(event -> {
-                try {
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/Favorie.fxml"));
-                    Parent root = loader.load();
-                    Stage stage = (Stage) favoriteIconButton.getScene().getWindow();
-                    stage.setScene(new Scene(root));
-                    stage.show();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    AlertUtils.showErrorAlert("Erreur de navigation", "Impossible d'ouvrir les favoris", e.getMessage());
-                }
-            });
+        });
 
 
-            cartIconButton.setOnAction(event -> {
+        cartIconButton.setOnAction(event -> {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/Panier.fxml"));
                 Parent root = loader.load();
@@ -483,6 +506,24 @@ public class Payement implements Initializable {
         }
     }
 
+    private void processStripePayment() {
+        try {
+            // Create payment intent with Stripe
+            String clientSecret = stripeService.createPaymentIntent(
+                    totalAmount,
+                    "eur",
+                    "Payment for order from " + currentUser.getName()
+            );
+
+            // Show Stripe payment form in a WebView
+            showStripePaymentForm(clientSecret);
+
+        } catch (StripeException e) {
+            AlertUtils.showErrorAlert("Stripe Error", "Payment Error",
+                    "Failed to process payment: " + e.getMessage());
+        }
+    }
+
     @FXML
     private void handleShowCashForm() {
         cashPopup.setVisible(true);
@@ -510,7 +551,6 @@ public class Payement implements Initializable {
         cashPopup.setVisible(false);
         processCashPayment();
     }
-
 
     private Commande createCommande() throws SQLException {
         Commande commande = new Commande();
@@ -550,65 +590,6 @@ public class Payement implements Initializable {
         facture.setClient(currentUser);
         return facture;
     }
-
-/*
-    private void showSuccessAlert(int commandeId, double totalCommande, List<Map<String, Object>> articlesDetails) {
-        try {
-            StringBuilder details = new StringBuilder();
-            details.append("Détails de la commande #").append(commandeId).append(":\n\n");
-            details.append("----------------------------------------\n");
-
-            if (articlesDetails != null && !articlesDetails.isEmpty()) {
-                for (Map<String, Object> article : articlesDetails) {
-                    String nom = (String) article.get("nom");
-                    double prixUnitaire = (double) article.get("prix");
-                    int quantite = (int) article.get("quantite");
-                    double totalArticle = prixUnitaire * quantite;
-
-                    details.append(String.format(
-                            "Nom: %s\n" +
-                                    "Prix unitaire: %.2f DT\n" +
-                                    "Quantité: %d\n" +
-                                    "Total article: %.2f DT\n" +
-                                    "----------------------------------------\n",
-                            nom, prixUnitaire, quantite, totalArticle
-                    ));
-                }
-            } else {
-                details.append("Aucun détail d'article disponible\n");
-            }
-
-            details.append(String.format("\nTOTAL COMMANDE: %.2f DT", totalCommande));
-
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Paiement réussi");
-            alert.setHeaderText("Votre commande a été enregistrée avec succès");
-            alert.setContentText(details.toString());
-            alert.getDialogPane().setPrefSize(400, 400);
-
-            // Solution 1: Déclarer une variable finale pour l'alerte
-            final Alert finalAlert = alert;
-
-            alert.setOnHidden(event -> {
-                try {
-                    redirectToHome();
-                } catch (Exception e) {
-                    System.err.println("Erreur lors de la redirection: " + e.getMessage());
-                    // Fallback si la redirection échoue
-                    finalAlert.close(); // On peut utiliser finalAlert ici
-                    Platform.exit();
-                }
-            });
-
-            alert.show();
-
-        } catch (Exception e) {
-            AlertUtils.showErrorAlert("Erreur", "Problème d'affichage", "Les détails n'ont pas pu être affichés");
-            redirectToHome();
-        }
-    }
-*/
-
 
     // Ajoutez ce champ
     private Panier parentController;
@@ -676,41 +657,70 @@ public class Payement implements Initializable {
         }
     }
 
-    // Modifiez processOnlinePayment et processCashPayment pour utiliser la nouvelle alerte
     private void processOnlinePayment() {
+        processStripePayment();
+    }
+
+    public void completeOnlinePayment() {
         try {
             Connection connection = MyDatabase.getInstance().getConnection();
             connection.setAutoCommit(false);
 
             try {
+                // 1. Vérifier le stock
                 if (!panierService.verifierStockDisponible(currentUser.getId())) {
-                    AlertUtils.showErrorAlert("Stock insuffisant", "Certains articles ne sont plus disponibles",
+                    AlertUtils.showErrorAlert("Stock insuffisant",
+                            "Certains articles ne sont plus disponibles",
                             "Veuillez vérifier votre panier.");
                     return;
                 }
 
+                System.out.println("Panierrrrrrrrrrrrrrrrrr");
+
+                // 2. Récupérer les détails
                 List<Map<String, Object>> articlesDetails = panierService.getArticlesAvecDetails(currentUser.getId());
                 double totalCommande = panierService.calculerTotalPanier(currentUser.getId());
 
+                // 3. Créer la commande
                 Commande commande = createCommande();
-                commande.setModePaiement("card");
+                commande.setModePaiement("card"); // Stripe payment
                 commande.setTotal(totalCommande);
 
+
+                // Enregistrement de la commande et de la facture
                 Commande createdCommande = commandeService.createCommande(commande);
                 Facture facture = createFacture(createdCommande);
                 factureService.ajouterFacture(facture);
 
+                // Vidage du panier
                 panierService.viderPanier(currentUser.getId());
                 connection.commit();
 
+
+                // Envoi du SMS de confirmation pour le paiement cash
+                if (!phoneField.getText().isEmpty()) {
+                    // Créer un utilisateur temporaire avec le numéro saisi
+                    User tempUser = new User();
+                    tempUser.setPhone(Integer.parseInt(phoneField.getText()));
+                    SmsService.sendPaymentConfirmation(tempUser,
+                            String.valueOf(createdCommande.getId()),
+                            totalCommande);
+                } else if (currentUser.getPhone() != 0) {
+                    SmsService.sendPaymentConfirmation(currentUser,
+                            String.valueOf(createdCommande.getId()),
+                            totalCommande);
+                }
+
+                // 7. Afficher succès
                 showSuccessAlert(createdCommande.getId(), totalCommande, articlesDetails);
 
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 connection.rollback();
                 AlertUtils.showErrorAlert("Erreur SQL", "Erreur lors du paiement", e.getMessage());
             } finally {
                 connection.setAutoCommit(true);
             }
+
         } catch (Exception e) {
             AlertUtils.showErrorAlert("Erreur", "Erreur inattendue", e.getMessage());
         }
@@ -747,6 +757,21 @@ public class Payement implements Initializable {
                 // Vidage du panier
                 panierService.viderPanier(currentUser.getId());
                 connection.commit();
+
+
+                // Envoi du SMS de confirmation pour le paiement cash
+                if (!phoneField.getText().isEmpty()) {
+                    // Créer un utilisateur temporaire avec le numéro saisi
+                    User tempUser = new User();
+                    tempUser.setPhone(Integer.parseInt(phoneField.getText()));
+                    SmsService.sendPaymentConfirmation(tempUser,
+                            String.valueOf(createdCommande.getId()),
+                            totalCommande);
+                } else if (currentUser.getPhone() != 0) {
+                    SmsService.sendPaymentConfirmation(currentUser,
+                            String.valueOf(createdCommande.getId()),
+                            totalCommande);
+                }
 
                 // Affichage de l'alerte de succès avec fermeture automatique
                 showSuccessAlert(createdCommande.getId(), totalCommande, articlesDetails);
@@ -908,5 +933,63 @@ public class Payement implements Initializable {
         onlineForm.setVisible(isOnline);
         cashForm.setVisible(!isOnline);
     }
+
+
+    @FXML
+    private void handleStripePayment() {
+        try {
+            String clientSecret = stripeService.createPaymentIntent(
+                    totalAmount,
+                    "eur",
+                    "Payment for order from " + currentUser.getName()
+            );
+            showStripePaymentForm(clientSecret);
+        } catch (StripeException e) {
+            AlertUtils.showErrorAlert("Erreur Stripe", "Échec du paiement", e.getMessage());
+        }
+    }
+
+
+    private void showStripePaymentForm(String clientSecret) {
+        stripePopup.setVisible(true);
+        WebEngine webEngine = stripeWebView.getEngine();
+
+        String url = stripeService.createCheckoutSession(totalAmount);
+        stripeWebView.getEngine().load(url);
+        stripePopup.setVisible(true);
+
+        webEngine.getLoadWorker().exceptionProperty().addListener((obs, oldEx, newEx) -> {
+            if (newEx != null) {
+                System.err.println("WebView load error: " + newEx.getMessage());
+            }
+        });
+
+        System.out.println("stripePopup is " + (stripePopup != null ? "NOT null" : "null"));
+        System.out.println("Loading Stripe payment form");
+
+
+        // Java-JS bridge
+        webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
+            if (newState == Worker.State.SUCCEEDED) {
+                JSObject window = (JSObject) webEngine.executeScript("window");
+                window.setMember("javaConnector", new JavaConnector());
+            }
+        });
+    }
+
+    @FXML
+    private void closeStripePopup() {
+        stripePopup.setVisible(false);
+    }
+
+    public class JavaConnector {
+        public void paymentSuccess() {
+            Platform.runLater(() -> {
+                closeStripePopup(); // hide popup
+                completeOnlinePayment(); // do all the backend work
+            });
+        }
+    }
+
 
 }
