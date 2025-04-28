@@ -42,7 +42,7 @@ public class ClientDashboardController {
     @FXML private Button invoiceIconButton;
     @FXML private Button userIconButton;
     @FXML private Label favoriteBadge;
-    @FXML private Label cartBadge;
+    @FXML private Label cartBadge;    
     @FXML private MenuButton userMenuBtn;
     @FXML private ImageView userImage;
     @FXML private MenuItem profileMenuItem;

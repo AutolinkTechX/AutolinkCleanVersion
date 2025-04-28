@@ -13,6 +13,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class MainFX extends Application {
 
     private static String[] savedArgs;

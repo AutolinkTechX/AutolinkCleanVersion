@@ -36,6 +36,8 @@ public class LoginDashboardController {
     @FXML private Button showPasswordButton;
     @FXML private TextField visiblePasswordField;
     @FXML private CheckBox rememberMeCheckBox;
+    @FXML private Button signUpButton;
+    
 
     private final UserService userService = new UserService();
     private final EntrepriseService entrepriseService = new EntrepriseService();
@@ -257,6 +259,26 @@ public class LoginDashboardController {
             showError("Database error: " + e.getMessage());
         }
     }
+
+    @FXML
+    private void handleSignUp() {
+        try {
+            // Close current login window
+            Stage currentStage = (Stage) loginButton.getScene().getWindow();
+            currentStage.close();
+
+            // Load SignUp view
+            Parent root = FXMLLoader.load(getClass().getResource("/MainContainer.fxml"));
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Sign Up");  
+            stage.show();
+        } catch (IOException e) {
+            showError("Failed to load sign up view");
+            e.printStackTrace();
+        }
+    }
+
 
     private void redirectBasedOnRole(int roleId, User user) throws SQLException, IOException {
         String roleName;

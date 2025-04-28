@@ -412,4 +412,30 @@ public class UserService implements IService<User> {
             throw new RuntimeException(e);
         }
     }
+
+    
+    public boolean createAccount(User user)  {
+        String sql = "INSERT INTO `user`(`name`, `last_name`, `phone`, `email`, `password`, `role_id`, `created_at`, `is_verified`, `image_path`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, user.getName());
+            stmt.setString(2, user.getLastName());
+            stmt.setInt(3, user.getPhone());
+            stmt.setString(4, user.getEmail());
+            // Encrypt the password using BCrypt
+            String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+            stmt.setString(5, hashedPassword);
+            stmt.setInt(6, 2);
+            stmt.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
+            stmt.setBoolean(8, true);
+            stmt.setString(9, user.getImage_path());
+
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
