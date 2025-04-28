@@ -53,9 +53,8 @@
     <!-- Center - Article Cards -->
     <center>
         <VBox spacing="20">
-            <ScrollPane fitToWidth="true" styleClass="scroll-pane">
-                <FlowPane fx:id="articlesContainer" hgap="20" prefWrapLength="1200" styleClass="articles-container" vgap="20" />
-            </ScrollPane>
+
+            <FlowPane fx:id="articlesContainer" hgap="20" prefWrapLength="1200" styleClass="articles-container" vgap="20" />
 
             <!-- Pagination controls -->
             <HBox alignment="CENTER" spacing="10" styleClass="pagination-container">

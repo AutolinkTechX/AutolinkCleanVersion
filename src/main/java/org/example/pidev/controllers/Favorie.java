@@ -101,7 +101,6 @@ public class Favorie implements Initializable {
         nextPageBtn.setOnAction(e -> navigateToPage(currentPage + 1));
         searchField.textProperty().addListener((obs, oldVal, newVal) -> filterArticles(newVal));
     }
-  
 
     private void loadFavoriteArticles() {
         try {
@@ -153,9 +152,12 @@ public class Favorie implements Initializable {
         articlesContainer.getChildren().clear();
 
         for (Article article : articles) {
-            VBox card = createArticleCard(article);
-            articlesContainer.getChildren().add(card);
-            animateCardAppearance(card);
+            // Vérification supplémentaire (au cas où)
+            if (article.getQuantitestock() > 0) {
+                VBox card = createArticleCard(article);
+                articlesContainer.getChildren().add(card);
+                animateCardAppearance(card);
+            }
         }
 
         updateNavigationButtons();
