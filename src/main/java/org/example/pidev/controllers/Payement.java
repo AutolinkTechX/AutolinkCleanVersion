@@ -59,15 +59,14 @@ public class Payement implements Initializable {
     private StripeService stripeService;
     private Stage stripePaymentStage;
     private String paymentIntentId;
-    @FXML private ToggleGroup paymentMethodGroup; // Keep this in controller
-
-
+    @FXML private ToggleGroup paymentMethodGroup;
     @FXML private StackPane stripePopup;
     @FXML private WebView stripeWebView;
+    private Panier parentController;
+    private Stage paymentStage;
+    @FXML private Label tvaLabel;
+    @FXML private Label grandTotalLabel;
 
-
-
-    // Navbar elements
     @FXML private Button favoriteIconButton;
     @FXML private Label favoriteBadge;
     @FXML private Button cartIconButton;
@@ -198,7 +197,6 @@ public class Payement implements Initializable {
         }
     }
 
-
     private void setupCartItemsList() {
         cartItemsList.setCellFactory(lv -> new ListCell<String>() {
             @Override
@@ -214,44 +212,6 @@ public class Payement implements Initializable {
         });
 
         refreshCartItems();
-    }
-
-    private void refreshCartItems() {
-        cartItemsList.getItems().clear();
-        totalAmount = 0.0;
-
-        try {
-            List<Map<String, Object>> articlesDetails = panierService.getArticlesAvecDetails(currentUser.getId());
-
-            if (!articlesDetails.isEmpty()) {
-                for (Map<String, Object> details : articlesDetails) {
-                    String nom = (String) details.get("nom");
-                    double prix = (double) details.get("prix");
-                    int quantite = (int) details.get("quantite");
-                    double totalArticle = prix * quantite;
-
-                    totalAmount += totalArticle;
-
-                    String itemText = String.format(
-                            "Nom: %s\n" +
-                                    "Prix unitaire: %.2f DT\n" +
-                                    "Quantité: %d\n" +
-                                    "Total article: %.2f DT\n" +
-                                    "----------------------------",
-                            nom, prix, quantite, totalArticle
-                    );
-
-                    cartItemsList.getItems().add(itemText);
-                }
-            } else {
-                cartItemsList.getItems().add("Votre panier est vide");
-            }
-        } catch (SQLException e) {
-            AlertUtils.showErrorAlert("Erreur", "Impossible de charger le panier", e.getMessage());
-            cartItemsList.getItems().add("Erreur lors du chargement du panier");
-        }
-
-        updateTotalAmountLabel();
     }
 
     private void setupNavbarActions() {
@@ -334,7 +294,6 @@ public class Payement implements Initializable {
         AlertUtils.showInformationAlert("Déconnexion", "Utilisateur déconnecté");
     }
 
-    // Modifiez la méthode updateBadges()
     private void updateBadges() {
         try {
             if (favoriteBadge == null || cartBadge == null) {
@@ -390,11 +349,6 @@ public class Payement implements Initializable {
         refreshCartItems();
         validateForm();
         updateBadges();
-    }
-
-    private void updateTotalAmountLabel() {
-        double amount = totalAmount != null ? totalAmount : 0.0;
-        totalAmountLabel.setText(String.format("Montant total: %.2f DT", amount));
     }
 
     private void setupPaymentMethods() {
@@ -591,123 +545,17 @@ public class Payement implements Initializable {
         return facture;
     }
 
-    // Ajoutez ce champ
-    private Panier parentController;
-    private Stage paymentStage;
-
-    // Ajoutez cette méthode
     public void setParentController(Panier parentController) {
         this.parentController = parentController;
     }
 
-    // Modifiez showSuccessAlert pour fermer automatiquement la popup
-    /*
-    private void showSuccessAlert(int commandeId, double totalCommande, List<Map<String, Object>> articlesDetails) {
-        try {
-            StringBuilder details = new StringBuilder();
-            details.append("Détails de la commande #").append(commandeId).append(":\n\n");
-            details.append("----------------------------------------\n");
-
-            if (articlesDetails != null && !articlesDetails.isEmpty()) {
-                for (Map<String, Object> article : articlesDetails) {
-                    String nom = (String) article.get("nom");
-                    double prixUnitaire = (double) article.get("prix");
-                    int quantite = (int) article.get("quantite");
-                    double totalArticle = prixUnitaire * quantite;
-
-                    details.append(String.format(
-                            "Nom: %s\n" +
-                                    "Prix unitaire: %.2f DT\n" +
-                                    "Quantité: %d\n" +
-                                    "Total article: %.2f DT\n" +
-                                    "----------------------------------------\n",
-                            nom, prixUnitaire, quantite, totalArticle
-                    ));
-                }
-            }
-
-            details.append(String.format("\nTOTAL COMMANDE: %.2f DT", totalCommande));
-
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Paiement réussi");
-            alert.setHeaderText("Votre commande a été enregistrée avec succès");
-            alert.setContentText(details.toString());
-            alert.getDialogPane().setPrefSize(400, 400);
-
-            // Fermer la popup après que l'utilisateur a cliqué sur OK
-            alert.setOnHidden(event -> {
-                // Fermer la fenêtre de paiement
-                if (paymentStage != null) {
-                    paymentStage.close();
-                }
-
-                // Rafraîchir le panier parent si nécessaire
-                if (parentController != null) {
-                    parentController.refreshCart();
-                }
-
-                // Rediriger vers la page d'accueil
-                redirectToHome();
-            });
-
-            alert.show();
-
-        } catch (Exception e) {
-            AlertUtils.showErrorAlert("Erreur", "Problème d'affichage", "Les détails n'ont pas pu être affichés");
-            redirectToHome();
-        }
-    }
-*/
-
-    private void showSuccessAlert(int commandeId, double totalCommande, List<Map<String, Object>> articlesDetails) {
-        try {
-            StringBuilder details = new StringBuilder();
-            details.append("Détails de la commande #").append(commandeId).append(":\n\n");
-            details.append("----------------------------------------\n");
-
-            if (articlesDetails != null && !articlesDetails.isEmpty()) {
-                for (Map<String, Object> article : articlesDetails) {
-                    String nom = (String) article.get("nom");
-                    double prixUnitaire = (double) article.get("prix");
-                    int quantite = (int) article.get("quantite");
-                    double totalArticle = prixUnitaire * quantite;
-
-                    details.append(String.format(
-                            "Nom: %s\n" +
-                                    "Prix unitaire: %.2f DT\n" +
-                                    "Quantité: %d\n" +
-                                    "Total article: %.2f DT\n" +
-                                    "----------------------------------------\n",
-                            nom, prixUnitaire, quantite, totalArticle
-                    ));
-                }
-            }
-
-            details.append(String.format("\nTOTAL COMMANDE: %.2f DT", totalCommande));
-
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Paiement réussi");
-            alert.setHeaderText("Votre commande a été enregistrée avec succès");
-            alert.setContentText(details.toString());
-            alert.getDialogPane().setPrefSize(400, 400);
-
-            // Quand l'utilisateur clique sur OK, rediriger vers l'accueil
-            alert.setOnHidden(event -> {
-                redirectToHome();
-            });
-
-            alert.show();
-
-        } catch (Exception e) {
-            AlertUtils.showErrorAlert("Erreur", "Problème d'affichage", "Les détails n'ont pas pu être affichés");
-            redirectToHome();
-        }
-    }
-
     private void processOnlinePayment() {
         try {
+            double tva = totalAmount * 0.20;
+            double grandTotal = totalAmount + tva;
+
             String clientSecret = stripeService.createPaymentIntent(
-                    totalAmount,
+                    grandTotal, // Utilisez le grand total pour le paiement
                     "eur",
                     "Payment for order from " + currentUser.getName()
             );
@@ -716,125 +564,6 @@ public class Payement implements Initializable {
             AlertUtils.showErrorAlert("Erreur Stripe", "Échec du paiement", e.getMessage());
         }
     }
-    /*
-    public void completeOnlinePayment() {
-        try {
-            Connection connection = MyDatabase.getInstance().getConnection();
-            connection.setAutoCommit(false);
-
-            try {
-                // 1. Vérifier le stock
-                if (!panierService.verifierStockDisponible(currentUser.getId())) {
-                    AlertUtils.showErrorAlert("Stock insuffisant",
-                            "Certains articles ne sont plus disponibles",
-                            "Veuillez vérifier votre panier.");
-                    return;
-                }
-
-                // 2. Récupérer les détails
-                List<Map<String, Object>> articlesDetails = panierService.getArticlesAvecDetails(currentUser.getId());
-                double totalCommande = panierService.calculerTotalPanier(currentUser.getId());
-
-                // 3. Créer la commande
-                Commande commande = createCommande();
-                commande.setModePaiement("card");
-                commande.setTotal(totalCommande);
-
-                // Enregistrement de la commande et de la facture
-                Commande createdCommande = commandeService.createCommande(commande);
-                Facture facture = createFacture(createdCommande);
-                factureService.ajouterFacture(facture);
-
-                // Vidage du panier
-                panierService.viderPanier(currentUser.getId());
-                connection.commit();
-
-                // Envoi du SMS de confirmation
-                if (!phoneField.getText().isEmpty()) {
-                    User tempUser = new User();
-                    tempUser.setPhone(Integer.parseInt(phoneField.getText()));
-                    SmsService.sendPaymentConfirmation(tempUser,
-                            String.valueOf(createdCommande.getId()),
-                            totalCommande);
-                } else if (currentUser.getPhone() != 0) {
-                    SmsService.sendPaymentConfirmation(currentUser,
-                            String.valueOf(createdCommande.getId()),
-                            totalCommande);
-                }
-
-                // Afficher le succès
-                showSuccessAlert(createdCommande.getId(), totalCommande, articlesDetails);
-
-            } catch (Exception e) {
-                connection.rollback();
-                throw e;
-            } finally {
-                connection.setAutoCommit(true);
-            }
-        } catch (Exception e) {
-            AlertUtils.showErrorAlert("Erreur", "Erreur lors du paiement", e.getMessage());
-        }
-    }
-*/
-
-    /*
-    public void completeOnlinePayment() {
-        try (Connection connection = MyDatabase.getInstance().getConnection()) {
-            connection.setAutoCommit(false);
-
-            try {
-                // 1. Vérifier le stock
-                if (!panierService.verifierStockDisponible(currentUser.getId())) {
-                    AlertUtils.showErrorAlert("Stock insuffisant",
-                            "Certains articles ne sont plus disponibles",
-                            "Veuillez vérifier votre panier.");
-                    return;
-                }
-
-                // 2. Récupérer les détails
-                List<Map<String, Object>> articlesDetails = panierService.getArticlesAvecDetails(currentUser.getId());
-                double totalCommande = panierService.calculerTotalPanier(currentUser.getId());
-
-                // 3. Créer la commande
-                Commande commande = createCommande();
-                commande.setModePaiement("card");
-                commande.setTotal(totalCommande);
-
-                // Enregistrement de la commande et de la facture
-                Commande createdCommande = commandeService.createCommande(commande);
-                Facture facture = createFacture(createdCommande);
-                factureService.ajouterFacture(facture);
-
-                // Vidage du panier
-                panierService.viderPanier(currentUser.getId());
-                connection.commit();
-
-                // Envoi du SMS de confirmation
-                if (!phoneField.getText().isEmpty()) {
-                    User tempUser = new User();
-                    tempUser.setPhone(Integer.parseInt(phoneField.getText()));
-                    SmsService.sendPaymentConfirmation(tempUser,
-                            String.valueOf(createdCommande.getId()),
-                            totalCommande);
-                } else if (currentUser.getPhone() != 0) {
-                    SmsService.sendPaymentConfirmation(currentUser,
-                            String.valueOf(createdCommande.getId()),
-                            totalCommande);
-                }
-
-                // Afficher le succès
-                showSuccessAlert(createdCommande.getId(), totalCommande, articlesDetails);
-
-            } catch (Exception e) {
-                connection.rollback();
-                throw e;
-            }
-        } catch (Exception e) {
-            AlertUtils.showErrorAlert("Erreur", "Erreur lors du paiement", e.getMessage());
-        }
-    }
-*/
-
 
     public void completeOnlinePayment() {
         Connection connection = null;
@@ -939,70 +668,6 @@ public class Payement implements Initializable {
         }
     }
 
-    /*
-    private void processCashPayment() {
-        try {
-            Connection connection = MyDatabase.getInstance().getConnection();
-            connection.setAutoCommit(false);
-
-            try {
-                // Vérification du stock
-                if (!panierService.verifierStockDisponible(currentUser.getId())) {
-                    AlertUtils.showErrorAlert("Stock insuffisant",
-                            "Certains articles ne sont plus disponibles",
-                            "Veuillez vérifier votre panier.");
-                    return;
-                }
-
-                // Récupération des détails avant de vider le panier
-                List<Map<String, Object>> articlesDetails = panierService.getArticlesAvecDetails(currentUser.getId());
-                double totalCommande = panierService.calculerTotalPanier(currentUser.getId());
-
-                // Création de la commande
-                Commande commande = createCommande();
-                commande.setModePaiement("especes");
-                commande.setTotal(totalCommande);
-
-                // Enregistrement de la commande et de la facture
-                Commande createdCommande = commandeService.createCommande(commande);
-                Facture facture = createFacture(createdCommande);
-                factureService.ajouterFacture(facture);
-
-                // Vidage du panier
-                panierService.viderPanier(currentUser.getId());
-                connection.commit();
-
-
-                // Envoi du SMS de confirmation pour le paiement cash
-                if (!phoneField.getText().isEmpty()) {
-                    // Créer un utilisateur temporaire avec le numéro saisi
-                    User tempUser = new User();
-                    tempUser.setPhone(Integer.parseInt(phoneField.getText()));
-                    SmsService.sendPaymentConfirmation(tempUser,
-                            String.valueOf(createdCommande.getId()),
-                            totalCommande);
-                } else if (currentUser.getPhone() != 0) {
-                    SmsService.sendPaymentConfirmation(currentUser,
-                            String.valueOf(createdCommande.getId()),
-                            totalCommande);
-                }
-
-                // Affichage de l'alerte de succès avec fermeture automatique
-                showSuccessAlert(createdCommande.getId(), totalCommande, articlesDetails);
-
-            } catch (Exception e) {
-                connection.rollback();
-                throw e;
-            } finally {
-                connection.setAutoCommit(true);
-            }
-        } catch (Exception e) {
-            AlertUtils.showErrorAlert("Erreur", "Erreur lors du paiement", e.getMessage());
-        }
-    }
-*/
-
-
     private void processCashPayment() {
         Connection connection = null;
         try {
@@ -1020,12 +685,14 @@ public class Payement implements Initializable {
             // 2. Récupérer les détails du panier
             List<Map<String, Object>> articlesDetails = panierService.getArticlesAvecDetails(currentUser.getId());
             double totalCommande = panierService.calculerTotalPanier(currentUser.getId());
+            double tva = totalCommande * 0.20;
+            double grandTotal = totalCommande + tva;
 
             // 3. Créer la commande
             Commande commande = new Commande();
             commande.setClient(currentUser);
             commande.setDateCommande(LocalDateTime.now());
-            commande.setTotal(totalCommande);
+            commande.setTotal(grandTotal);
             commande.setModePaiement("especes");
 
             // Sérialiser les articles et quantités
@@ -1167,7 +834,6 @@ public class Payement implements Initializable {
         }
     }
 
-    // Ajoutez cette méthode pour récupérer la référence à la fenêtre
     public void setPaymentStage(Stage stage) {
         this.paymentStage = stage;
     }
@@ -1217,7 +883,6 @@ public class Payement implements Initializable {
         }
     }
 
-    // Méthode utilitaire pour obtenir la scène actuelle (peut être placée dans la classe)
     private Scene getCurrentScene() {
         if (confirmPaymentButton != null && confirmPaymentButton.getScene() != null) {
             return confirmPaymentButton.getScene();
@@ -1232,53 +897,6 @@ public class Payement implements Initializable {
             }
         }
         return null;
-    }
-
-    private void redirectToListeArticles() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ListeArticle.fxml"));
-            Parent listeArticleContent = loader.load();
-
-            // Obtenir le contentArea de la scène actuelle
-            Scene currentScene = confirmPaymentButton.getScene();
-            StackPane contentArea = (StackPane) currentScene.lookup("#contentArea");
-
-            if (contentArea != null) {
-                // Vider le contentArea et ajouter le nouveau contenu
-                contentArea.getChildren().clear();
-                contentArea.getChildren().add(listeArticleContent);
-            } else {
-                // Fallback si contentArea n'est pas trouvé
-                throw new RuntimeException("Zone de contenu introuvable");
-            }
-
-        } catch (IOException e) {
-            AlertUtils.showErrorAlert("Erreur", "Chargement impossible",
-                    "Impossible de charger la liste des articles: " + e.getMessage());
-        } catch (Exception e) {
-            AlertUtils.showErrorAlert("Erreur", "Problème technique",
-                    "Une erreur inattendue est survenue: " + e.getMessage());
-        }
-    }
-
-    public void navigateToArticles(ActionEvent event) { // Corriger le paramètre
-        try {
-            // Charger le fichier FXML de la page ListeArticle
-            Parent root = FXMLLoader.load(getClass().getResource("/ListeArticle.fxml"));
-
-            // Récupérer la scène actuelle à partir du bouton cliqué
-            Scene currentScene = ((Node) event.getSource()).getScene();
-
-            // Remplacer le contenu de la scène actuelle
-            currentScene.setRoot(root);
-
-            // Optionnel: redimensionner la fenêtre si nécessaire
-            Stage stage = (Stage) currentScene.getWindow();
-            stage.sizeToScene();
-        } catch (IOException e) {
-            e.printStackTrace();
-            AlertUtils.showErrorAlert("Erreur", "Impossible d'ouvrir la liste des articles", e.getMessage());
-        }
     }
 
     @FXML
@@ -1314,7 +932,6 @@ public class Payement implements Initializable {
         cashForm.setVisible(!isOnline);
     }
 
-
     @FXML
     private void handleStripePayment() {
         try {
@@ -1328,89 +945,6 @@ public class Payement implements Initializable {
             AlertUtils.showErrorAlert("Erreur Stripe", "Échec du paiement", e.getMessage());
         }
     }
-
-/*
-    private void showStripePaymentForm(String clientSecret) {
-        stripePopup.setVisible(true);
-        WebEngine webEngine = stripeWebView.getEngine();
-
-        String url = stripeService.createCheckoutSession(totalAmount);
-        stripeWebView.getEngine().load(url);
-
-        webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
-            if (newState == Worker.State.SUCCEEDED) {
-                // Injecter du JavaScript pour détecter la complétion du paiement
-                webEngine.executeScript(
-                        "window.addEventListener('message', function(event) {" +
-                                "   if (event.data.type === 'payment-success') {" +
-                                "       window.javaConnector.paymentSuccess(event.data.sessionId);" +
-                                "   } else if (event.data.type === 'payment-cancel') {" +
-                                "       window.javaConnector.paymentCanceled();" +
-                                "   }" +
-                                "});" +
-
-                                // Surveiller les changements dans le DOM pour détecter la complétion
-                                "var observer = new MutationObserver(function(mutations) {" +
-                                "   var successElement = document.querySelector('.sr-payment-complete');" +
-                                "   if (successElement) {" +
-                                "       var sessionId = window.location.href.split('sessionId=')[1];" +
-                                "       window.postMessage({" +
-                                "           type: 'payment-success'," +
-                                "           sessionId: sessionId" +
-                                "       }, '*');" +
-                                "   }" +
-                                "   var cancelElement = document.querySelector('.sr-cancel-btn');" +
-                                "   if (cancelElement) {" +
-                                "       window.postMessage({" +
-                                "           type: 'payment-cancel'" +
-                                "       }, '*');" +
-                                "   }" +
-                                "});" +
-                                "observer.observe(document.body, { childList: true, subtree: true });"
-                );
-
-                // Connecter le bridge Java-JS
-                JSObject window = (JSObject) webEngine.executeScript("window");
-                window.setMember("javaConnector", new JavaConnector());
-            }
-        });
-    }
-*/
-
-    /*
-    private void showStripePaymentForm(String clientSecret) {
-        stripePopup.setVisible(true);
-        WebEngine webEngine = stripeWebView.getEngine();
-
-        // Utilisez des URLs locales pour gérer le résultat
-        String successUrl = "http://localhost/success?session_id={CHECKOUT_SESSION_ID}";
-        String cancelUrl = "http://localhost/cancel";
-
-        String url = stripeService.createCheckoutSession(totalAmount, successUrl, cancelUrl);
-        stripeWebView.getEngine().load(url);
-
-        webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
-            if (newState == Worker.State.SUCCEEDED) {
-                // Surveiller les changements d'URL pour détecter la complétion
-                webEngine.locationProperty().addListener((obs2, oldLocation, newLocation) -> {
-                    if (newLocation.contains("success")) {
-                        // Extraire l'ID de session de l'URL
-                        String sessionId = newLocation.split("session_id=")[1];
-                        handleSuccessfulPayment(sessionId);
-                    } else if (newLocation.contains("cancel")) {
-                        Platform.runLater(() -> {
-                            closeStripePopup();
-                            AlertUtils.showInformationAlert(
-                                    "Paiement annulé",
-                                    "Vous avez annulé le processus de paiement"
-                            );
-                        });
-                    }
-                });
-            }
-        });
-    }
-*/
 
     private void showStripePaymentForm(String clientSecret) {
         stripePopup.setVisible(true);
@@ -1489,6 +1023,102 @@ public class Payement implements Initializable {
         // Optionnel: fermer aussi le dialog principal si nécessaire
         if (paymentStage != null) {
             paymentStage.close();
+        }
+    }
+
+    private void updateTotalAmountLabel() {
+        double amount = totalAmount != null ? totalAmount : 0.0;
+        double tva = amount * 0.20; // TVA de 20%
+        double grandTotal = amount + tva;
+
+        totalAmountLabel.setText(String.format("Montant total: %.2f DT", amount));
+        tvaLabel.setText(String.format("TVA (20%%): %.2f DT", tva));
+        grandTotalLabel.setText(String.format("Grand Total: %.2f DT", grandTotal));
+    }
+
+    private void refreshCartItems() {
+        cartItemsList.getItems().clear();
+        totalAmount = 0.0;
+
+        try {
+            List<Map<String, Object>> articlesDetails = panierService.getArticlesAvecDetails(currentUser.getId());
+
+            if (!articlesDetails.isEmpty()) {
+                for (Map<String, Object> details : articlesDetails) {
+                    String nom = (String) details.get("nom");
+                    double prix = (double) details.get("prix");
+                    int quantite = (int) details.get("quantite");
+                    double totalArticle = prix * quantite;
+
+                    totalAmount += totalArticle;
+
+                    String itemText = String.format(
+                            "Nom: %s\n" +
+                                    "Prix unitaire: %.2f DT\n" +
+                                    "Quantité: %d\n" +
+                                    "Total article: %.2f DT\n" +
+                                    "----------------------------",
+                            nom, prix, quantite, totalArticle
+                    );
+
+                    cartItemsList.getItems().add(itemText);
+                }
+            } else {
+                cartItemsList.getItems().add("Votre panier est vide");
+            }
+        } catch (SQLException e) {
+            AlertUtils.showErrorAlert("Erreur", "Impossible de charger le panier", e.getMessage());
+            cartItemsList.getItems().add("Erreur lors du chargement du panier");
+        }
+
+        updateTotalAmountLabel();
+    }
+
+    private void showSuccessAlert(int commandeId, double totalCommande, List<Map<String, Object>> articlesDetails) {
+        try {
+            double tva = totalCommande * 0.20;
+            double grandTotal = totalCommande + tva;
+
+            StringBuilder details = new StringBuilder();
+            details.append("Détails de la commande #").append(commandeId).append(":\n\n");
+            details.append("----------------------------------------\n");
+
+            if (articlesDetails != null && !articlesDetails.isEmpty()) {
+                for (Map<String, Object> article : articlesDetails) {
+                    String nom = (String) article.get("nom");
+                    double prixUnitaire = (double) article.get("prix");
+                    int quantite = (int) article.get("quantite");
+                    double totalArticle = prixUnitaire * quantite;
+
+                    details.append(String.format(
+                            "Nom: %s\n" +
+                                    "Prix unitaire: %.2f DT\n" +
+                                    "Quantité: %d\n" +
+                                    "Total article: %.2f DT\n" +
+                                    "----------------------------------------\n",
+                            nom, prixUnitaire, quantite, totalArticle
+                    ));
+                }
+            }
+
+            details.append(String.format("\nSOUS-TOTAL: %.2f DT", totalCommande));
+            details.append(String.format("\nTVA (20%%): %.2f DT", tva));
+            details.append(String.format("\nGRAND TOTAL: %.2f DT", grandTotal));
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Paiement réussi");
+            alert.setHeaderText("Votre commande a été enregistrée avec succès");
+            alert.setContentText(details.toString());
+            alert.getDialogPane().setPrefSize(400, 400);
+
+            alert.setOnHidden(event -> {
+                redirectToHome();
+            });
+
+            alert.show();
+        } catch (Exception e) {
+            AlertUtils.showErrorAlert("Erreur", "Problème d'affichage", "Les détails n'ont pas pu être affichés");
+            redirectToHome();
         }
     }
 
