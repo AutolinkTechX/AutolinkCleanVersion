@@ -30,7 +30,11 @@ module pidev {
     requires javax.mail;
     requires Java.WebSocket;        // pour io-7.2.5.jar
     requires java.prefs;
+
+    requires webcam.capture;
+  
     requires java.net.http;
+
 
 
     opens org.example.pidev to javafx.fxml;
