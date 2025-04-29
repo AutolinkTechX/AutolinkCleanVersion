@@ -1,0 +1,791 @@
+.root-container {
+    -fx-background-color: linear-gradient(to bottom, #f0f4f7, #d9e2ec);
+    -fx-background-image: url("../images/background-workshop.jpg");
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+}
+
+.title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-fill: #2c3e50;
+    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.8), 0, 0, 0, 1);
+}
+
+.button {
+    -fx-padding: 8 12 8 12;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.button-green {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.button-green:hover {
+    -fx-background-color: #45a049;
+}
+
+.button-blue {
+    -fx-background-color: #2196F3;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.button-blue:hover {
+    -fx-background-color: #2980b9;
+}
+
+.button-red {
+    -fx-background-color: #f44336;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.button-red:hover {
+    -fx-background-color: #c82333;
+}
+
+.button-grey {
+    -fx-background-color: #6c757d;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.button-grey:hover {
+    -fx-background-color: #5a6268;
+}
+
+.custom-table {
+    -fx-background-color: white;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 10;
+    -fx-font-size: 14px;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #f9f9f9;
+}
+
+.table-row-cell:even {
+    -fx-background-color: #ffffff;
+}
+
+.vbox {
+    -fx-background-color: rgba(255, 255, 255, 0.85);
+    -fx-background-radius: 15;
+    -fx-padding: 20;
+    -fx-border-radius: 15;
+    -fx-border-color: rgba(0, 0, 0, 0.1);
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+}
+
+.label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+    -fx-padding: 5;
+}
+
+.text-field {
+    -fx-font-size: 14px;
+    -fx-padding: 8 10;
+    -fx-background-color: white;
+    -fx-background-radius: 5;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 5;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0.5, 0, 1);
+}
+
+.text-field:focused {
+    -fx-border-color: #2196F3;
+    -fx-border-width: 2;
+}
+
+.text-area {
+    -fx-font-size: 14px;
+    -fx-padding: 8 10;
+    -fx-background-color: white;
+    -fx-background-radius: 5;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 5;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0.5, 0, 1);
+}
+
+.text-area:focused {
+    -fx-border-color: #2196F3;
+    -fx-border-width: 2;
+}
+
+.workshop-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+    -fx-padding: 15;
+    -fx-min-width: 350px;
+    -fx-max-width: 350px;
+    -fx-min-height: 400px;
+    -fx-pref-height: 400px;
+    -fx-max-height: 400px;
+}
+
+.workshop-name {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-fill: #333333;
+}
+
+.workshop-description {
+    -fx-font-size: 14px;
+    -fx-fill: #666666;
+    -fx-wrap-text: true;
+}
+
+.workshop-dates {
+    -fx-font-size: 13px;
+    -fx-fill: #444444;
+    -fx-font-style: italic;
+}
+
+.workshop-location, .workshop-price, .workshop-places {
+    -fx-font-size: 14px;
+    -fx-fill: #555555;
+}
+
+.future-workshop {
+    -fx-border-color: #4CAF50;
+    -fx-border-width: 2;
+}
+
+.current-workshop {
+    -fx-border-color: #FFC107;
+    -fx-border-width: 2;
+}
+
+.past-workshop {
+    -fx-border-color: #9E9E9E;
+    -fx-border-width: 2;
+    -fx-opacity: 0.8;
+}
+
+.full-workshop {
+    -fx-border-color: #F44336;
+    -fx-border-width: 2;
+}
+
+.transparent-scroll {
+    -fx-background-color: transparent;
+}
+
+.transparent-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.register-button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16;
+    -fx-border-radius: 4;
+    -fx-cursor: hand;
+}
+
+.register-button:hover {
+    -fx-background-color: #45a049;
+}
+
+.register-button:disabled {
+    -fx-background-color: #cccccc;
+    -fx-text-fill: #666666;
+}
+
+.video-button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 5 10;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-font-size: 12px;
+}
+
+.video-button:hover {
+    -fx-background-color: #45a049;
+}
+
+.search-field {
+    -fx-pref-width: 300px;
+    -fx-padding: 5px;
+    -fx-font-size: 14px;
+}
+
+.filter-combo-box {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f0f0f0);
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #4a90e2;
+    -fx-border-width: 1.5;
+    -fx-padding: 5 10 5 10;
+    -fx-font-size: 14px;
+    -fx-text-fill: #2c3e50;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0.5, 0, 1);
+    -fx-cursor: hand;
+}
+
+.filter-combo-box:hover {
+    -fx-background-color: linear-gradient(to bottom, #f0f0f0, #e0e0e0);
+    -fx-border-color: #3a7bd5;
+    -fx-effect: dropshadow(gaussian, rgba(74,144,226,0.3), 8, 0.5, 0, 2);
+}
+
+.sort-label {
+    -fx-text-fill: #333333;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 5 0 10;
+}
+
+.sort-combo-box {
+    -fx-pref-width: 150px;
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 4px;
+    -fx-padding: 5px;
+}
+
+.pagination-button {
+    -fx-background-color: #f0f0f0;
+    -fx-border-color: #d0d0d0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.pagination-button:hover {
+    -fx-background-color: #e0e0e0;
+}
+
+.pagination-button-active {
+    -fx-background-color: #4a90e2;
+    -fx-text-fill: white;
+    -fx-border-color: #3a7bc8;
+}
+
+.pagination-button-active:hover {
+    -fx-background-color: #3a7bc8;
+}
+
+.page-info-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #666;
+    -fx-padding: 0 0 0 10px;
+}
+
+.button-close {
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 5, 0, 0, 1);
+}
+
+.button-close:hover {
+    -fx-background-color: linear-gradient(to bottom, #c0392b, #e74c3c);
+    -fx-cursor: hand;
+}
+
+/* Ajoutez ces styles à la fin de votre fichier styles.css */
+
+.welcome-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-fill: #2c3e50;
+    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.8), 0, 0, 0, 1);
+}
+
+.button-large {
+    -fx-padding: 15 30 15 30;
+    -fx-font-size: 18px;
+    -fx-min-width: 200px;
+    -fx-min-height: 60px;
+}
+
+.button-blue-large {
+    -fx-background-color: #2196F3;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+}
+
+.button-green-large {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+}
+/* Ajoutez ceci à votre fichier styles.css */
+#addTaskButton {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+}
+
+#addTaskButton:hover {
+    -fx-background-color: #2ecc71;
+}
+.tasks-button {
+    -fx-background-color: #9b59b6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+}
+
+.tasks-button:hover {
+    -fx-background-color: #8e44ad;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0, 0, 1);
+}
+
+.custom-table {
+    -fx-background-color: white;
+    -fx-border-color: #4a90e2;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(74,144,226,0.3), 10, 0, 0, 0);
+    -fx-font-size: 14px;
+    -fx-padding: 5;
+}
+
+.custom-table .column-header {
+    -fx-background-color: linear-gradient(to bottom, #4a90e2, #3a7bd5);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+.custom-table .column-header-background {
+    -fx-background-radius: 10 10 0 0;
+    -fx-background-insets: 0 0 0 0;
+    -fx-padding: 0 0 5 0;
+}
+
+.custom-table .table-row-cell {
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-style: solid;
+    -fx-border-insets: 0;
+}
+
+.custom-table .table-row-cell:filled:hover {
+    -fx-background-color: #e3f2fd;
+    -fx-cursor: hand;
+    -fx-effect: innershadow(three-pass-box, rgba(74,144,226,0.2), 5, 0, 0, 1);
+    -fx-transition: all 0.3s;
+}
+
+.custom-table .table-row-cell:filled:selected {
+    -fx-background-color: #bbdefb;
+    -fx-background-insets: 0;
+}
+
+.custom-table .table-row-cell:filled:selected:hover {
+    -fx-background-color: #90caf9;
+}
+
+.custom-table .table-cell {
+    -fx-padding: 10 5;
+    -fx-alignment: CENTER_LEFT;
+    -fx-border-color: transparent;
+}
+
+/* Styles pour les différents statuts */
+.status-completed {
+    -fx-text-fill: #4CAF50;
+    -fx-font-weight: bold;
+}
+
+.status-in-progress {
+    -fx-text-fill: #FFC107;
+    -fx-font-weight: bold;
+}
+
+.status-pending {
+    -fx-text-fill: #9E9E9E;
+    -fx-font-weight: bold;
+}
+
+.status-overdue {
+    -fx-text-fill: #F44336;
+    -fx-font-weight: bold;
+}
+
+/* Effet de surbrillance pour les lignes */
+.highlight-row {
+    -fx-background-color: #e3f2fd;
+    -fx-effect: dropshadow(three-pass-box, rgba(74,144,226,0.3), 5, 0, 0, 1);
+}
+
+/* Styles pour la fenêtre d'édition */
+.edit-container {
+    -fx-background-color: linear-gradient(to bottom right, #f5f7fa, #e4e8eb);
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: rgba(74, 144, 226, 0.3);
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 15, 0, 0, 0);
+}
+
+.edit-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-fill: #2c3e50;
+    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.8), 0, 0, 0, 1);
+}
+
+.edit-content {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-padding: 20;
+    -fx-border-radius: 10;
+    -fx-border-color: rgba(0,0,0,0.05);
+    -fx-border-width: 1;
+}
+
+.edit-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4a5568;
+}
+
+.edit-field {
+    -fx-font-size: 14px;
+    -fx-pref-height: 35;
+    -fx-background-color: #f7fafc;
+    -fx-background-radius: 5;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 5;
+    -fx-border-width: 1;
+    -fx-prompt-text-fill: #a0aec0;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.05), 2, 0, 0, 1);
+}
+
+.edit-field:focused {
+    -fx-border-color: #4a90e2;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(74,144,226,0.2), 5, 0, 0, 1);
+}
+
+.edit-textarea {
+    -fx-font-size: 14px;
+    -fx-pref-height: 80;
+    -fx-background-color: #f7fafc;
+    -fx-background-radius: 5;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 5;
+    -fx-border-width: 1;
+    -fx-prompt-text-fill: #a0aec0;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.05), 2, 0, 0, 1);
+}
+
+.edit-textarea:focused {
+    -fx-border-color: #4a90e2;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(74,144,226,0.2), 5, 0, 0, 1);
+}
+
+.edit-datepicker {
+    -fx-font-size: 14px;
+    -fx-pref-height: 35;
+    -fx-background-color: #f7fafc;
+    -fx-background-radius: 5;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 5;
+    -fx-border-width: 1;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.05), 2, 0, 0, 1);
+}
+
+.edit-datepicker:focused {
+    -fx-border-color: #4a90e2;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(74,144,226,0.2), 5, 0, 0, 1);
+}
+
+.edit-combobox {
+    -fx-font-size: 14px;
+    -fx-pref-height: 35;
+    -fx-background-color: #f7fafc;
+    -fx-background-radius: 5;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 5;
+    -fx-border-width: 1;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.05), 2, 0, 0, 1);
+}
+
+.edit-combobox:focused {
+    -fx-border-color: #4a90e2;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(74,144,226,0.2), 5, 0, 0, 1);
+}
+
+/* Styles des boutons */
+.edit-button-save {
+    -fx-background-color: #4a90e2;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-transition: all 0.3s;
+}
+
+.edit-button-save:hover {
+    -fx-background-color: #3a7bd5;
+    -fx-effect: dropshadow(gaussian, rgba(74,144,226,0.5), 10, 0, 0, 2);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.edit-button-delete {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-transition: all 0.3s;
+}
+
+.edit-button-delete:hover {
+    -fx-background-color: #c0392b;
+    -fx-effect: dropshadow(gaussian, rgba(231,76,60,0.5), 10, 0, 0, 2);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.edit-button-cancel {
+    -fx-background-color: #95a5a6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-transition: all 0.3s;
+}
+
+.edit-button-cancel:hover {
+    -fx-background-color: #7f8c8d;
+    -fx-effect: dropshadow(gaussian, rgba(149,165,166,0.5), 10, 0, 0, 2);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.workshop-card {
+    -fx-background-color: #f9f9f9;
+    -fx-border-color: #ddd;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-padding: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 6, 0.3, 2, 2);
+}
+
+.workshop-card:hover {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #ccc;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0.3, 2, 2);
+}
+
+.workshop-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+    -fx-padding: 5px 0 0 0;
+}
+
+.workshop-description {
+    -fx-font-size: 12px;
+    -fx-text-fill: #666;
+    -fx-padding: 5px 0;
+}
+
+.workshop-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #555;
+}
+
+.workshop-value {
+    -fx-text-fill: #444;
+}
+
+/* Optionnel : pour masquer les barres de défilement (moins convivial) */
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical {
+    -fx-pref-width: 10;  /* Ajuster la largeur de la barre de défilement */
+}
+
+.scroll-bar:vertical .increment-button,
+.scroll-bar:vertical .decrement-button {
+    -fx-padding: 2;  /* Ajuster le padding des boutons */
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #bbb; /* Couleur du "thumb" (la partie que l'on fait glisser) */
+    -fx-background-radius: 5px;
+}
+
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #999;
+}
+
+.selected-workshop-card {
+    -fx-background-color: #e0e0e0; /* Couleur de fond plus claire */
+    -fx-border-color: #3498db;     /* Bordure bleue */
+    -fx-border-width: 2px;         /* Bordure plus épaisse */
+}
+
+/* General */
+.root-container {
+    -fx-alignment: center;
+    -fx-padding: 20px;
+    -fx-background-color: #f4f4f4;
+}
+
+.title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+    -fx-padding: 0 0 20px 0;
+}
+
+/* Buttons */
+.button {
+    -fx-padding: 8px 15px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.button-blue {
+    -fx-background-color: #3498db;
+}
+
+.button-green {
+    -fx-background-color: #2ecc71;
+}
+
+.button-red {
+    -fx-background-color: #e74c3c;
+}
+
+.button-grey {
+    -fx-background-color: #95a5a6;
+}
+
+.button-close {
+    -fx-background-color: #34495e;
+}
+
+.button:hover {
+    -fx-opacity: 0.9;
+}
+
+/* Text Fields */
+.search-field {
+    -fx-padding: 8px;
+    -fx-font-size: 14px;
+    -fx-border-radius: 5px;
+    -fx-border-color: #ccc;
+}
+
+/* Workshop Card */
+.workshop-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-padding: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 8, 0, 0, 2);
+}
+
+.workshop-name {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+    -fx-padding: 0 0 5px 0;
+}
+
+.workshop-description {
+    -fx-font-size: 14px;
+    -fx-text-fill: #666;
+    -fx-padding: 0 0 10px 0;
+}
+
+.workshop-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #555;
+}
+
+.workshop-value {
+    -fx-text-fill: #777;
+}
+
+/* Button Bar */
+.button-bar {
+    -fx-padding: 10px 0;
+    -fx-background-color: #ecf0f1;
+    -fx-background-radius: 5px;
+}
+
+/* VBox */
+.vbox {
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+}
+
+/* Text Field */
+.text-field {
+    -fx-border-color: #ccc;
+    -fx-border-radius: 5px;
+    -fx-padding: 8px;
+    -fx-font-size: 14px;
+}
+
+/* Text Area */
+.text-area {
+    -fx-border-color: #ccc;
+    -fx-border-radius: 5px;
+    -fx-padding: 8px;
+    -fx-font-size: 14px;
+}
+
+/* Filter Combo Box */
+.filter-combo-box {
+    -fx-border-color: #ccc;
+    -fx-border-radius: 5px;
+    -fx-padding: 5px;
+    -fx-font-size: 14px;
+}
+
