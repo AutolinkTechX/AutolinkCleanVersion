@@ -32,7 +32,7 @@ module pidev {
     requires java.prefs;
 
     requires webcam.capture;
-  
+      
     requires java.net.http;
 
 

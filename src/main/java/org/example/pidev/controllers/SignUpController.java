@@ -13,6 +13,9 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import javafx.scene.layout.AnchorPane;
 import org.example.pidev.entities.User;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+
 
 public class SignUpController {
     private User userData;
@@ -164,5 +167,29 @@ public class SignUpController {
         }
         return userData;
     }
+
+    @FXML
+    void handleLoginLink(ActionEvent event) {
+        try {
+            // Close current login window
+            Stage currentStage = (Stage) nextButton.getScene().getWindow();
+            currentStage.close();
+
+            // Load SignUp view
+            Parent root = FXMLLoader.load(getClass().getResource("/DashboardLogin.fxml"));
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Autolink Login");  
+            stage.show();
+        } catch (IOException e) {
+            showError("Failed to load sign up view");
+            e.printStackTrace();
+        }
+    }
     
+    private void showError(String message) {
+        errorLabel.setText(message);
+        errorLabel.setVisible(true);
+        errorLabel.setStyle("-fx-text-fill: #d9534f;"); // Red color for errors
+    }
 }

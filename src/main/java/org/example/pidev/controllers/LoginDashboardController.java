@@ -15,6 +15,8 @@ import org.example.pidev.entities.User;
 import org.example.pidev.services.EntrepriseService;
 import org.example.pidev.services.UserService;
 import org.example.pidev.utils.SessionManager;
+
+
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javafx.application.Platform;
@@ -22,6 +24,7 @@ import javafx.application.Platform;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.regex.Pattern;
+
 
 public class LoginDashboardController {
 
@@ -37,6 +40,7 @@ public class LoginDashboardController {
     @FXML private TextField visiblePasswordField;
     @FXML private CheckBox rememberMeCheckBox;
     @FXML private Button signUpButton;
+    @FXML private ImageView cameraField;
     
 
     private final UserService userService = new UserService();
@@ -47,6 +51,7 @@ public class LoginDashboardController {
     private static final String EMAIL_KEY = "saved_email";
     private static final String PASSWORD_KEY = "saved_password";
     private static final String USER_TYPE_KEY = "user_type";
+
 
     @FXML
     public void initialize() {
