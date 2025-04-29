@@ -111,7 +111,6 @@ public class CommandeService {
         }
     }
 
-
     public List<Commande> getAllCommandes(int page, int itemsPerPage) {
         List<Commande> commandes = new ArrayList<>();
         int offset = (page - 1) * itemsPerPage;
@@ -138,7 +137,7 @@ public class CommandeService {
         List<Commande> commandes = new ArrayList<>();
         int offset = (page - 1) * itemsPerPage;
 
-        String query = "SELECT c.*, u.name, u.last_name FROM commande c " +
+        String query = "SELECT c.*, u.name, u.last_name, u.email FROM commande c " + // Ajout de u.email
                 "JOIN user u ON c.client_id = u.id " +
                 "WHERE DATE(c.date_commande) = ? " +
                 "ORDER BY c.date_commande DESC LIMIT ? OFFSET ?";
