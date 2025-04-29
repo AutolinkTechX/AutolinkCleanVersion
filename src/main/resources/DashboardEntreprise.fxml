@@ -69,30 +69,8 @@
                                 <Font size="20.0" />
                             </font>
                         </Button>
-                        <Button fx:id="refuserBtn" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="39.0" prefWidth="237.0" text="Accords refusés" textFill="WHITE">
-                            <graphic>
-                                <ImageView fitHeight="25.0" fitWidth="39.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@icons/refuser.png" />
-                                    </image>
-                                </ImageView>
-                            </graphic>
-                            <font>
-                                <Font size="20.0" />
-                            </font>
-                        </Button>
-                        <Button fx:id="accepterbtn" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="39.0" prefWidth="228.0" text="Accords acceptés" textFill="WHITE">
-                            <graphic>
-                                <ImageView fitHeight="24.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@icons/accepter.png" />
-                                    </image>
-                                </ImageView>
-                            </graphic>
-                            <font>
-                                <Font size="20.0" />
-                            </font>
-                        </Button>
+
+
                         <Button fx:id="statBtn" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="39.0" prefWidth="240.0" text="Statistiques" textFill="WHITE">
                             <graphic>
                                 <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
