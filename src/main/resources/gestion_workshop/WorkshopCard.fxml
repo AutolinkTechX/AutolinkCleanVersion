@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/8.0.171"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.pidev.controllers.WorkshopCardController"
+      styleClass="workshop-card"
+      stylesheets="@styles.css"
+      prefWidth="250.0">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+
+    <ImageView fx:id="workshopImage" fitHeight="120" fitWidth="220" preserveRatio="true">
+        <image>
+            <Image url="@../images/default-workshop.png"/>
+        </image>
+    </ImageView>
+
+    <Label fx:id="nameLabel" styleClass="workshop-name">
+        <font>
+            <Font size="16.0"/>
+        </font>
+    </Label>
+
+    <Label fx:id="descriptionLabel" styleClass="workshop-description" wrapText="true"/>
+
+    <HBox alignment="CENTER_LEFT" spacing="5">
+        <Label text="Prix:" styleClass="workshop-label"/>
+        <Label fx:id="priceLabel" styleClass="workshop-value"/>
+    </HBox>
+
+    <HBox alignment="CENTER_LEFT" spacing="5">
+        <Label text="Places:" styleClass="workshop-label"/>
+        <Label fx:id="placesLabel" styleClass="workshop-value"/>
+    </HBox>
+
+    <HBox alignment="CENTER_LEFT" spacing="5">
+        <Label text="Date Début:" styleClass="workshop-label"/>
+        <Label fx:id="startDateLabel" styleClass="workshop-value"/>
+    </HBox>
+</VBox>

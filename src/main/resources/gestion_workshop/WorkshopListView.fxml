@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.Cursor?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8.0.171"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.pidev.controllers.WorkshopListController"
+            stylesheets="@../styles/style.css"
+            style="-fx-font-family: 'Segoe UI', sans-serif;">
+    <center>
+        <VBox spacing="20" alignment="CENTER" style="-fx-background-color: white; -fx-padding: 20;">
+            <!-- Titre principal modernisé -->
+            <Text text="Liste des Workshops"
+                  style="-fx-fill: #b5602c; -fx-font-size: 30px; -fx-font-weight: bold; -fx-font-smoothing-type: lcd; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0.1, 0, 1);"/>
+
+            <!-- Barre de recherche -->
+            <HBox spacing="15" alignment="CENTER">
+                <TextField fx:id="searchField" promptText="Rechercher un workshop..."
+                           style="-fx-background-color: #f4f4f4; -fx-border-radius: 20px; -fx-background-radius: 20px; -fx-font-size: 14px; -fx-padding: 8 16;"/>
+                <Button text="Filtrer" onAction="#handleSearch"
+                        style="-fx-background-color: #b5602c; -fx-text-fill: white; -fx-font-size: 13px; -fx-padding: 6 14; -fx-border-radius: 15px; -fx-background-radius: 15px;"/>
+            </HBox>
+
+            <!-- Zone de contenu scrollable -->
+            <ScrollPane fitToWidth="true" pannable="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                        style="-fx-background-color: white;">
+                <content>
+                    <FlowPane fx:id="workshopFlowPane" alignment="CENTER" hgap="20" vgap="20"
+                              style="-fx-background-color: white;">
+                        <padding>
+                            <Insets top="10" right="0" bottom="10" left="0"/>
+                        </padding>
+
+                        <!-- Exemple de carte -->
+                        <StackPane style="-fx-background-color: #ffffff; -fx-border-radius: 10px; -fx-border-color: #e0e0e0; -fx-border-width: 1.5px; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 6, 0.1, 0, 1); -fx-padding: 15;">
+                            <VBox spacing="10" alignment="CENTER">
+                                <ImageView fitHeight="140" fitWidth="140" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../images/default-workshop.png"/>
+                                    </image>
+                                </ImageView>
+                                <Text text="Nom du Workshop" style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-fill: #333333;"/>
+                                <Text text="Description courte du workshop..." wrappingWidth="160"
+                                      style="-fx-font-size: 13px; -fx-fill: #777777;"/>
+                            </VBox>
+                        </StackPane>
+                    </FlowPane>
+                </content>
+            </ScrollPane>
+
+            <!-- Boutons actions -->
+            <HBox spacing="10" alignment="CENTER" style="-fx-background-color: white;">
+                <Button fx:id="generatePdfButton" text="PDF" onAction="#handleGeneratePdf"
+                        style="-fx-background-color: #b5602c; -fx-text-fill: white; -fx-border-radius: 15px; -fx-background-radius: 15px; -fx-padding: 6 14; -fx-font-size: 13px;">
+                    <graphic>
+                        <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
+                            <image>
+                                <Image url="@../images/pdf-icon.png"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+
+                <Button fx:id="backButton" text="Ajouter" onAction="#handleBack"
+                        style="-fx-background-color: #b5602c; -fx-text-fill: white; -fx-border-radius: 15px; -fx-background-radius: 15px; -fx-padding: 6 14; -fx-font-size: 13px;"/>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

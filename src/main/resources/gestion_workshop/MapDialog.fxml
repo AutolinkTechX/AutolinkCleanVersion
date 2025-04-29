@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
+<VBox alignment="TOP_CENTER" spacing="10" prefWidth="800" prefHeight="600" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controllers.MapDialogController">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+    <HBox alignment="CENTER_LEFT" spacing="5">
+        <TextField fx:id="searchField" promptText="Search for a place" prefWidth="300"/>
+        <Button fx:id="searchButton" text="Search" onAction="#handleSearch"/>
+        <Button fx:id="currentLocationButton" text="Use Current Location" onAction="#handleCurrentLocation"/>
+        <Button fx:id="confirmButton" text="Confirm Location" onAction="#handleConfirm"/>
+        <Button fx:id="cancelButton" text="Cancel" onAction="#handleCancel"/>
+    </HBox>
+    <Label fx:id="infoLabel" text="Select a location on the map"/>
+    <WebView fx:id="webView" prefWidth="800" prefHeight="500"/>
+</VBox>

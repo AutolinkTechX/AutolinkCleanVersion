@@ -29,22 +29,22 @@ public class AdminDashboardController {
 
     @FXML
     private Button LogoutButton;
-    
+
     @FXML
     private MenuButton ProductsMenuButton;
-    
+
     @FXML
     private MenuItem ForRecyclingButton;
-    
+
     @FXML
     private MenuItem ForSaleButton;
-    
+
     @FXML
     private MenuButton UsersMenuButton;
-    
+
     @FXML
     private MenuItem AdminsMenuItem;
-    
+
     @FXML
     private MenuItem ClientsMenuItem;
 
@@ -53,13 +53,27 @@ public class AdminDashboardController {
 
     @FXML
     private VBox contentArea;
-    @FXML private StackPane contentPane;
-    @FXML private Button BlogButton;
 
-    @FXML private MenuButton ServicesMenuButton;
-    @FXML private MenuItem OrdersMenuItem;
-    @FXML private MenuItem CalendarMenuItem;
-    @FXML private MenuItem StatisticsMenuItem;
+    @FXML
+    private StackPane contentPane;
+
+    @FXML
+    private Button BlogsButton;
+
+    @FXML
+    private MenuButton ServicesMenuButton;
+
+    @FXML
+    private MenuItem OrdersMenuItem;
+
+    @FXML
+    private MenuItem CalendarMenuItem;
+
+    @FXML
+    private MenuItem StatisticsMenuItem;
+
+    @FXML
+    private Button WorkshopsButton;
 
     private static final Logger logger = Logger.getLogger(ClientDashboardController.class.getName());
 
@@ -82,62 +96,62 @@ public class AdminDashboardController {
         } else {
             System.out.println("LogoutButton is null - FXML injection failed");
         }
-        
+
         // Add CSS class to the ProductsMenuButton
         ProductsMenuButton.getStyleClass().add("menu-button");
-        
+
         // Apply styling to the Products menu items
         ForRecyclingButton.getStyleClass().add("menu-item");
         ForSaleButton.getStyleClass().add("menu-item");
-        
+
         // Create a custom graphic for the Products menu button with icon and white text
         HBox productsCustomGraphic = new HBox(5); // 5 is the spacing between elements
         productsCustomGraphic.setStyle("-fx-alignment: center-left;");
-        
+
         // Create the Products icon
         ImageView productsIcon = new ImageView();
         productsIcon.setImage(new Image(getClass().getResourceAsStream("/icons/Products.png")));
         productsIcon.setFitHeight(25.0);
         productsIcon.setFitWidth(25.0);
         productsIcon.setPreserveRatio(true);
-        
+
         // Create the "Products" text label
         Label productsLabel = new Label("Products");
         productsLabel.setStyle("-fx-text-fill: white; -fx-font-size: 20px;");
-        
+
         // Add elements to the HBox in the correct order: icon, text
         productsCustomGraphic.getChildren().addAll(productsIcon, productsLabel);
-        
+
         // Set the custom graphic as the button's graphic
         ProductsMenuButton.setGraphic(productsCustomGraphic);
         ProductsMenuButton.setText(""); // Clear the text since we're using a custom graphic
-        
+
         // Add CSS class to the UsersMenuButton
         UsersMenuButton.getStyleClass().add("menu-button");
-        
+
         // Apply styling to the Users menu items
         AdminsMenuItem.getStyleClass().add("menu-item");
         ClientsMenuItem.getStyleClass().add("menu-item");
         EntreprisesMenuItem.getStyleClass().add("menu-item");
-        
+
         // Create a custom graphic for the Users menu button with icon and white text
         HBox usersCustomGraphic = new HBox(5); // 5 is the spacing between elements
         usersCustomGraphic.setStyle("-fx-alignment: center-left;");
-        
+
         // Create the Users icon
         ImageView usersIcon = new ImageView();
         usersIcon.setImage(new Image(getClass().getResourceAsStream("/icons/Users.png")));
         usersIcon.setFitHeight(27.0);
         usersIcon.setFitWidth(34.0);
         usersIcon.setPreserveRatio(true);
-        
+
         // Create the "Users" text label
         Label usersLabel = new Label("Users");
         usersLabel.setStyle("-fx-text-fill: white; -fx-font-size: 20px;");
-        
+
         // Add elements to the HBox in the correct order: icon, text
         usersCustomGraphic.getChildren().addAll(usersIcon, usersLabel);
-        
+
         // Set the custom graphic as the button's graphic
         UsersMenuButton.setGraphic(usersCustomGraphic);
         UsersMenuButton.setText(""); // Clear the text since we're using a custom graphic
@@ -149,7 +163,6 @@ public class AdminDashboardController {
         OrdersMenuItem.getStyleClass().add("menu-item");
         CalendarMenuItem.getStyleClass().add("menu-item");
         StatisticsMenuItem.getStyleClass().add("menu-item");
-
 
         // Create a custom graphic for the Services menu button
         HBox servicesCustomGraphic = new HBox(5);
@@ -205,43 +218,43 @@ public class AdminDashboardController {
     @FXML
     private void handleLogout() throws BackingStoreException {
         System.out.println("handleLogout method called");
-        
+
         // Create a custom alert dialog
         Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle("Logout Confirmation");
         alert.setHeaderText(null);
         alert.setContentText("Are you sure you want to logout?");
-        
+
         // Customize the dialog buttons
         ButtonType cancelButtonType = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
         ButtonType logoutButtonType = new ButtonType("Logout", ButtonData.OK_DONE);
         alert.getButtonTypes().setAll(cancelButtonType, logoutButtonType);
-        
+
         // Get the dialog pane to customize it
         DialogPane dialogPane = alert.getDialogPane();
-        
+
         // Add the dialog CSS file
         dialogPane.getStylesheets().add(getClass().getResource("/styles/dialog.css").toExternalForm());
-        
+
         // Add CSS classes to the dialog pane
         dialogPane.getStyleClass().add("dialog-pane");
-        
+
         // Get the buttons to customize them
         Button logoutButton = (Button) dialogPane.lookupButton(logoutButtonType);
         Button cancelButton = (Button) dialogPane.lookupButton(cancelButtonType);
-        
+
         // Add CSS classes to the buttons
         logoutButton.getStyleClass().add("logout-button");
         cancelButton.getStyleClass().add("cancel-button");
-        
+
         // Show the dialog and wait for user response
         Optional<ButtonType> result = alert.showAndWait();
-        
+
         // Process the result
         if (result.isPresent() && result.get() == logoutButtonType) {
             // User clicked Logout
             System.out.println("User confirmed logout");
-            
+
             // Clear the session
             SessionManager.clearSession();
             // Clear saved credentials from preferences
@@ -260,18 +273,18 @@ public class AdminDashboardController {
                 // Load the login page
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/DashboardLogin.fxml"));
                 Parent root = loader.load();
-                
+
                 // Create a new scene with the login page
                 Scene scene = new Scene(root);
-                
+
                 // Get the current stage
                 Stage stage = (Stage) LogoutButton.getScene().getWindow();
-                
+
                 // Set the new scene
                 stage.setScene(scene);
                 stage.setTitle("Login");
                 stage.show();
-                
+
             } catch (IOException e) {
                 System.out.println("Error during logout: " + e.getMessage());
                 e.printStackTrace();
@@ -281,7 +294,6 @@ public class AdminDashboardController {
             System.out.println("Logout cancelled");
         }
     }
-
 
     @FXML
     private void handleBlog() {
@@ -295,20 +307,33 @@ public class AdminDashboardController {
             showError("Failed to load Blog view", "An error occurred while trying to load the Blog view.");
         }
     }
-    
+
+    @FXML
+    private void handleWorkshops() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gestion_workshop/WorkshopListView.fxml"));
+            Parent workshopView = loader.load();
+            contentArea.getChildren().clear();
+            contentArea.getChildren().add(workshopView);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Failed to load Workshops view", "An error occurred while trying to load the Workshops view.");
+        }
+    }
+
     @FXML
     private void handleRecyclingProducts() {
         System.out.println("Recycling Products clicked");
         // TODO: Implement navigation to recycling products page
     }
-    
+
     @FXML
     private void handleSaleProducts() {
         System.out.println("Sale Products clicked");
         loadProductView();
         // TODO: Implement navigation to sale products page
     }
-    
+
     @FXML
     private void handleAdmins() {
         System.out.println("Admins clicked - Loading content");
@@ -316,19 +341,19 @@ public class AdminDashboardController {
             System.out.println("Loading FXML file...");
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/AdminsView.fxml"));
             System.out.println("FXML loader created");
-            
+
             Parent adminsView = loader.load();
             System.out.println("FXML loaded successfully");
-            
+
             // Clear existing content and add the new view
             contentArea.getChildren().clear();
             contentArea.getChildren().add(adminsView);
             System.out.println("Content updated");
-            
+
         } catch (IOException e) {
             System.out.println("Error loading admins view: " + e.getMessage());
             e.printStackTrace();
-            
+
             // Show error alert to user
             Alert alert = new Alert(AlertType.ERROR);
             alert.setTitle("Navigation Error");
@@ -337,21 +362,21 @@ public class AdminDashboardController {
             alert.showAndWait();
         }
     }
-    
+
     @FXML
     private void handleClients() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ClientsView.fxml"));
             Parent clientsView = loader.load();
-            
+
             // Clear existing content and add the new view
             contentArea.getChildren().clear();
             contentArea.getChildren().add(clientsView);
-            
+
         } catch (IOException e) {
             System.out.println("Error loading clients view: " + e.getMessage());
             e.printStackTrace();
-            
+
             // Show error alert to user
             Alert alert = new Alert(AlertType.ERROR);
             alert.setTitle("Navigation Error");
@@ -367,16 +392,16 @@ public class AdminDashboardController {
             System.out.println("Loading Entreprises view...");
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/EntreprisesView.fxml"));
             Parent entreprisesView = loader.load();
-            
+
             // Clear existing content and add the new view
             contentArea.getChildren().clear();
             contentArea.getChildren().add(entreprisesView);
             System.out.println("Entreprises view loaded successfully");
-            
+
         } catch (IOException e) {
             System.out.println("Error loading entreprises view: " + e.getMessage());
             e.printStackTrace();
-            
+
             // Show error alert to user
             Alert alert = new Alert(AlertType.ERROR);
             alert.setTitle("Navigation Error");
@@ -434,7 +459,6 @@ public class AdminDashboardController {
 
         } catch (IOException e) {
             e.printStackTrace();
-            // Gérer l'erreur (peut-être afficher un message à l'utilisateur)
         }
     }
 
@@ -470,7 +494,6 @@ public class AdminDashboardController {
         alert.showAndWait();
     }
 
-    // Add this method to your AdminDashboardController
     @FXML
     private void handleStatistics(ActionEvent event) {
         try {
@@ -482,7 +505,6 @@ public class AdminDashboardController {
             e.printStackTrace();
         }
     }
-
 
     private void showError(String header, String content) {
         Alert alert = new Alert(AlertType.ERROR);

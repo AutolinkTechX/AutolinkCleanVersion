@@ -585,5 +585,21 @@ public class ClientDashboardController {
     }
 
 
+    @FXML
+    private void loadWorkshopView(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gestion_workshop/TaskView.fxml"));
+            Node view = loader.load();
 
+            TaskController controller = loader.getController(); // Use TaskController
+            controller.setCurrentUser(currentUser); // Ensure TaskController has this method
+            // Optionally pass the dashboard controller if needed
+            // controller.setDashboardController(this);
+
+            contentArea.getChildren().setAll(view);
+        } catch (IOException e) {
+            showError("Error", "Failed to load workshop view: " + e.getMessage());
+            logger.log(Level.SEVERE, "Failed to load workshop view", e);
+        }
+    }
 }

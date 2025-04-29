@@ -13,7 +13,8 @@ module pidev {
     requires jbcrypt;
     requires org.hibernate.orm.core;
     requires org.slf4j;
-
+    requires itextpdf;
+    requires java.mail;
     requires com.google.zxing;
     requires com.google.zxing.javase;        // pour io-7.2.5.jar
 
