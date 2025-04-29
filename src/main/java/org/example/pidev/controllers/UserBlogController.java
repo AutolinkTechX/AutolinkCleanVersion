@@ -1,5 +1,6 @@
 package org.example.pidev.controllers;
 
+import com.itextpdf.text.Chunk;
 import com.itextpdf.text.pdf.PdfPCell;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -32,6 +33,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -233,6 +235,7 @@ public class UserBlogController {
         }
     }
 
+    /*
     @FXML
     private void handleDownloadPdf() {
         FileChooser fileChooser = new FileChooser();
@@ -355,6 +358,196 @@ public class UserBlogController {
             }
         }
     }
+
+     */
+    @FXML
+    private void handleDownloadPdf() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Enregistrer les blogs en PDF");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichiers PDF", "*.pdf"));
+        fileChooser.setInitialFileName("export_blogs.pdf");
+
+        Stage stage = (Stage) blogContainer.getScene().getWindow();
+        File file = fileChooser.showSaveDialog(stage);
+
+        if (file == null) {
+            return; // L'utilisateur a annulé
+        }
+
+        Document document = null;
+        FileOutputStream fos = null;
+
+        try {
+            // Créer un nouveau document avec des marges définies
+            document = new Document(com.itextpdf.text.PageSize.A4, 50, 50, 50, 50);
+            fos = new FileOutputStream(file);
+            PdfWriter writer = PdfWriter.getInstance(document, fos);
+
+            document.open();
+
+            // 1. En-tête avec logo et informations société
+            PdfPTable headerTable = new PdfPTable(2);
+            headerTable.setWidthPercentage(100);
+            headerTable.setWidths(new float[]{3, 1});
+
+            // Coordonnées de l'entreprise à gauche
+            Paragraph companyInfo = new Paragraph();
+            companyInfo.add(new Paragraph("Autol.Ink", new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 14, com.itextpdf.text.Font.BOLD)));
+            companyInfo.add(new Paragraph("123 Rue de l'Innovation"));
+            companyInfo.add(new Paragraph("Tunis, Tunisie"));
+            companyInfo.add(new Paragraph("Tél: +216 48 004 881"));
+            companyInfo.add(new Paragraph("Email: contact@autol.ink.com"));
+            companyInfo.add(new Paragraph("Site: www.autol.ink.com"));
+
+            PdfPCell companyCell = new PdfPCell(companyInfo);
+            companyCell.setBorder(com.itextpdf.text.Rectangle.NO_BORDER);
+            headerTable.addCell(companyCell);
+
+            // Logo à droite
+            try {
+                URL logoUrl = getClass().getResource("/images/logo.jpg");
+                if (logoUrl != null) {
+                    com.itextpdf.text.Image logo = com.itextpdf.text.Image.getInstance(logoUrl);
+                    logo.scaleToFit(80, 80);
+                    PdfPCell logoCell = new PdfPCell(logo, true);
+                    logoCell.setBorder(com.itextpdf.text.Rectangle.NO_BORDER);
+                    logoCell.setHorizontalAlignment(com.itextpdf.text.Element.ALIGN_RIGHT);
+                    headerTable.addCell(logoCell);
+                }
+            } catch (Exception e) {
+                System.err.println("Erreur de logo: " + e.getMessage());
+                headerTable.addCell(new PdfPCell());
+            }
+
+            document.add(headerTable);
+            document.add(new Paragraph(" "));
+
+            // 2. Titre centré avec ligne de séparation
+            com.itextpdf.text.Font titleFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 18, com.itextpdf.text.Font.BOLD);
+            Paragraph title = new Paragraph("Rapport d'exportation des blogs", titleFont);
+            title.setAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
+            document.add(title);
+
+            // Ligne de séparation
+            document.add(new Chunk(new com.itextpdf.text.pdf.draw.LineSeparator()));
+            document.add(new Paragraph(" "));
+
+            // 3. Date et informations
+            Paragraph infoParagraph = new Paragraph();
+            infoParagraph.add(new Chunk("Date: ", new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 12, com.itextpdf.text.Font.BOLD)));
+            infoParagraph.add(new Chunk(java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))));
+            infoParagraph.add(Chunk.NEWLINE);
+            infoParagraph.add(new Chunk("Nombre de blogs: ", new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 12, com.itextpdf.text.Font.BOLD)));
+            infoParagraph.add(new Chunk(String.valueOf(getFilteredBlogsForExport().size())));
+            document.add(infoParagraph);
+            document.add(new Paragraph(" "));
+
+            // 4. Tableau des blogs
+            PdfPTable table = new PdfPTable(4);
+            float[] columnWidths = {0.5f, 2f, 4f, 1.5f};
+            table.setWidths(columnWidths);
+            table.setWidthPercentage(100);
+            table.setSpacingBefore(10f);
+
+            // Style pour les en-têtes
+            com.itextpdf.text.Font headerFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 12, com.itextpdf.text.Font.BOLD);
+            com.itextpdf.text.BaseColor headerBgColor = new com.itextpdf.text.BaseColor(70, 130, 180); // Bleu acier
+            com.itextpdf.text.BaseColor whiteColor = new com.itextpdf.text.BaseColor(255, 255, 255);
+
+            // Ajouter les en-têtes
+            String[] headers = {"ID", "Titre", "Contenu", "Votes"};
+            for (String header : headers) {
+                PdfPCell cell = new PdfPCell(new Paragraph(header, headerFont));
+                cell.setBackgroundColor(headerBgColor);
+                cell.setPadding(5);
+                cell.setHorizontalAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
+                cell.setVerticalAlignment(com.itextpdf.text.Element.ALIGN_MIDDLE);
+                table.addCell(cell);
+            }
+
+            // Ajouter les données
+            List<Blog> blogsToExport = getFilteredBlogsForExport();
+            if (blogsToExport.isEmpty()) {
+                document.add(new Paragraph("Aucun blog ne correspond à vos critères."));
+            } else {
+                com.itextpdf.text.BaseColor lightBlueColor = new com.itextpdf.text.BaseColor(240, 248, 255);
+                boolean alternate = false;
+
+                for (Blog blog : blogsToExport) {
+                    PdfPCell idCell = new PdfPCell(new Paragraph(String.valueOf(blog.getId())));
+                    PdfPCell titleCell = new PdfPCell(new Paragraph(blog.getTitle()));
+
+                    String content = blog.getContent();
+                    if (content.length() > 200) {
+                        content = content.substring(0, 200) + "...";
+                    }
+                    PdfPCell contentCell = new PdfPCell(new Paragraph(content));
+
+                    PdfPCell votesCell = new PdfPCell(new Paragraph("Likes: " + blog.getLikes() + ", Dislikes: " + blog.getDislikes()));
+
+                    // Appliquer le style alterné
+                    com.itextpdf.text.BaseColor rowColor = alternate ? lightBlueColor : whiteColor;
+                    for (PdfPCell cell : new PdfPCell[]{idCell, titleCell, contentCell, votesCell}) {
+                        cell.setBackgroundColor(rowColor);
+                        cell.setPadding(5);
+                    }
+
+                    table.addCell(idCell);
+                    table.addCell(titleCell);
+                    table.addCell(contentCell);
+                    table.addCell(votesCell);
+
+                    alternate = !alternate;
+                }
+                document.add(table);
+            }
+
+            // 5. Pied de page
+            document.add(new Paragraph(" "));
+            document.add(new Chunk(new com.itextpdf.text.pdf.draw.LineSeparator()));
+            document.add(new Paragraph(" "));
+
+            Paragraph footer = new Paragraph();
+            footer.add(new Paragraph("Merci pour votre confiance !",
+                    new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 10, com.itextpdf.text.Font.ITALIC)));
+            footer.setAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
+            footer.add(new Paragraph("Pour toute question, contactez-nous à contact@autol.ink.com",
+                    new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 8)));
+            footer.add(new Paragraph("Tél: +216 48 004 881",
+                    new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 8)));
+            footer.add(new Paragraph("Document généré le " +
+                    java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")),
+                    new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 8)));
+            footer.setAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
+
+            document.add(footer);
+
+            // Fermer le document
+            document.close();
+
+            // Vérifier que le fichier existe et n'est pas vide
+            if (file.exists() && file.length() > 0) {
+                showAlert(Alert.AlertType.INFORMATION, "Succès",
+                        "PDF enregistré avec succès à:\n" + file.getAbsolutePath());
+            } else {
+                throw new IOException("Le fichier PDF n'a pas été créé correctement");
+            }
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Erreur de génération PDF", e);
+            e.printStackTrace();
+            showAlert("Erreur", "Échec de la génération du PDF", e.getMessage());
+        } finally {
+            try {
+                if (fos != null) {
+                    fos.close();
+                }
+            } catch (IOException e) {
+                logger.log(Level.WARNING, "Erreur lors de la fermeture du flux", e);
+            }
+        }
+    }
+
     private List<Blog> getFilteredBlogsForExport() {
         String searchText = searchField.getText();
         if (searchText == null || searchText.isEmpty()) {
