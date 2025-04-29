@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.shape.*?>
+<?import java.net.URL?>
+
+
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Circle?>
+
+<VBox fx:id="chatContainer"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.pidev.controllers.ChatbotController"
+      style="-fx-background-color: #d3d3d3; -fx-border-color: #e9ecef; -fx-border-width: 1px; -fx-border-radius: 15px;"
+      prefWidth="400"
+      prefHeight="600"
+      spacing="0"
+      alignment="TOP_RIGHT">
+
+    <!-- Zone de conversation -->
+    <ScrollPane fx:id="scrollPane"
+                style="-fx-background: transparent; -fx-border-color: transparent;"
+                fitToWidth="true"
+                VBox.vgrow="ALWAYS">
+        <VBox fx:id="messageContainer"
+              spacing="15"
+              style="-fx-padding: 20px;"/>
+    </ScrollPane>
+
+    <!-- Zone de saisie améliorée -->
+    <HBox spacing="12"
+          style="-fx-padding: 20px;
+                 -fx-background-color: white;
+                 -fx-border-color: #e9ecef;
+                 -fx-border-width: 1px 0 0 0; -fx-border-radius: 17px;"
+          VBox.vgrow="NEVER">
+        <TextField fx:id="userInput"
+                   promptText="Écrivez votre message..."
+                   styleClass="text-field"
+                   HBox.hgrow="ALWAYS"
+                   style="-fx-border-color: #b5602c;
+                  -fx-border-width: 1.5px; -fx-border-radius: 12px;"/>
+
+        <Button text="➤"
+                onAction="#handleSend"
+                style="-fx-background-color: #b5602c;
+                   /*    -fx-text-fill: white;*/
+                       -fx-font-weight: bold;
+                       -fx-background-radius: 20px;
+                       -fx-min-width: 45px;
+                       -fx-min-height: 45px;
+                       -fx-effect: dropshadow(gaussian, rgba(181,96,44,0.3), 8, 0, 0, 2);"/>
+    </HBox>
+
+    <stylesheets>
+        <URL value="@styles/MaterielRecyclable/chatbot-style.css"/>
+    </stylesheets>
+</VBox>

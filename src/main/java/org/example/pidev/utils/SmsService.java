@@ -1,3 +1,4 @@
+
 package org.example.pidev.utils;
 
 import com.twilio.Twilio;
@@ -14,8 +15,8 @@ public class SmsService {
     private static final Logger LOGGER = Logger.getLogger(SmsService.class.getName());
 
     // Configuration Twilio - À remplacer par vos informations
-    private static final String ACCOUNT_SID = "AC2249a817045c5030d299356f56f60c3b";
-    private static final String AUTH_TOKEN = "144b02d59996bf20299828de07cdbec3";
+    private static final String ACCOUNT_SID = "AC885dafd3b4728949d5121c21acf41aaf";
+    private static final String AUTH_TOKEN = "f5525a9bf21534121755d773f69cfdfe";
     private static final String TWILIO_PHONE_NUMBER = "+19704044639"; // Numéro Twilio acheté (US/Canada)
 
     static {

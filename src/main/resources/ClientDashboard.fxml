@@ -14,8 +14,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="org.example.pidev.controllers.ClientDashboardController">
+<VBox xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controllers.ClientDashboardController">
     <!-- Header -->
     <HBox prefHeight="80.0" style="-fx-background-color: white; -fx-padding: 10 0 10 0; -fx-border-color: #f5f5f5; -fx-border-width: 0 0 1 0;">
         <padding>
@@ -33,25 +32,27 @@
 
             <!-- Navigation Menu -->
             <HBox alignment="CENTER" spacing="30.0" HBox.hgrow="ALWAYS">
-                <Button fx:id="homeBtn" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #ca8a62; -fx-font-weight: bold;" text="HOME" >
+                <Button fx:id="homeBtn" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #ca8a62; -fx-font-weight: bold;" text="HOME">
                     <cursor>
                         <Cursor fx:constant="HAND" />
                     </cursor>
                 </Button>
-                <Button fx:id="productsBtn" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #1c1c1c;" text="LISTE DE PRODUITS" onAction="#handleProductsButton">
+                <Button fx:id="productsBtn" mnemonicParsing="false" onAction="#handleProductsButton" style="-fx-background-color: transparent; -fx-text-fill: #1c1c1c;" text="LISTE DE PRODUITS">
                     <cursor>
                         <Cursor fx:constant="HAND" />
                     </cursor>
                 </Button>
                 <MenuButton fx:id="pagesBtn" style="-fx-background-color: transparent; -fx-text-fill: #1c1c1c;" text="PAGES">
                     <items>
-                        <MenuItem fx:id="addProductMenuItem" text="Ajouter produit" onAction="#loadAddProductView" />
-                        <MenuItem fx:id="workshopMenuItem" text="Workshop" onAction="#loadWorkshopView" />                    </items>
+                        <MenuItem fx:id="workshopMenuItem" text="Workshop" onAction="#loadWorkshopView" />
+                        <MenuItem fx:id="addProductMenuItem" onAction="#loadAddProductView" text="Ajouter produit" />
+                    </items>
+                  
                     <cursor>
                         <Cursor fx:constant="HAND" />
                     </cursor>
                 </MenuButton>
-                <Button fx:id="blogBtn" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #1c1c1c;" text="BLOG" onAction="#handleBlogButton">
+                <Button fx:id="blogBtn" mnemonicParsing="false" onAction="#handleBlogButton" style="-fx-background-color: transparent; -fx-text-fill: #1c1c1c;" text="BLOG">
                     <cursor>
                         <Cursor fx:constant="HAND" />
                     </cursor>
@@ -68,10 +69,10 @@
                 </Button>
             </HBox>
 
-            <HBox alignment="CENTER_RIGHT" spacing="15" style="-fx-padding: 0 20;">
+            <HBox alignment="CENTER_RIGHT" spacing="15" style="-fx-padding: 0 20;" translateX="-15.0">
                 <!-- Icône Coeur/Favoris -->
                 <StackPane>
-                    <Button fx:id="favoriteIconButton" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 5px;" onAction="#handleFavoritesButton">
+                    <Button fx:id="favoriteIconButton" onAction="#handleFavoritesButton" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 5px;">
                         <graphic>
                             <ImageView fitHeight="20.0" fitWidth="20.0">
                                 <Image url="@icons/heart.png" />
@@ -86,7 +87,7 @@
 
                 <!-- Icône Panier -->
                 <StackPane>
-                    <Button fx:id="cartIconButton" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 5px;" onAction="#handleCartButton">
+                    <Button fx:id="cartIconButton" onAction="#handleCartButton" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 5px;">
                         <graphic>
                             <ImageView fitHeight="20.0" fitWidth="20.0">
                                 <Image url="@icons/cart.png" />
@@ -100,7 +101,7 @@
                 </StackPane>
 
                 <!-- Icône Facture -->
-                <Button fx:id="invoiceIconButton" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 5px;" onAction="#handleInvoiceClick">
+                <Button fx:id="invoiceIconButton" onAction="#handleInvoiceClick" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 5px;">
                     <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0">
                             <Image url="@icons/invoice.png" />
@@ -115,7 +116,7 @@
 
             <!-- User Actions -->
             <HBox alignment="CENTER_RIGHT" spacing="20.0">
-                <MenuButton fx:id="userMenuBtn" style="-fx-background-color: transparent;">
+                <MenuButton fx:id="userMenuBtn" style="-fx-background-color: transparent;" text="User">
                     <graphic>
                         <ImageView fx:id="userImage" fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                             <image>
@@ -128,6 +129,9 @@
                         <SeparatorMenuItem />
                         <MenuItem fx:id="logoutMenuItem" text="Logout" />
                     </items>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
                 </MenuButton>
             </HBox>
         </children>

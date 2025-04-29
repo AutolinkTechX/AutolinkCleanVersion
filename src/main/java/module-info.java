@@ -21,13 +21,29 @@ module pidev {
     requires javafx.swing;
     requires twilio;
     requires stripe.java;
+  
+    requires itextpdf;        // pour io-7.2.5.jar
+
+    requires com.google.gson;
+
+
     requires jdk.jsobject;        // pour io-7.2.5.jar
+    requires javax.mail;
+    requires Java.WebSocket;        // pour io-7.2.5.jar
+    requires java.prefs;
+
+    requires webcam.capture;
+      
+    requires java.net.http;
+
+
 
     opens org.example.pidev to javafx.fxml;
     opens org.example.pidev.controllers to javafx.fxml;
     opens org.example.pidev.entities to javafx.base;
     opens org.example.pidev.utils to javafx.fxml;
     opens org.example.pidev.test to javafx.graphics;
+    opens org.example.pidev.services to javafx.fxml;
 
     exports org.example.pidev;
 }

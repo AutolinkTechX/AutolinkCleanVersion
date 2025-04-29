@@ -79,8 +79,6 @@ public class AddEntrepriseViewController implements Initializable {
             newEntreprise.setField(fieldField.getText());
             newEntreprise.setPassword(passwordField.getText());
             newEntreprise.setSupplier(supplierCheckBox.isSelected());
-            newEntreprise.setCreatedAt(LocalDateTime.now());
-            newEntreprise.setRoleId(3); // Assuming 3 is the role ID for entreprises
 
             // Save to database
             entrepriseService.ajouter(newEntreprise);

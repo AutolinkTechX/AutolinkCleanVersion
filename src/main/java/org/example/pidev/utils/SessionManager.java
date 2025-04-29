@@ -3,10 +3,13 @@ package org.example.pidev.utils;
 import org.example.pidev.entities.Entreprise;
 import org.example.pidev.entities.User;
 
+
 public class SessionManager {
     private static User currentUser;
     private static Entreprise currentEntreprise;
     private static String currentUserType; // "USER" or "ENTREPRISE"
+
+
 
     public static void setCurrentUser(User user) {
         currentUser = user;
@@ -36,5 +39,8 @@ public class SessionManager {
         currentUser = null;
         currentEntreprise = null;
         currentUserType = null;
+        
+        System.out.println("Session cleared successfully");
     }
+    
 }

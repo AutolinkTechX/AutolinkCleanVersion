@@ -1,0 +1,66 @@
+/* Style général du dialogue */
+.progress-dialog {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #dee2e6;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 20px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+}
+
+/* Style du header */
+.progress-dialog .header-panel {
+    -fx-background-color: #f8f9fa;
+    -fx-text-fill: #343a40;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* Style de la barre de progression */
+.progress-bar {
+    -fx-accent: #4CAF50;
+    -fx-background-color: #e9ecef;
+    -fx-background-insets: 0;
+    -fx-background-radius: 5px;
+    -fx-padding: 2px;
+}
+
+.progress-bar .track {
+    -fx-background-color: #e9ecef;
+    -fx-background-radius: 5px;
+}
+
+.progress-bar .bar {
+    -fx-background-color: linear-gradient(to right, #4CAF50, #8BC34A);
+    -fx-background-radius: 5px;
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);
+}
+
+/* Style du texte de statut */
+.progress-dialog .content.label {
+    -fx-text-fill: #6c757d;
+    -fx-font-size: 14px;
+    -fx-padding: 10px 0 0 0;
+}
+
+/* Style des boutons */
+.progress-dialog .button {
+    -fx-background-color: #6c757d;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-background-radius: 5px;
+    -fx-padding: 8px 16px;
+    -fx-cursor: hand;
+}
+
+.progress-dialog .button:hover {
+    -fx-background-color: #5a6268;
+}
+
+/* Style du conteneur principal */
+.progress-dialog .vbox {
+    -fx-spacing: 15px;
+    -fx-alignment: center;
+    -fx-padding: 20px;
+}

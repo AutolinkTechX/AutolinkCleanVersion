@@ -1,6 +1,7 @@
 package org.example.pidev.services;
 
 import org.example.pidev.entities.User;
+import org.example.pidev.utils.EmailUtil;
 import org.example.pidev.utils.MyDatabase;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -10,10 +11,22 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.mail.Session;
+import java.util.Properties;
+import javax.mail.Authenticator;
+import javax.mail.PasswordAuthentication;
+import java.util.UUID;
+import java.time.LocalDateTime;
+
+
 
 public class UserService implements IService<User> {
 
     private final Connection connection;
+    private final String smtpHostServer = "smtp.gmail.com";
+    private final String AutolinkEmail = "flappywharf@gmail.com";
+    private final String AutolinkPassword = "mctb jqmv quhy bpme";
+    
 
     public UserService() {
         this.connection = MyDatabase.getInstance().getMyConnection();
@@ -123,7 +136,7 @@ public class UserService implements IService<User> {
     public User authenticate(String email, String password) throws SQLException {
         String query = "SELECT u.*, r.name as role_name FROM user u " +
                       "JOIN role r ON u.role_id = r.id " +
-                      "WHERE u.email = ?";
+                      "WHERE u.email = ? AND u.is_verified = true";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, email);
 
@@ -148,9 +161,25 @@ public class UserService implements IService<User> {
                     return user;
                 }
             }
-            throw new IllegalArgumentException("Email or password incorrect");
+            if (emailExists(email) && !isUserVerified(email)) {
+                System.out.println(isUserVerified(email));
+                throw new IllegalArgumentException("Account not verified. Please check your email for verification link.");
+            } else {
+                System.out.println(isUserVerified(email));
+                throw new IllegalArgumentException("Email or password incorrect");
+            }
         }
     }
+
+    public boolean isUserVerified(String email) throws SQLException {
+        String query = "SELECT is_verified FROM user WHERE email = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() && rs.getBoolean("is_verified");
+        }
+    }
+
     public boolean emailExists(String email) throws SQLException {
         String query = "SELECT COUNT(*) FROM user WHERE email = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -163,9 +192,127 @@ public class UserService implements IService<User> {
         }
     }
 
+    public void sendAccountVerification(String email) throws SQLException {
+        String verificationToken = UUID.randomUUID().toString();
 
-    public void sendPasswordReset(String email){
-        System.out.println("Sending password reset email to: " + email);
+        String query = "UPDATE user SET verification_token = ? WHERE email = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, verificationToken);
+            stmt.setString(2, email);
+            stmt.executeUpdate();
+        }
+
+	    
+	    Properties props = System.getProperties();
+
+	    props.put("mail.smtp.host", smtpHostServer);
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+
+        Authenticator auth = new Authenticator() {
+			@Override
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(AutolinkEmail, AutolinkPassword);
+			}
+		};
+		Session session = Session.getInstance(props, auth);
+
+        String appLink = "Autolink://verify-account?token=" + verificationToken;
+
+        String htmlContent = "Click the link below to verify your account: " + appLink + "\n";
+		
+		EmailUtil.sendEmail(session, email,"Account verification", htmlContent);
+    }
+
+    public boolean verifyAccountToken(String token) throws SQLException {
+        // 1. First check if token exists and is not expired
+        String checkTokenQuery = "SELECT id FROM user WHERE verification_token = ? AND is_verified = false";
+        
+        // 2. Then update user verification status
+        String updateUserQuery = "UPDATE user SET is_verified = true WHERE id = ?";
+        try (PreparedStatement Stmt = connection.prepareStatement(checkTokenQuery)) {
+                Stmt.setString(1, token);
+                ResultSet rs = Stmt.executeQuery();
+                
+                if (rs.next()) {
+                    int userId = rs.getInt("id");
+                    // Update user verification status
+                    try (PreparedStatement userStmt = connection.prepareStatement(updateUserQuery)) {
+                        userStmt.setInt(1, userId);
+                        int updated = userStmt.executeUpdate();
+                        
+                        if (updated == 1) {
+                            connection.commit();
+                            return true;
+                        }
+                    }
+                }
+                connection.rollback();
+                return false;
+                
+            } catch (SQLException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(true);
+            }    
+    }
+
+    public void sendPasswordReset(String email) throws SQLException {
+        String resetToken = UUID.randomUUID().toString();
+        LocalDateTime expirationTime = LocalDateTime.now().plusHours(1);
+
+        String query = "UPDATE user SET reset_token = ?, reset_token_expires_at = ? WHERE email = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, resetToken);
+            stmt.setTimestamp(2, Timestamp.valueOf(expirationTime));
+            stmt.setString(3, email);
+            stmt.executeUpdate();
+        }
+
+	    
+	    Properties props = System.getProperties();
+
+	    props.put("mail.smtp.host", smtpHostServer);
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+
+        Authenticator auth = new Authenticator() {
+			@Override
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(AutolinkEmail, AutolinkPassword);
+			}
+		};
+		Session session = Session.getInstance(props, auth);
+
+        String appLink = "Autolink://reset-password?token=" + resetToken;
+        String webLink = "http://localhost:8080/reset-password?token=" + resetToken;
+
+        String htmlContent = "Click the link below to reset your password: " + appLink + "\n"
+            + "Or copy this link to your browser if the above doesn't work: " + webLink + "\n"
+            + "This link will expire in 1 hour.";
+		
+		EmailUtil.sendEmail(session, email,"Reset Password", htmlContent);
+    }
+
+    public boolean resetPassword(String token, String newPassword) throws SQLException {
+        if (token == null || token.isEmpty() || newPassword == null || newPassword.isEmpty()) {
+            throw new IllegalArgumentException("Token and new password cannot be null or empty");
+        }
+
+        String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+
+        String query = "UPDATE user SET password = ?, reset_token = NULL WHERE reset_token = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, hashedPassword);
+            stmt.setString(2, token);
+            
+            int rowsAffected = stmt.executeUpdate();
+
+            return rowsAffected == 1;
+        }
     }
 
     public String getRoleName(int roleId) throws SQLException {
@@ -284,7 +431,21 @@ public class UserService implements IService<User> {
     }
 
 
-
+    public User getUserByVerificationToken(String verificationToken) throws SQLException{
+        String req = "SELECT email, password FROM user WHERE verification_token=?";
+        try (PreparedStatement ps = connection.prepareStatement(req)) { // Remplacé cnx par connection
+            ps.setString(1, verificationToken);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    User user = new User();
+                    user.setEmail(rs.getString("email"));
+                    user.setPassword(rs.getString("password"));
+                    return user;
+                }
+            }
+        }
+        return null;
+    }
 
     public User getUserById(int id) throws SQLException {
         String req = "SELECT * FROM user WHERE id=?";
@@ -304,5 +465,96 @@ public class UserService implements IService<User> {
             }
         }
         return null;
+    }
+
+    public boolean updateUserProfile(User user) throws SQLException {
+        String sql = "UPDATE user SET name = ?, last_name = ?, phone = ?, email = ?, image_path = ? WHERE id = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, user.getName());
+            stmt.setString(2, user.getLastName());
+            stmt.setInt(3, user.getPhone());
+            stmt.setString(4, user.getEmail());
+            stmt.setString(5, user.getImage_path());
+            stmt.setInt(6, user.getId());
+            
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+    
+    public boolean updateUserPassword(User user) throws SQLException {
+        String sql = "UPDATE user SET password = ? WHERE id = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, user.getPassword());
+            stmt.setInt(2, user.getId());
+            
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
+    public boolean verifyPassword(User user, String password) {
+        // Compare hashed password with input
+        return BCrypt.checkpw(password, user.getPassword());
+    }
+    
+    public boolean changePassword(User user, String newPassword) {
+        // Update password in database
+        user.setPassword(BCrypt.hashpw(newPassword, BCrypt.gensalt()));
+        try {
+            return updateUserPassword(user);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    
+    public boolean createAccount(User user)  {
+        String sql = "INSERT INTO `user`(`name`, `last_name`, `phone`, `email`, `password`, `role_id`, `created_at`, `is_verified`, `image_path`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, user.getName());
+            stmt.setString(2, user.getLastName());
+            stmt.setInt(3, user.getPhone());
+            stmt.setString(4, user.getEmail());
+            // Encrypt the password using BCrypt
+            String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+            stmt.setString(5, hashedPassword);
+            stmt.setInt(6, 2);
+            stmt.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
+            stmt.setBoolean(8, false);
+            stmt.setString(9, user.getImage_path());
+
+            int rowsAffected = stmt.executeUpdate();
+            sendAccountVerification(user.getEmail());
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public List<User> getAllUsersWithProfilePhotos() {
+        List<User> users = new ArrayList<>();
+        String query = "SELECT u.email, u.password, u.image_path FROM User u WHERE u.image_path IS NOT NULL";
+        
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    User user = new User();
+                    user.setEmail(rs.getString("email"));
+                    user.setPassword(rs.getString("password"));
+                    user.setImage_path(rs.getString("image_path"));
+                    users.add(user);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Consider throwing a custom exception or returning empty list
+        }
+        return users;
     }
 }

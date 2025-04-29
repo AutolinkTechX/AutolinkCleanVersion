@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane fx:id="mainContainer" stylesheets="@styles/style.css"
+            xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            >
+
+    <children>
+        <!-- Left Pane (included via include tag) -->
+        <fx:include fx:id="leftPane" source="LeftPane.fxml" />
+
+        <!-- Right Pane (included via include tag) -->
+        <fx:include fx:id="rightPane" source="RightPane.fxml" AnchorPane.leftAnchor="400" />
+    </children>
+</AnchorPane>

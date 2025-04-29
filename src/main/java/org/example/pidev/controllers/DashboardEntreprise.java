@@ -62,14 +62,14 @@ public class DashboardEntreprise {
             }
         });
 
-       /* calendarBtn.setOnAction(event -> {
+        calendarBtn.setOnAction(event -> {
             try {
                 loadCalendrierInMainPane();
             } catch (IOException e) {
                 e.printStackTrace();
                 System.err.println("Erreur lors du chargement de la vue calendrier : " + e.getMessage());
             }
-        });*/
+        });
 
 
         // Autres initialisations au besoin...
@@ -133,10 +133,15 @@ public class DashboardEntreprise {
         }
     }
 
+    private void loadCalendrierInMainPane() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/calendrierE.fxml"));
+        Parent calendarView = loader.load();
+        mainBorderPane.setCenter(calendarView);
+    }
 
 
 
-   /* private void loadStatistiquesInMainPane() throws IOException {
+    /*private void loadStatistiquesInMainPane() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/StatistiquesView.fxml"));
         Parent statView = loader.load();
 
@@ -160,14 +165,10 @@ public class DashboardEntreprise {
                 region.setPrefHeight(newHeight.doubleValue());
             });
         }
-    }
-
-
-    private void loadCalendrierInMainPane() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/CalendrierView.fxml"));
-        Parent calendarView = loader.load();
-        mainBorderPane.setCenter(calendarView);
     }*/
+
+
+
 
 
 

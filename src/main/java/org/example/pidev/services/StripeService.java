@@ -1,3 +1,4 @@
+
 package org.example.pidev.services;
 
 import com.stripe.Stripe;
@@ -55,152 +56,6 @@ public class StripeService {
         return "succeeded".equals(paymentIntent.getStatus());
     }
 
-/*
-    public String createCheckoutSession(double amount) {
-        Stripe.apiKey = "sk_test_51QslvaCFuk7NYR1jhBdNcg2vX9jCRZIPayvJEzbafmfBlg7Sx0xtzrYZlvCttZQ9lFJ8O9DwY2mYTdAJ1eSL92ed00JV2J9vvp";
-
-        try {
-            // Validate amount
-            if (amount <= 0) {
-                throw new IllegalArgumentException("Amount must be greater than 0");
-            }
-
-            long unitAmount = (long) (amount * 100);
-            if (unitAmount < 50) { // Stripe minimum is typically 0.50 EUR
-                throw new IllegalArgumentException("Amount is too small");
-            }
-
-            SessionCreateParams params =
-                    SessionCreateParams.builder()
-                            .setMode(SessionCreateParams.Mode.PAYMENT)
-                            .setSuccessUrl("https://example.com/success")
-                            .setCancelUrl("https://example.com/cancel")
-                            .addLineItem(
-                                    SessionCreateParams.LineItem.builder()
-                                            .setQuantity(1L)
-                                            .setPriceData(
-                                                    SessionCreateParams.LineItem.PriceData.builder()
-                                                            .setCurrency("eur")
-                                                            .setUnitAmount(unitAmount)
-                                                            .setProductData(
-                                                                    SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                                                            .setName("Commande")
-                                                                            .build())
-                                                            .build())
-                                            .build())
-                            .build();
-
-            Session session = Session.create(params);
-            return session.getUrl();
-        } catch (StripeException e) {
-            // Log the full error for debugging
-            System.err.println("Stripe error: " + e.getMessage());
-            System.err.println("Stripe error type: " + e.getStripeError().getType());
-            throw new RuntimeException("Payment processing error", e);
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating checkout session", e);
-        }
-    }
-*/
-
-/*
-    public String createCheckoutSession(double amount) {
-        Stripe.apiKey = "sk_test_51QslvaCFuk7NYR1jhBdNcg2vX9jCRZIPayvJEzbafmfBlg7Sx0xtzrYZlvCttZQ9lFJ8O9DwY2mYTdAJ1eSL92ed00JV2J9vvp";
-
-        try {
-            // Validate amount
-            if (amount <= 0) {
-                throw new IllegalArgumentException("Amount must be greater than 0");
-            }
-
-            long unitAmount = (long) (amount * 100);
-            if (unitAmount < 50) { // Stripe minimum is typically 0.50 EUR
-                throw new IllegalArgumentException("Amount is too small");
-            }
-
-            SessionCreateParams params =
-                    SessionCreateParams.builder()
-                            .setMode(SessionCreateParams.Mode.PAYMENT)
-                            .setSuccessUrl("https://example.com/success")  //  These should be dynamic in a real application.
-                            .setCancelUrl("https://example.com/cancel")
-                            .addLineItem(
-                                    SessionCreateParams.LineItem.builder()
-                                            .setQuantity(1L)
-                                            .setPriceData(
-                                                    SessionCreateParams.LineItem.PriceData.builder()
-                                                            .setCurrency("eur")
-                                                            .setUnitAmount(unitAmount)
-                                                            .setProductData(
-                                                                    SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                                                            .setName("Commande")
-                                                                            .build())
-                                                            .build())
-                                            .build();
-
-            Session session = Session.create(params);
-
-            //  IMPORTANT:  Move the background processing after successful session creation.
-            // Submit the task to the executor service.
-            payement.completeOnlinePayment(); // Pass any needed data to the runnable
-            return session.getUrl(); // Return the URL before the background task starts.
-
-        } catch (StripeException e) {
-            // Log the full error for debugging
-            System.err.println("Stripe error: " + e.getMessage());
-            System.err.println("Stripe error type: " + e.getStripeError().getType());
-            throw new RuntimeException("Payment processing error", e);
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating checkout session", e);
-        }
-    }
-*/
-
-    /*
-    public String createCheckoutSession(double amount) {
-        Stripe.apiKey = "sk_test_51QslvaCFuk7NYR1jhBdNcg2vX9jCRZIPayvJEzbafmfBlg7Sx0xtzrYZlvCttZQ9lFJ8O9DwY2mYTdAJ1eSL92ed00JV2J9vvp";
-
-        try {
-            // Validate amount
-            if (amount <= 0) {
-                throw new IllegalArgumentException("Amount must be greater than 0");
-            }
-
-            long unitAmount = (long) (amount * 100);
-            if (unitAmount < 50) {
-                throw new IllegalArgumentException("Amount is too small");
-            }
-
-            // Utilisez des URLs factices car nous gérons le résultat localement
-            SessionCreateParams params =
-                    SessionCreateParams.builder()
-                            .setMode(SessionCreateParams.Mode.PAYMENT)
-                            .setSuccessUrl("https://yourdomain.com/success") // Peu importe, nous n'utiliserons pas cette URL
-                            .setCancelUrl("https://yourdomain.com/cancel")   // Peu importe, nous n'utiliserons pas cette URL
-                            .addLineItem(
-                                    SessionCreateParams.LineItem.builder()
-                                            .setQuantity(1L)
-                                            .setPriceData(
-                                                    SessionCreateParams.LineItem.PriceData.builder()
-                                                            .setCurrency("eur")
-                                                            .setUnitAmount(unitAmount)
-                                                            .setProductData(
-                                                                    SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                                                            .setName("Commande")
-                                                                            .build())
-                                                            .build())
-                                            .build())
-                            .build();
-
-            Session session = Session.create(params);
-            return session.getUrl();
-
-        } catch (StripeException e) {
-            System.err.println("Stripe error: " + e.getMessage());
-            throw new RuntimeException("Payment processing error", e);
-        }
-    }
-*/
-
     public String createCheckoutSession(double amount, String successUrl, String cancelUrl) {
         Stripe.apiKey = "sk_test_51QslvaCFuk7NYR1jhBdNcg2vX9jCRZIPayvJEzbafmfBlg7Sx0xtzrYZlvCttZQ9lFJ8O9DwY2mYTdAJ1eSL92ed00JV2J9vvp";
 
@@ -245,3 +100,4 @@ public class StripeService {
 
 
 }
+

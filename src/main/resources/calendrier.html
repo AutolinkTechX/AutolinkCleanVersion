@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8' />
+  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css' rel='stylesheet' />
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    #calendar {
+      max-width: 95%;
+      height: 100vh;
+      margin: 20px auto;
+    }
+    .fc-event {
+      cursor: pointer;
+      height: 25px !important;
+      margin: 2px 0 !important;
+    }
+    .fc-timegrid-event {
+      min-height: 25px !important;
+    }
+    .status-legend {
+      text-align: center;
+      margin: 10px 0;
+      padding: 10px;
+    }
+    .status-item {
+      display: inline-block;
+      margin: 0 10px;
+    }
+    .status-color {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      margin-right: 5px;
+      vertical-align: middle;
+      border-radius: 3px;
+    }
+    .tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      z-index: 10000;
+    }
+  </style>
+</head>
+<body>
+<div class="status-legend">
+  <div class="status-item">
+    <span class="status-color" style="background-color: #28a745;"></span>
+    <span>Validé</span>
+  </div>
+  <div class="status-item">
+    <span class="status-color" style="background-color: #dc3545;"></span>
+    <span>Refusé</span>
+  </div>
+  <div class="status-item">
+    <span class="status-color" style="background-color: #ffc107;"></span>
+    <span>En Attente</span>
+  </div>
+</div>
+<div id='calendar'></div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendar');
+
+    window.loadAccords = function(eventsData) {
+      const events = JSON.parse(eventsData);
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        views: {
+          dayGridMonth: { 
+            buttonText: 'Mois',
+            displayEventTime: false
+          },
+          timeGridWeek: { 
+            buttonText: 'Semaine',
+            slotMinTime: '08:00:00',
+            slotMaxTime: '20:00:00',
+            allDaySlot: false
+          },
+          timeGridDay: { 
+            buttonText: 'Jour',
+            slotMinTime: '08:00:00',
+            slotMaxTime: '20:00:00',
+            allDaySlot: false
+          }
+        },
+        slotDuration: '01:00:00',
+        events: events,
+        eventDidMount: function(info) {
+          const tooltip = document.createElement('div');
+          tooltip.className = 'tooltip';
+          tooltip.innerHTML = `
+            <strong>${info.event.title}</strong>
+          `;
+          
+          info.el.addEventListener('mouseover', function() {
+            document.body.appendChild(tooltip);
+            const rect = info.el.getBoundingClientRect();
+            tooltip.style.top = rect.bottom + 5 + 'px';
+            tooltip.style.left = rect.left + 'px';
+          });
+          
+          info.el.addEventListener('mouseout', function() {
+            if (tooltip.parentNode) {
+              tooltip.parentNode.removeChild(tooltip);
+            }
+          });
+        }
+      });
+      calendar.render();
+    };
+  });
+</script>
+</body>
+</html>

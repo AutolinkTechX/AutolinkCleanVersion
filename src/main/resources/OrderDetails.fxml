@@ -5,25 +5,34 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox xmlns="http://javafx.com/javafx/17.0.2" xmlns:fx="http://javafx.com/fxml/1"
+<VBox styleClass="details-dialog" xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.pidev.controllers.OrderDetailsController"
-      stylesheets="@styles/Orders/Orders.css" prefWidth="400">
+      stylesheets="@styles/Orders/Details.css" prefWidth="400">
 
-    <Label fx:id="orderIdLabel" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
-    <Label fx:id="clientNameLabel" style="-fx-font-size: 16;"/>
-    <Label fx:id="dateLabel" style="-fx-font-size: 16;"/>
-    <Label fx:id="paymentLabel" style="-fx-font-size: 16;"/>
+    <VBox styleClass="details-header">
+        <Label fx:id="orderIdLabel" styleClass="details-title"/>
+    </VBox>
 
-    <Separator/>
+    <VBox styleClass="details-content">
+        <VBox styleClass="details-section">
+            <Label fx:id="clientNameLabel" styleClass="details-value"/>
+            <Label fx:id="dateLabel" styleClass="details-value"/>
+            <Label fx:id="paymentLabel" styleClass="details-value"/>
+        </VBox>
 
-    <Label text="Articles:" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
-    <VBox fx:id="articlesContainer" spacing="5" style="-fx-padding: 0 0 0 20;"/>
+        <Separator styleClass="details-separator"/>
 
-    <Separator/>
+        <Label text="Articles:" styleClass="details-label" style="-fx-font-weight: bold;"/>
+        <VBox fx:id="articlesContainer" styleClass="articles-container"/>
 
-    <Label fx:id="totalLabel" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+        <Separator styleClass="details-separator"/>
 
-    <HBox alignment="CENTER_RIGHT" style="-fx-padding: 20 0 0 0;">
-        <Button text="Close" onAction="#handleClose" style="-fx-background-color: #ca8a62; -fx-text-fill: white;"/>
-    </HBox>
+        <VBox styleClass="total-section">
+            <Label fx:id="totalLabel" styleClass="total-label"/>
+        </VBox>
+
+        <HBox styleClass="button-container">
+            <Button text="Close" onAction="#handleClose" styleClass="close-button"/>
+        </HBox>
+    </VBox>
 </VBox>

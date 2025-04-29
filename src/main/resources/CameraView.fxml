@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane fx:id="cameraPane" prefHeight="600" prefWidth="500" styleClass="login-right-pane" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controllers.CameraViewController">
+    <VBox alignment="CENTER" layoutX="100.0" layoutY="150" prefHeight="333.0" prefWidth="366.0" spacing="20">
+        
+        <ImageView fx:id="cameraImageView" fitHeight="300" fitWidth="300" preserveRatio="true" />
+        
+        <HBox alignment="CENTER" spacing="20">
+            <Button fx:id="captureButton" onAction="#capturePhoto" styleClass="login-button" text="Take Photo" />
+            <Button fx:id="confirmPhotoButton" onAction="#confirmPhoto" styleClass="login-button" text="Confirm" visible="true" />
+        </HBox>
+    </VBox>
+   <ImageView fx:id="backButton" fitHeight="44.0" fitWidth="52.0" layoutX="25.0" layoutY="28.0" onMouseClicked="#handleBackButton" pickOnBounds="true" preserveRatio="true">
+      <image>
+         <Image url="@icons/back-button.png" />
+      </image>
+      <cursor>
+         <Cursor fx:constant="HAND" />
+      </cursor>
+   </ImageView>
+</AnchorPane>
