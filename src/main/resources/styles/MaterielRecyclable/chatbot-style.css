@@ -1,45 +1,75 @@
-.message-bubble {
-    -fx-background-radius: 20px;
-    -fx-padding: 15px 20px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 6, 0, 0, 2);
-    -fx-font-size: 14px;
-    -fx-font-family: 'Segoe UI';
-    -fx-line-spacing: 2px;
-}
-
-.user-message {
-    -fx-background-color: #b5602c;
-    -fx-text-fill: white;
-    -fx-border-color: #9d5225;
-    -fx-border-width: 1px;
-    -fx-border-radius: 20px;
-}
-
+/* Messages du bot */
 .assistant-message {
-    -fx-background-color: #ffffff;
+    -fx-background-color: #f5f5f5;
     -fx-text-fill: #2d2d2d;
     -fx-border-color: #eceef0;
     -fx-border-width: 1.5px;
     -fx-border-radius: 20px;
-}
-
-.typing-indicator {
-    -fx-padding: 15px 20px;
-    -fx-spacing: 8px;
-    -fx-background-color: #f8f9fa;
     -fx-background-radius: 20px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 3);
+    -fx-padding: 15px 20px;
 }
 
-.typing-dot {
-    -fx-fill: #b5602c;
-    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);
-    -fx-animation: bounce 1.4s infinite cubic-bezier(0.4, 0, 0.6, 1);
+/* Messages utilisateur */
+.user-message {
+    -fx-background-color: #b5602c; /* Maroon color for user messages */
+    -fx-text-fill: #9d5225; /* White text color */
+    -fx-border-color: #9d5225;
+    -fx-border-width: 1px;
+    -fx-border-radius: 20px;
+    /*-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 3);*/
 }
 
-@keyframes bounce {
-    0%, 80%, 100% { -fx-translate-y: 0; }
-    40% { -fx-translate-y: -8px; }
+/* En-tête amélioré */
+.chat-header {
+    -fx-background-color: linear-gradient(to right, #b5602c 0%, #9d5225 100%);
+    -fx-border-radius: 15px 15px 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0.6, 0, -1);
 }
+
+/* Positionnement du popup */
+#chatbotPane {
+    -fx-translate-x: 10px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 12, 0.24, 0, 0);
+}
+
+/* Animation d'entrée */
+@keyframes slide-in {
+    from { -fx-translate-x: 20px; -fx-opacity: 0; }
+    to { -fx-translate-x: 0; -fx-opacity: 1; }
+}
+
+.message-bubble {
+    -fx-background-color: #f5f5f5; /* Off-white color for message bubbles */
+    -fx-background-radius: 20px;
+    -fx-padding: 15px 20px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 3);
+    -fx-font-size: 14px;
+    -fx-font-family: 'Segoe UI';
+    -fx-line-spacing: 2px;
+    -fx-border-radius: 15px;
+}
+
+#messageContainer {
+    -fx-background-color: #f8f9fa;
+    -fx-border-radius: 15px;
+    -fx-padding: 20px;
+}
+
+#messageContainer:focused {
+    -fx-background-color: #f8f9fa; /* Ensure the background remains gray when focused */
+}
+
+#scrollPane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+#scrollPane:focused {
+    -fx-background-color: transparent; /* Ensure the background remains white when focused */
+}
+
+
 
 /* Effets au survol */
 .button:hover {
@@ -50,34 +80,4 @@
 .text-field:focused {
     -fx-border-color: #b5602c !important;
     -fx-border-width: 1.5px !important;
-}
-
-/* Animation d'entrée des messages */
-@keyframes message-pop {
-    0% { -fx-opacity: 0; -fx-translate-y: 10px; }
-    100% { -fx-opacity: 1; -fx-translate-y: 0; }
-}
-
-.message-bubble {
-    -fx-animation: message-pop 0.3s ease-out;
-}
-
-/* Style premium pour la scrollbar */
-.scroll-bar:vertical {
-    -fx-background-color: transparent;
-}
-
-.scroll-bar:vertical .track {
-    -fx-background-color: #f0f0f0;
-    -fx-border-color: transparent;
-    -fx-background-radius: 2px;
-}
-
-.scroll-bar:vertical .thumb {
-    -fx-background-color: #d1d1d1;
-    -fx-background-radius: 2px;
-}
-
-.scroll-bar:vertical .thumb:hover {
-    -fx-background-color: #b5602c;
 }
