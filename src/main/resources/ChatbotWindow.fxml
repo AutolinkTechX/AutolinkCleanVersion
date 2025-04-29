@@ -37,18 +37,14 @@
           style="-fx-padding: 20px;
                  -fx-background-color: white;
                  -fx-border-color: #e9ecef;
-                 -fx-border-width: 1px 0 0 0;"
+                 -fx-border-width: 1px 0 0 0; -fx-border-radius: 17px;"
           VBox.vgrow="NEVER">
         <TextField fx:id="userInput"
                    promptText="Écrivez votre message..."
+                   styleClass="text-field"
                    HBox.hgrow="ALWAYS"
-                   style="-fx-background-radius: 25;
-                          -fx-border-radius: 25;
-                          -fx-border-color: #e9ecef;
-                          -fx-border-width: 1.5px;
-                          -fx-padding: 12px 20px;
-                          -fx-font-size: 14px;
-                          -fx-focus-color: #b5602c;"/>
+                   style="-fx-border-color: #b5602c;
+                  -fx-border-width: 1.5px; -fx-border-radius: 12px;"/>
 
         <Button text="➤"
                 onAction="#handleSend"
