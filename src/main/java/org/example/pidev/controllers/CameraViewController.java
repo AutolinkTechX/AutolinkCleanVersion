@@ -130,10 +130,9 @@ public class CameraViewController {
             boolean success = userService.createAccount(userData);
             if(success){
                 stopCamera();
-                handleBackButton(null);
                 try {
                     // Close current login window
-                    Stage currentStage = (Stage) confirmPhotoButton.getScene().getWindow();
+                    Stage currentStage = (Stage) backButton.getScene().getWindow();
                     currentStage.close();
         
                     // Load SignUp view

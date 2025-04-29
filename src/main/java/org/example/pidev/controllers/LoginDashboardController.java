@@ -249,10 +249,16 @@ public class LoginDashboardController {
                     }
 
                 } catch (IllegalArgumentException e2) {
-                    // Both authentications failed
-                    emailErrorLabel.setVisible(false);
-                    passwordErrorLabel.setText("Incorrect email or password");
-                    passwordErrorLabel.setVisible(true);
+                    if(userService.emailExists(email) && !userService.isUserVerified(email)){
+                        emailErrorLabel.setVisible(false);
+                        passwordErrorLabel.setText("Account not verified. Please check your email for verification link.");
+                        passwordErrorLabel.setVisible(true);
+                    }
+                    else{
+                        emailErrorLabel.setVisible(false);
+                        passwordErrorLabel.setText("Incorrect email or password");
+                        passwordErrorLabel.setVisible(true);
+                    }
                 }
             }
         } catch (SQLException e) {

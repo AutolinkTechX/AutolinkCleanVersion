@@ -50,7 +50,7 @@
                     <PasswordField fx:id="confirmPasswordField" prefWidth="358.0" promptText="Confirm Password" styleClass="login-field" translateX="32.5" />
                 </HBox>
                 <Label fx:id="confirmPasswordErrorLabel" styleClass="error-label" text="" visible="false" />
-            <TextField fx:id="phoneField" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="358.0" promptText="Phone" styleClass="login-field" translateX="29.0" />
+            <TextField fx:id="phoneField" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="358.0" promptText="Phone" styleClass="login-field" />
             <Label fx:id="phoneErrorLabel" />
 
                 <Button fx:id="nextButton" onAction="#handleNextButton" prefHeight="40" prefWidth="300" styleClass="login-button" text="Next &gt;" translateY="15.0">
