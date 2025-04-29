@@ -37,7 +37,7 @@ public class MainFX extends Application {
         }
     }
 
-    private boolean handleDeepLinks(Stage stage) {
+    private boolean handleDeepLinks(Stage stage) throws IOException {
         if (savedArgs == null || savedArgs.length == 0) {
             return false;
         }
@@ -71,10 +71,49 @@ public class MainFX extends Application {
                 stage.show();
                 return true;
             }
+            else if (uriString.startsWith("autolink://verify-account")) {
+                URI uri = new URI(uriString);
+                String query = uri.getQuery();
+                Map<String, String> params = new HashMap<>();
+                
+                if (query != null) {
+                    for (String pair : query.split("&")) {
+                        int idx = pair.indexOf("=");
+                        params.put(pair.substring(0, idx), pair.substring(idx + 1));
+                    }
+                }
+
+                String token = params.get("token");
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/AccountVerified.fxml"));
+                Parent root = loader.load();
+                
+                Object controller = loader.getController();
+                if (controller instanceof TokenReceiver) {
+                    ((TokenReceiver) controller).setToken(token);
+                }
+                
+                stage.setTitle("Account Verified");
+                stage.setScene(new Scene(root));
+                stage.setResizable(false);
+                stage.show();
+                return true;
+            }
         } catch (Exception e) {
+            showErrorPage(stage);
             System.err.println("Error handling deep link: " + e.getMessage());
         }
         return false;
+    }
+
+
+    private void showErrorPage(Stage stage) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ErrorPage.fxml"));
+        Parent root = loader.load();
+        
+        stage.setTitle("Error");
+        stage.setScene(new Scene(root));
+        stage.setResizable(false);
+        stage.show();
     }
 
     private void loadLoginPage(Stage primaryStage) throws IOException {

@@ -1,0 +1,32 @@
+.root {
+    -fx-background-color: #f8f9fa;
+    -fx-padding: 20;
+}
+
+.error-title {
+    -fx-text-fill: #dc3545;
+    -fx-font-weight: bold;
+}
+
+.error-message {
+    -fx-text-fill: #6c757d;
+    -fx-font-size: 14px;
+    -fx-padding: 0 20px;
+}
+
+.action-button {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+}
+
+.action-button:hover {
+    -fx-background-color: #0069d9;
+}
+
+#errorMessageLabel {
+    -fx-font-size: 16px;
+    -fx-text-fill: #343a40;
+}

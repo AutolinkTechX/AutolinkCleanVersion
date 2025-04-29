@@ -136,7 +136,7 @@ public class UserService implements IService<User> {
     public User authenticate(String email, String password) throws SQLException {
         String query = "SELECT u.*, r.name as role_name FROM user u " +
                       "JOIN role r ON u.role_id = r.id " +
-                      "WHERE u.email = ?";
+                      "WHERE u.email = ? AND u.is_verified = true";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, email);
 
@@ -161,9 +161,25 @@ public class UserService implements IService<User> {
                     return user;
                 }
             }
-            throw new IllegalArgumentException("Email or password incorrect");
+            if (emailExists(email) && !isUserVerified(email)) {
+                System.out.println(isUserVerified(email));
+                throw new IllegalArgumentException("Account not verified. Please check your email for verification link.");
+            } else {
+                System.out.println(isUserVerified(email));
+                throw new IllegalArgumentException("Email or password incorrect");
+            }
         }
     }
+
+    public boolean isUserVerified(String email) throws SQLException {
+        String query = "SELECT is_verified FROM user WHERE email = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() && rs.getBoolean("is_verified");
+        }
+    }
+
     public boolean emailExists(String email) throws SQLException {
         String query = "SELECT COUNT(*) FROM user WHERE email = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -176,6 +192,72 @@ public class UserService implements IService<User> {
         }
     }
 
+    public void sendAccountVerification(String email) throws SQLException {
+        String verificationToken = UUID.randomUUID().toString();
+
+        String query = "UPDATE user SET verification_token = ? WHERE email = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, verificationToken);
+            stmt.setString(2, email);
+            stmt.executeUpdate();
+        }
+
+	    
+	    Properties props = System.getProperties();
+
+	    props.put("mail.smtp.host", smtpHostServer);
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+
+        Authenticator auth = new Authenticator() {
+			@Override
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(AutolinkEmail, AutolinkPassword);
+			}
+		};
+		Session session = Session.getInstance(props, auth);
+
+        String appLink = "Autolink://verify-account?token=" + verificationToken;
+
+        String htmlContent = "Click the link below to verify your account: " + appLink + "\n";
+		
+		EmailUtil.sendEmail(session, email,"Account verification", htmlContent);
+    }
+
+    public boolean verifyAccountToken(String token) throws SQLException {
+        // 1. First check if token exists and is not expired
+        String checkTokenQuery = "SELECT id FROM user WHERE verification_token = ? AND is_verified = false";
+        
+        // 2. Then update user verification status
+        String updateUserQuery = "UPDATE user SET is_verified = true WHERE id = ?";
+        try (PreparedStatement Stmt = connection.prepareStatement(checkTokenQuery)) {
+                Stmt.setString(1, token);
+                ResultSet rs = Stmt.executeQuery();
+                
+                if (rs.next()) {
+                    int userId = rs.getInt("id");
+                    // Update user verification status
+                    try (PreparedStatement userStmt = connection.prepareStatement(updateUserQuery)) {
+                        userStmt.setInt(1, userId);
+                        int updated = userStmt.executeUpdate();
+                        
+                        if (updated == 1) {
+                            connection.commit();
+                            return true;
+                        }
+                    }
+                }
+                connection.rollback();
+                return false;
+                
+            } catch (SQLException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(true);
+            }    
+    }
 
     public void sendPasswordReset(String email) throws SQLException {
         String resetToken = UUID.randomUUID().toString();
@@ -349,7 +431,21 @@ public class UserService implements IService<User> {
     }
 
 
-
+    public User getUserByVerificationToken(String verificationToken) throws SQLException{
+        String req = "SELECT email, password FROM user WHERE verification_token=?";
+        try (PreparedStatement ps = connection.prepareStatement(req)) { // Remplacé cnx par connection
+            ps.setString(1, verificationToken);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    User user = new User();
+                    user.setEmail(rs.getString("email"));
+                    user.setPassword(rs.getString("password"));
+                    return user;
+                }
+            }
+        }
+        return null;
+    }
 
     public User getUserById(int id) throws SQLException {
         String req = "SELECT * FROM user WHERE id=?";
@@ -428,10 +524,11 @@ public class UserService implements IService<User> {
             stmt.setString(5, hashedPassword);
             stmt.setInt(6, 2);
             stmt.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
-            stmt.setBoolean(8, true);
+            stmt.setBoolean(8, false);
             stmt.setString(9, user.getImage_path());
 
             int rowsAffected = stmt.executeUpdate();
+            sendAccountVerification(user.getEmail());
             return rowsAffected > 0;
 
         } catch (SQLException e) {
