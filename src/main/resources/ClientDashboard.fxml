@@ -44,9 +44,10 @@
                 </Button>
                 <MenuButton fx:id="pagesBtn" style="-fx-background-color: transparent; -fx-text-fill: #1c1c1c;" text="PAGES">
                     <items>
+                        <MenuItem fx:id="workshopMenuItem" text="Workshop" onAction="#loadWorkshopView" />
                         <MenuItem fx:id="addProductMenuItem" onAction="#loadAddProductView" text="Ajouter produit" />
-                        <MenuItem fx:id="workshopMenuItem" text="Workshop" />
                     </items>
+                  
                     <cursor>
                         <Cursor fx:constant="HAND" />
                     </cursor>

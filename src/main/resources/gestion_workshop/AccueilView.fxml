@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+<VBox xmlns="http://javafx.com/javafx/8.0.171"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.pidev.controllers.AccueilController"
+      spacing="20" alignment="CENTER"
+      stylesheets="@styles.css"
+      styleClass="root-container">
+
+    <padding>
+        <Insets top="50" right="50" bottom="50" left="50"/>
+    </padding>
+
+    <Text text="Bienvenue au système de gestion des workshops"
+          styleClass="title"/>
+
+    <HBox spacing="30" alignment="CENTER">
+        <Button fx:id="adminButton" text="Administrateur"
+                styleClass="button-blue" onAction="#handleAdmin">
+            <graphic>
+                <ImageView fitHeight="24" fitWidth="24">
+                    <Image url="@../images/admin-icon.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+
+        <Button fx:id="clientButton" text="Client"
+                styleClass="button-green" onAction="#handleClient">
+            <graphic>
+                <ImageView fitHeight="24" fitWidth="24">
+                    <Image url="@../images/client-icon.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
+    </HBox>
+
+</VBox>

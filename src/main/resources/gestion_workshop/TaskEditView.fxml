@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+
+<VBox xmlns="http://javafx.com/javafx/8.0.171"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.pidev.controllers.TaskEditController"
+      spacing="20"
+      styleClass="edit-container"
+      stylesheets="@styles.css">
+
+    <padding>
+        <Insets top="25" right="25" bottom="25" left="25"/>
+    </padding>
+
+    <!-- En-tête avec un design simple et couleur #b5602c -->
+    <HBox alignment="CENTER" spacing="15">
+        <Text text="Modifier une tâche" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-fill: #b5602c;">
+            <font>
+                <Font name="System Bold" size="32"/>
+            </font>
+        </Text>
+    </HBox>
+
+    <!-- Contenu avec des champs de formulaire bien stylisés -->
+    <GridPane hgap="20" vgap="20" styleClass="edit-content">
+        <effect>
+            <DropShadow offsetX="3" offsetY="3" color="rgba(0,0,0,0.1)"/>
+        </effect>
+
+        <Label text="Nom:" style="-fx-font-size: 14px; -fx-text-fill: #333;" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="nameField" style="-fx-padding: 10px; -fx-font-size: 14px; -fx-background-color: #f9f9f9; -fx-border-color: #ccc; -fx-border-radius: 5px;" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Description:" style="-fx-font-size: 14px; -fx-text-fill: #333;" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextArea fx:id="descriptionField" style="-fx-padding: 10px; -fx-font-size: 14px; -fx-background-color: #f9f9f9; -fx-border-color: #ccc; -fx-border-radius: 5px;" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Date début:" style="-fx-font-size: 14px; -fx-text-fill: #333;" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <DatePicker fx:id="startDateField" style="-fx-font-size: 14px; -fx-background-color: #f9f9f9; -fx-border-color: #ccc; -fx-border-radius: 5px;" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Date fin:" style="-fx-font-size: 14px; -fx-text-fill: #333;" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <DatePicker fx:id="endDateField" style="-fx-font-size: 14px; -fx-background-color: #f9f9f9; -fx-border-color: #ccc; -fx-border-radius: 5px;" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Statut:" style="-fx-font-size: 14px; -fx-text-fill: #333;" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="statusComboBox" style="-fx-font-size: 14px; -fx-background-color: #f9f9f9; -fx-border-color: #ccc; -fx-border-radius: 5px;" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <!-- Boutons avec couleurs #b5602c, #f48331, #8c451a et effets hover -->
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="Enregistrer" onAction="#handleSave" style="-fx-background-color: #b5602c; -fx-text-fill: white; -fx-font-size: 14px; -fx-border-radius: 8px; -fx-padding: 10px 20px;">
+            <effect>
+                <DropShadow offsetX="2" offsetY="2" color="rgba(33,150,243,0.3)"/>
+            </effect>
+        </Button>
+        <Button text="Supprimer" onAction="#handleDelete" style="-fx-background-color: #f48331; -fx-text-fill: white; -fx-font-size: 14px; -fx-border-radius: 8px; -fx-padding: 10px 20px;">
+            <effect>
+                <DropShadow offsetX="2" offsetY="2" color="rgba(244,67,54,0.3)"/>
+            </effect>
+        </Button>
+        <Button text="Annuler" onAction="#handleCancel" style="-fx-background-color: #8c451a; -fx-text-fill: white; -fx-font-size: 14px; -fx-border-radius: 8px; -fx-padding: 10px 20px;">
+            <effect>
+                <DropShadow offsetX="2" offsetY="2" color="rgba(108,117,125,0.3)"/>
+            </effect>
+        </Button>
+    </HBox>
+
+</VBox>

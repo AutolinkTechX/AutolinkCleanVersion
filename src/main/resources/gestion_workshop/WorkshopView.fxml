@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.shape.Rectangle?>
+
+<VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.pidev.controllers.WorkshopController" spacing="20" alignment="CENTER"
+      style="-fx-background-color: #ffffff;">
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+
+    <!-- Header Section -->
+    <VBox spacing="10" alignment="CENTER">
+        <ImageView fitHeight="80" fitWidth="80" preserveRatio="true">
+            <image>
+                <Image url="@../images/workshop-icon.png"/>
+            </image>
+        </ImageView>
+        <Text text="Gestion des Workshops" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-fill: #333333;"/>
+    </VBox>
+
+    <!-- Scrollable Form Content -->
+    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+        <content>
+            <VBox spacing="20" alignment="CENTER">
+                <!-- Form Container with Border -->
+                <VBox style="-fx-background-color: #f9f9f9; -fx-border-color: #e0e0e0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                    <GridPane hgap="15" vgap="15" alignment="CENTER">
+                        <columnConstraints>
+                            <ColumnConstraints halignment="RIGHT" minWidth="120" prefWidth="120"/>
+                            <ColumnConstraints halignment="LEFT" minWidth="250" prefWidth="250"/>
+                        </columnConstraints>
+
+                        <!-- Name Field -->
+                        <Label text="Nom:" style="-fx-text-fill: #555555; -fx-font-size: 14px;" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <TextField fx:id="nameField" style="-fx-font-size: 14px;" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                        <!-- Description Field -->
+                        <Label text="Description:" style="-fx-text-fill: #555555; -fx-font-size: 14px;" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <TextArea fx:id="descriptionField" wrapText="true" style="-fx-font-size: 14px;" prefRowCount="3" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                        <!-- Date/Time Section -->
+                        <Label text="Date et heure:" style="-fx-text-fill: #555555; -fx-font-size: 14px;" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <HBox spacing="10" GridPane.rowIndex="2" GridPane.columnIndex="1">
+                            <DatePicker fx:id="startDatePicker" style="-fx-font-size: 14px;" promptText="Date début"/>
+                            <TextField fx:id="startTimeField" style="-fx-font-size: 14px;" promptText="HH:mm" prefWidth="80"/>
+                        </HBox>
+
+                        <Label text="à" style="-fx-text-fill: #555555; -fx-font-size: 14px;" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <HBox spacing="10" GridPane.rowIndex="3" GridPane.columnIndex="1">
+                            <DatePicker fx:id="endDatePicker" style="-fx-font-size: 14px;" promptText="Date fin"/>
+                            <TextField fx:id="endTimeField" style="-fx-font-size: 14px;" promptText="HH:mm" prefWidth="80"/>
+                        </HBox>
+
+                        <!-- Location Field -->
+                        <Label text="Lieu:" style="-fx-text-fill: #555555; -fx-font-size: 14px;" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                        <HBox spacing="10" alignment="CENTER_LEFT" GridPane.rowIndex="4" GridPane.columnIndex="1">
+                            <TextField fx:id="locationField" style="-fx-font-size: 14px;" disable="true" prefWidth="180"/>
+                            <Button fx:id="selectLocationButton" text="Choisir sur la carte" onAction="#handleSelectLocation"
+                                    style="-fx-background-color: #b5602c; -fx-text-fill: white; -fx-font-size: 13px; -fx-padding: 5 12; -fx-background-radius: 4;"/>
+                        </HBox>
+
+                        <!-- Image Field -->
+                        <Label text="Image:" style="-fx-text-fill: #555555; -fx-font-size: 14px;" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                        <HBox spacing="10" alignment="CENTER_LEFT" GridPane.rowIndex="5" GridPane.columnIndex="1">
+                            <TextField fx:id="imageField" style="-fx-font-size: 14px;" disable="true" prefWidth="180"/>
+                            <Button fx:id="browseImageButton" text="Parcourir" onAction="#handleBrowseImage"
+                                    style="-fx-background-color: #b5602c; -fx-text-fill: white; -fx-font-size: 13px; -fx-padding: 5 12; -fx-background-radius: 4;"/>
+                        </HBox>
+
+                        <!-- Image Preview -->
+                        <Label text="Aperçu:" style="-fx-text-fill: #555555; -fx-font-size: 14px;" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                        <StackPane GridPane.rowIndex="6" GridPane.columnIndex="1">
+                            <Rectangle width="200" height="150" arcWidth="5" arcHeight="5" fill="#eeeeee" stroke="#dddddd"/>
+                            <ImageView fx:id="imagePreview" fitHeight="150" fitWidth="200" preserveRatio="true"/>
+                        </StackPane>
+
+                        <!-- Price Field -->
+                        <Label text="Prix:" style="-fx-text-fill: #555555; -fx-font-size: 14px;" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                        <TextField fx:id="priceField" style="-fx-font-size: 14px;" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+                        <!-- Available Places Field -->
+                        <Label text="Places disponibles:" style="-fx-text-fill: #555555; -fx-font-size: 14px;" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+                        <TextField fx:id="availablePlacesField" style="-fx-font-size: 14px;" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+                    </GridPane>
+                </VBox>
+
+                <!-- Action Buttons -->
+                <HBox spacing="15" alignment="CENTER">
+                    <Button fx:id="addButton" text="Ajouter" onAction="#handleAddWorkshop"
+                            style="-fx-background-color: #b5602c; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8 20; -fx-background-radius: 4;">
+                        <graphic>
+                            <ImageView fitHeight="18" fitWidth="18" preserveRatio="true">
+                                <image>
+                                    <Image url="@../images/add-icon.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="listButton" text="Liste des Workshops" onAction="#handleShowWorkshopList"
+                            style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8 20; -fx-background-radius: 4;">
+                        <graphic>
+                            <ImageView fitHeight="18" fitWidth="18" preserveRatio="true">
+                                <image>
+                                    <Image url="@../images/list-icon.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+                    </Button>
+                </HBox>
+            </VBox>
+        </content>
+    </ScrollPane>
+</VBox>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.pidev.controllers.TaskListController"
+      spacing="20"
+      style="-fx-background-color: #f8f9fa; -fx-padding: 25;"
+      alignment="TOP_CENTER">
+
+    <!-- Header avec titre -->
+    <HBox alignment="CENTER" spacing="20" style="-fx-padding: 0 0 20 0;">
+        <Text text="Tâches du Workshop"
+              style="-fx-fill: #b5602c; -fx-font-size: 28px; -fx-font-weight: bold;">
+            <font>
+                <Font name="Segoe UI Semibold" size="28"/>
+            </font>
+        </Text>
+    </HBox>
+
+    <!-- Liste des tâches -->
+    <ListView fx:id="taskList"
+              style="-fx-background-color: transparent; -fx-padding: 0 10;"
+              fixedCellSize="180">
+        <placeholder>
+            <VBox alignment="CENTER" spacing="10">
+                <Label text="Aucune tâche à afficher pour ce workshop"
+                       style="-fx-text-fill: #666; -fx-font-size: 14px;"/>
+            </VBox>
+        </placeholder>
+    </ListView>
+
+    <!-- Boutons d'action - Seulement Retour et Supprimer -->
+    <HBox spacing="20" alignment="CENTER" style="-fx-padding: 20 0 0 0;">
+        <Button text="Retour" onAction="#handleBack"
+                style="-fx-background-color: #b5602c; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 8px; -fx-cursor: hand;"
+                prefWidth="120"/>
+
+        <Button text="Supprimer" onAction="#handleDelete" fx:id="deleteButton" disable="true"
+                style="-fx-background-color: #b5602c; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 8px; -fx-cursor: hand;"
+                prefWidth="120"/>
+    </HBox>
+</VBox>

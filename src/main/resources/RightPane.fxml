@@ -59,7 +59,7 @@
                     </VBox.margin>
                 </Button>
 
-                <Hyperlink fx:id="loginLink" styleClass="forgot-password" text="Already have an account? Login" translateY="15.0" />
+                <Hyperlink fx:id="loginLink" onAction="#handleLoginLink" styleClass="forgot-password" text="Already have an account? Login" translateY="15.0" />
 
                 <Label fx:id="errorLabel" styleClass="error-message" visible="false" />
             </children>
