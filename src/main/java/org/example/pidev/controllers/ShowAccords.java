@@ -6,6 +6,7 @@ import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import org.example.pidev.entities.Accord;
 import org.example.pidev.entities.Entreprise;
+import org.example.pidev.entities.User;
 import org.example.pidev.services.ServiceAccord;
 import org.example.pidev.services.ServiceMaterielRecyclable;
 import javafx.fxml.FXML;
@@ -30,7 +31,9 @@ import java.time.LocalDateTime;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.geometry.Pos;
+import org.example.pidev.utils.MailSender;
 import org.example.pidev.websocket.NotificationClient;
+import org.example.pidev.utils.WebSocketNotifier;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,7 +50,7 @@ import java.io.ObjectInputStream;
 import java.util.Map;
 import java.util.HashMap;
 
-public class ShowAccords implements Initializable {
+public class ShowAccords implements Initializable, WebSocketNotifier.ConnectionStatusListener {
 
     @FXML
     private FlowPane accordContainer;
@@ -148,9 +151,13 @@ public class ShowAccords implements Initializable {
         updateNotificationCount();
 
         notificationButton.setOnAction(e -> {
-            showNewAccordPopup();
-            updateNotificationCount();
-            saveSeenNotifications(); // Sauvegarder après avoir vu les notifications
+            if (!client.isConnected()) {
+                showAlert("Client not connected", "Popup will not be updated with notifications.");
+            } else {
+                showNewAccordPopup();
+                updateNotificationCount();
+                saveSeenNotifications(); // Sauvegarder après avoir vu les notifications
+            }
         });
 
         // Augmenter la taille de l'icône de notification
@@ -168,10 +175,39 @@ public class ShowAccords implements Initializable {
                 "-fx-min-height: 22;");    // Ajouté pour maintenir la forme circulaire
 
         notificationButton.setStyle("-fx-background-color: transparent; -fx-padding: 5;");
+
+        // Set the connection status listener
+        WebSocketNotifier.setConnectionStatusListener(this);
+
+        // Initialize WebSocket client
+        try {
+            client = new NotificationClient(new URI("ws://localhost:9092"), this);
+            client.connect();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onConnectionFailed() {
+        Platform.runLater(() -> {
+            // Handle the connection failure
+            notificationLabel.setVisible(false);
+            notificationIcon.setEffect(null);
+            notificationIcon.setStyle(null);
+            System.out.println("🔴 Connexion au serveur WebSocket échouée, notification ignorée.");
+        });
+    }
+
+    public void onConnectionSuccess() {
+        Platform.runLater(() -> {
+            // Handle the successful connection
+            updateNotificationCount();
+        });
     }
 
     private void updateNotificationCount() {
-        if (entreprise != null) {
+        if (entreprise != null && client.isConnected()) {
             List<Accord> recentAccords = accordService.getRecentAccordsByEntrepriseId(entreprise.getId());
             int unseenCount = 0;
 
@@ -207,6 +243,11 @@ public class ShowAccords implements Initializable {
     }
 
     private void showNewAccordPopup() {
+        if (!client.isConnected()) {
+            System.out.println("Client not connected, popup will not be updated with new notifications.");
+            return;
+        }
+
         Dialog<ButtonType> popup = new Dialog<>();
         popup.setTitle("Centre de notifications");
 
@@ -480,6 +521,7 @@ public class ShowAccords implements Initializable {
         String dateReception = accord.getDateReception() != null ?
                 accord.getDateReception().format(formatter) : "En attente de décision";
 
+
         // Création de l'image du matériel avec gestion d'erreur améliorée
         ImageView materielImageView = new ImageView();
         materielImageView.setFitWidth(140);
@@ -498,7 +540,7 @@ public class ShowAccords implements Initializable {
 
         // Création des labels pour afficher les informations
         Label materielLabel = new Label(accord.getMaterielRecyclable().getName());
-        materielLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #a05a2c;");
+        materielLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #a05a2c;");
 
         Label dateCreationLabel = new Label("Date de création : " + dateCreation);
         dateCreationLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #333;");
@@ -683,6 +725,9 @@ public class ShowAccords implements Initializable {
         }
     }
 
+
+
+
     private void showSuccess(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Succès");
@@ -742,7 +787,6 @@ public class ShowAccords implements Initializable {
         accordContainer.getChildren().clear(); // Vide le container avant d'ajouter
 
         for (Accord accord : accords) {
-            // Tu peux créer ici un card personnalisé (on peut faire ça aussi si tu veux)
             VBox card = createAccordCard(accord);
             accordContainer.getChildren().add(card);
         }
@@ -750,10 +794,10 @@ public class ShowAccords implements Initializable {
 
     public void updateNotification() {
         Platform.runLater(() -> {
-            if (entreprise != null) {
+            if (entreprise != null && client.isConnected()) {
                 // Récupérer les accords récents
                 List<Accord> recentAccords = accordService.getRecentAccordsByEntrepriseId(entreprise.getId());
-                
+
                 // Compter les nouveaux accords non vus
                 int newCount = 0;
                 for (Accord accord : recentAccords) {
@@ -761,30 +805,33 @@ public class ShowAccords implements Initializable {
                         newCount++;
                     }
                 }
-                
+
                 // Mettre à jour le compteur seulement s'il y a de nouveaux accords
                 if (newCount > 0) {
                     notificationCount = newCount;
                     notificationLabel.setText(String.valueOf(notificationCount));
                     notificationLabel.setVisible(true);
-                    
+
                     ColorAdjust colorAdjust = new ColorAdjust();
                     colorAdjust.setHue(0.7); // teinte rouge
                     colorAdjust.setSaturation(1);
                     notificationIcon.setEffect(colorAdjust);
-                    
+
                     // Jouer un son ou ajouter une animation si souhaité
                     // ...
                 }
+            } else {
+                System.out.println("Client not connected, accord will not be added to notifications.");
             }
         });
     }
 
-  /*  @FXML
-    private void handleNotificationClick() {
-        notificationBadge.setVisible(false); // Masque la notification
-        // Rediriger ou mettre en avant les nouveaux accords
-    }*/
-
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 
 }

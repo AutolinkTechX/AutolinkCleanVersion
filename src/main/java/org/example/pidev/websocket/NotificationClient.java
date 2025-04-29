@@ -23,6 +23,7 @@ public class NotificationClient extends WebSocketClient {
     @Override
     public void onOpen(ServerHandshake handshakedata) {
         System.out.println("Connected to WebSocket server");
+        controller.onConnectionSuccess();
 
         // Log avant l'envoi du message
         String message = "Hello from client";  // Exemple de message
@@ -36,19 +37,23 @@ public class NotificationClient extends WebSocketClient {
     @Override
     public void onMessage(String message) {
         System.out.println("Message reçu : " + message);
-
         controller.updateNotification(); // Appelle bien la méthode du contrôleur
-
     }
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
         System.out.println("Disconnected from WebSocket server");
+        controller.onConnectionFailed();
     }
 
     @Override
     public void onError(Exception ex) {
         ex.printStackTrace();
+        controller.onConnectionFailed();
+    }
+
+    public boolean isConnected() {
+        return this.isOpen();
     }
    /* public static void main(String[] args) throws URISyntaxException {
         WebSocketClient client = new NotificationClient(new URI("ws://localhost:9090"));
