@@ -536,4 +536,25 @@ public class UserService implements IService<User> {
             return false;
         }
     }
+
+    public List<User> getAllUsersWithProfilePhotos() {
+        List<User> users = new ArrayList<>();
+        String query = "SELECT u.email, u.password, u.image_path FROM User u WHERE u.image_path IS NOT NULL";
+        
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    User user = new User();
+                    user.setEmail(rs.getString("email"));
+                    user.setPassword(rs.getString("password"));
+                    user.setImage_path(rs.getString("image_path"));
+                    users.add(user);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Consider throwing a custom exception or returning empty list
+        }
+        return users;
+    }
 }

@@ -30,6 +30,7 @@
                         <Font size="24" />
                     </font>
                 </Label>
+            <ImageView fx:id="cameraField" fitHeight="150.0" fitWidth="200.0" layoutX="100.0" layoutY="403.0" pickOnBounds="true" preserveRatio="true" />
             </children>
         </AnchorPane>
 
