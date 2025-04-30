@@ -38,6 +38,7 @@ public class ProductForm {
     private AjoutArticleController parentController;
     private String imagePath;
 
+
     @FXML
     public void initialize() {
         configureFields();
