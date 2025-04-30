@@ -25,6 +25,7 @@ import org.example.pidev.services.ListeArticleService;
 import org.example.pidev.utils.AlertUtils;
 import org.example.pidev.utils.MyDatabase;
 import org.example.pidev.utils.SessionManager;
+import org.example.pidev.utils.TranslationService;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -32,6 +33,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -151,58 +153,6 @@ public class ListeArticle {
             AlertUtils.showErrorAlert("Erreur", "Erreur SQL", "Une erreur est survenue lors du filtrage.");
         }
     }
-
-/*
-    private void updateUserProfile(User user) {
-        if (userImageView == null) {
-            logger.warning("userImageView n'est pas initialisé dans le FXML");
-            return;
-        }
-
-        try {
-            // 1. Essayer de charger depuis le chemin d'image (String)
-            if (user.getImage_path() != null && !user.getImage_path().isEmpty()) {
-                try {
-                    // Solution 1: Charger comme ressource depuis le classpath
-                    InputStream imageStream = getClass().getResourceAsStream(user.getImage_path());
-                    if (imageStream != null) {
-                        userImageView.setImage(new Image(imageStream));
-                        return;
-                    }
-
-                    // Solution 2: Charger depuis le système de fichiers (chemin absolu)
-                    try {
-                        userImageView.setImage(new Image("file:" + user.getImage_path()));
-                        return;
-                    } catch (Exception e) {
-                        logger.log(Level.FINE, "Échec du chargement comme chemin absolu", e);
-                    }
-                } catch (Exception e) {
-                    logger.log(Level.WARNING, "Erreur de chargement de l'image depuis le chemin", e);
-                }
-            }
-
-            // 2. Charger une image par défaut
-            try {
-                InputStream defaultImageStream = getClass().getResourceAsStream("/images/logo.jpg");
-                if (defaultImageStream != null) {
-                    userImageView.setImage(new Image(defaultImageStream));
-                } else {
-                    logger.warning("Image par défaut non trouvée");
-                    userImageView.setImage(null);
-                }
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "Erreur de chargement de l'image par défaut", e);
-                userImageView.setImage(null);
-            }
-
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Erreur critique lors de la mise à jour du profil utilisateur", e);
-            userImageView.setImage(null);
-        }
-    }
-*/
-
 
     private void updateArticlesDisplay(List<Article> articles) {
         Platform.runLater(() -> {
@@ -399,20 +349,6 @@ public class ListeArticle {
         loadCategories();
         loadAllArticles();
     }
-/*
-    private void loadCategories() {
-        try {
-            if (categoryList != null) {
-                categoryList.getItems().setAll(articleService.getAllCategories());
-                categoryList.getSelectionModel().selectedItemProperty().addListener(
-                        (obs, oldVal, newVal) -> filterByCategory(newVal)
-                );
-            }
-        } catch (Exception e) {
-            AlertUtils.showErrorAlert("Erreur", "Chargement des catégories", e.getMessage());
-        }
-    }
-*/
 
     public void loadArticles() {
         loadAllArticles();
@@ -660,58 +596,384 @@ public class ListeArticle {
         }
     }
 
+    /*
     private Dialog<Void> createArticleDetailsDialog(Article article) {
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Détails de l'article");
-        dialog.setHeaderText(article.getNom());
-        dialog.getDialogPane().getButtonTypes().add(new ButtonType("Fermer", ButtonBar.ButtonData.CANCEL_CLOSE));
-        dialog.getDialogPane().setContent(createDetailsContent(article));
-        dialog.getDialogPane().setPrefSize(600, 350);
+
+        // Boutons
+        ButtonType translateButtonType = new ButtonType(TranslationService.translate("Traduire en anglais", "fr"),
+                ButtonBar.ButtonData.OTHER);
+        dialog.getDialogPane().getButtonTypes().addAll(
+                translateButtonType,
+                new ButtonType("Fermer", ButtonBar.ButtonData.CANCEL_CLOSE));
+
+        // Contenu initial (non traduit)
+        HBox content = createDetailsContent(article, false);
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().setPrefSize(600, 400); // Légèrement plus grand
+
+        // Gestion du bouton de traduction
+        Button translateButton = (Button) dialog.getDialogPane().lookupButton(translateButtonType);
+        AtomicBoolean isTranslated = new AtomicBoolean(false);
+
+        translateButton.addEventFilter(ActionEvent.ACTION, event -> {
+            boolean currentState = isTranslated.get();
+            isTranslated.set(!currentState);
+
+            // Mettre à jour le contenu
+            HBox newContent = createDetailsContent(article, !currentState);
+            dialog.getDialogPane().setContent(newContent);
+
+            // Mettre à jour le titre
+            dialog.setTitle(!currentState ?
+                    TranslationService.translate("Détails de l'article", "en") :
+                    "Détails de l'article");
+
+            // Mettre à jour le texte du bouton
+            translateButton.setText(!currentState ?
+                    TranslationService.translate("Voir original", "fr") :
+                    TranslationService.translate("Traduire en anglais", "fr"));
+
+            event.consume();
+        });
+
+        return dialog;
+    }
+    private HBox createDetailsContent(Article article, boolean isTranslated) {
+        try {
+            // Partie image (inchangée)
+            ImageView imageView = new ImageView();
+            try {
+                imageView.setImage(new Image(article.getImage(), true));
+            } catch (Exception e) {
+                try {
+                    imageView.setImage(new Image(getClass().getResourceAsStream("/images/logo.jpg")));
+                } catch (Exception ex) {
+                    logger.log(Level.WARNING, "Image par défaut non trouvée", ex);
+                }
+            }
+            imageView.setFitWidth(250);
+            imageView.setFitHeight(250);
+            imageView.setPreserveRatio(true);
+            imageView.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 0);");
+
+            StackPane imageContainer = new StackPane(imageView);
+            imageContainer.setPadding(new Insets(15));
+            imageContainer.setStyle("-fx-background-color: #f9f9f9; -fx-border-radius: 5;");
+
+            // Préparation des textes avec traduction
+            String categoryLabelText = isTranslated ? "Category" : "Catégorie";
+            String descriptionLabelText = isTranslated ? "Description" : "Description";
+            String priceLabelText = isTranslated ? "Price" : "Prix";
+            String stockLabelText = isTranslated ? "Available stock" : "Stock disponible";
+
+            // Création des labels avec les libellés traduits
+            Label categoryLabel = new Label();
+            categoryLabel.setText(String.format("%s: %s",
+                    categoryLabelText,
+                    isTranslated ? TranslationService.translate(article.getCategory(), "en") : article.getCategory()));
+            categoryLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #333;");
+
+            Label descriptionLabel = new Label();
+            descriptionLabel.setText(String.format("%s: %s",
+                    descriptionLabelText,
+                    isTranslated ? TranslationService.translate(article.getDescription(), "en") : article.getDescription()));
+            descriptionLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #333;");
+            descriptionLabel.setWrapText(true);
+            descriptionLabel.setMaxWidth(350);
+
+            Label priceLabel = new Label();
+            priceLabel.setText(String.format("%s: %.2f %s",
+                    priceLabelText,
+                    article.getPrix(),
+                    isTranslated ? "DT" : "DT"));
+            priceLabel.setStyle("-fx-text-fill: #2e8b57; -fx-font-weight: bold; -fx-font-size: 16px;");
+
+            Label stockLabel = new Label();
+            stockLabel.setText(String.format("%s: %d",
+                    stockLabelText,
+                    article.getQuantitestock()));
+            stockLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #333;");
+
+            // Conteneur des informations
+            VBox infoBox = new VBox(15, categoryLabel, descriptionLabel, priceLabel, stockLabel);
+            infoBox.setPadding(new Insets(20));
+            infoBox.setStyle("-fx-background-color: #ffffff; -fx-border-radius: 5;");
+
+            // Conteneur principal
+            HBox content = new HBox(30, imageContainer, infoBox);
+            content.setAlignment(Pos.CENTER);
+            content.setPadding(new Insets(25));
+            content.setStyle("-fx-background-color: #f5f5f5; -fx-border-radius: 10;");
+
+            // Stocker l'état de traduction dans le conteneur
+            content.setUserData(isTranslated);
+
+            return content;
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Erreur lors de la création du contenu", e);
+            AlertUtils.showErrorAlert("Erreur", "Création du contenu", e.getMessage());
+            return new HBox();
+        }
+    }
+*/
+
+    private Dialog<Void> createArticleDetailsDialog(Article article) {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Détails de l'article");
+
+        // Appliquer les styles du panneau de dialogue avec une largeur réduite
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.getStylesheets().add(getClass().getResource("/styles/Article/liste.css").toExternalForm());
+        dialogPane.setStyle("-fx-background-color: #ffffff; " +
+                "-fx-border-color: #e0e0e0; " +
+                "-fx-border-width: 1px; " +
+                "-fx-border-radius: 10px; " +
+                "-fx-background-radius: 10px; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 15, 0, 0, 0); " +
+                "-fx-pref-width: 600px;"); // Largeur réduite de 700px à 600px
+
+        // Styles du panneau d'en-tête
+        dialogPane.setHeaderText("Détails de l'article");
+        dialogPane.lookup(".header-panel").setStyle(
+                "-fx-background-color: #800080; " +
+                        "-fx-border-color: #6a0dad; " +
+                        "-fx-border-width: 0 0 2px 0; " +
+                        "-fx-border-radius: 10px 10px 0 0; " +
+                        "-fx-padding: 15px 20px;");
+        dialogPane.lookup(".header-panel .label").setStyle(
+                "-fx-font-size: 18px; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-text-fill: white;");
+
+        // Content styles
+        dialogPane.setContent(createDetailsContent(article, false));
+        dialogPane.lookup(".content").setStyle(
+                "-fx-padding: 25px; " +
+                        "-fx-spacing: 0; " +
+                        "-fx-background-color: #f9f9f9;");
+
+        // Button styles
+        ButtonType translateButtonType = new ButtonType(TranslationService.translate("Traduire en anglais", "fr"),
+                ButtonBar.ButtonData.OTHER);
+        ButtonType closeButtonType = new ButtonType("Fermer", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialogPane.getButtonTypes().addAll(translateButtonType, closeButtonType);
+
+        // Apply button styles
+        Node closeButton = dialogPane.lookupButton(closeButtonType);
+        closeButton.setStyle(
+                "-fx-background-color: #f5f5f5; " +
+                        "-fx-text-fill: #666; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-padding: 8px 20px; " +
+                        "-fx-background-radius: 20px; " +
+                        "-fx-border-color: #ddd; " +
+                        "-fx-border-width: 1px;");
+
+        closeButton.setOnMouseEntered(e -> closeButton.setStyle(
+                "-fx-background-color: #e0e0e0; " +
+                        "-fx-text-fill: #666; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-padding: 8px 20px; " +
+                        "-fx-background-radius: 20px; " +
+                        "-fx-border-color: #ddd; " +
+                        "-fx-border-width: 1px;"));
+
+        closeButton.setOnMouseExited(e -> closeButton.setStyle(
+                "-fx-background-color: #f5f5f5; " +
+                        "-fx-text-fill: #666; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-padding: 8px 20px; " +
+                        "-fx-background-radius: 20px; " +
+                        "-fx-border-color: #ddd; " +
+                        "-fx-border-width: 1px;"));
+
+        // Translate button
+        Button translateButton = (Button) dialogPane.lookupButton(translateButtonType);
+        translateButton.setStyle(
+                "-fx-background-color: #4a90e2; " +
+                        "-fx-text-fill: white; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-padding: 8px 20px; " +
+                        "-fx-background-radius: 20px; " +
+                        "-fx-cursor: hand; " +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 1);");
+
+        translateButton.setOnMouseEntered(e -> translateButton.setStyle(
+                "-fx-background-color: #3a80d2; " +
+                        "-fx-text-fill: white; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-padding: 8px 20px; " +
+                        "-fx-background-radius: 20px; " +
+                        "-fx-cursor: hand; " +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 1);"));
+
+        translateButton.setOnMouseExited(e -> translateButton.setStyle(
+                "-fx-background-color: #4a90e2; " +
+                        "-fx-text-fill: white; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-padding: 8px 20px; " +
+                        "-fx-background-radius: 20px; " +
+                        "-fx-cursor: hand; " +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 1);"));
+
+        AtomicBoolean isTranslated = new AtomicBoolean(false);
+        translateButton.addEventFilter(ActionEvent.ACTION, event -> {
+            boolean currentState = isTranslated.get();
+            isTranslated.set(!currentState);
+
+            // Update content
+            dialogPane.setContent(createDetailsContent(article, !currentState));
+
+            // Update title
+            dialog.setTitle(!currentState ?
+                    TranslationService.translate("Détails de l'article", "en") :
+                    "Détails de l'article");
+
+            // Update button text
+            translateButton.setText(!currentState ?
+                    TranslationService.translate("Voir original", "fr") :
+                    TranslationService.translate("Traduire en anglais", "fr"));
+
+            event.consume();
+        });
+
         return dialog;
     }
 
-    private HBox createDetailsContent(Article article) {
-        ImageView imageView = new ImageView();
+    private HBox createDetailsContent(Article article, boolean isTranslated) {
         try {
-            imageView.setImage(new Image(article.getImage(), true));
-        } catch (Exception e) {
+            // Conteneur d'image avec taille fixe
+            ImageView imageView = new ImageView();
             try {
-                imageView.setImage(new Image(getClass().getResourceAsStream("/images/logo.jpg")));
-            } catch (Exception ex) {
-                logger.log(Level.WARNING, "Image par défaut non trouvée", ex);
+                Image img = new Image(article.getImage(), true);
+                imageView.setImage(img);
+
+                // Forcer une taille fixe et centrer l'image
+                imageView.setPreserveRatio(true);
+                imageView.setSmooth(true);
+                imageView.setFitWidth(200);  // Largeur fixe réduite
+                imageView.setFitHeight(200); // Hauteur fixe réduite
+            } catch (Exception e) {
+                try {
+                    Image defaultImg = new Image(getClass().getResourceAsStream("/images/logo.jpg"));
+                    imageView.setImage(defaultImg);
+                    imageView.setFitWidth(200);
+                    imageView.setFitHeight(200);
+                    imageView.setPreserveRatio(true);
+                } catch (Exception ex) {
+                    logger.log(Level.WARNING, "Image par défaut non trouvée", ex);
+                }
             }
+
+            // Style du conteneur d'image
+            StackPane imageContainer = new StackPane(imageView);
+            imageContainer.setStyle(
+                    "-fx-alignment: center; " +
+                            "-fx-padding: 15px; " +
+                            "-fx-background-color: white; " +
+                            "-fx-border-color: #e0e0e0; " +
+                            "-fx-border-width: 1px; " +
+                            "-fx-border-radius: 8px; " +
+                            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 1); " +
+                            "-fx-min-width: 230px; " +  // Largeur réduite
+                            "-fx-max-width: 230px; " +  // Largeur réduite
+                            "-fx-min-height: 230px; " + // Hauteur réduite
+                            "-fx-max-height: 230px;");  // Hauteur réduite
+
+            // Prepare translated texts
+            String categoryLabelText = isTranslated ? "Category" : "Catégorie";
+            String descriptionLabelText = isTranslated ? "Description" : "Description";
+            String priceLabelText = isTranslated ? "Price" : "Prix";
+            String stockLabelText = isTranslated ? "Available stock" : "Stock disponible";
+
+            // Category label
+            Label categoryLabel = new Label();
+            categoryLabel.setText(String.format("%s: %s",
+                    categoryLabelText,
+                    isTranslated ? TranslationService.translate(article.getCategory(), "en") : article.getCategory()));
+            categoryLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #555;");
+
+            // Description label
+            Label descriptionLabel = new Label();
+            descriptionLabel.setText(String.format("%s: %s",
+                    descriptionLabelText,
+                    isTranslated ? TranslationService.translate(article.getDescription(), "en") : article.getDescription()));
+            descriptionLabel.setStyle(
+                    "-fx-font-size: 14px; " +
+                            "-fx-text-fill: #333; " +
+                            "-fx-wrap-text: true; " +
+                            "-fx-max-width: 350px;");
+
+            // Price label
+            Label priceLabel = new Label();
+            priceLabel.setText(String.format("%s: %.2f %s",
+                    priceLabelText,
+                    article.getPrix(),
+                    isTranslated ? "DT" : "DT"));
+            priceLabel.setStyle(
+                    "-fx-font-size: 18px; " +
+                            "-fx-font-weight: bold; " +
+                            "-fx-text-fill: #800080; " +
+                            "-fx-padding: 10px 0;");
+
+            // Stock label
+            Label stockLabel = new Label();
+            stockLabel.setText(String.format("%s: %d",
+                    stockLabelText,
+                    article.getQuantitestock()));
+
+            String stockStyle = "-fx-font-size: 14px; -fx-padding: 5px 10px; -fx-background-radius: 10px; -fx-border-radius: 10px; ";
+            if (article.getQuantitestock() > 10) {
+                stockStyle += "-fx-text-fill: #2e8b57; -fx-background-color: #e8f5e9;";
+            } else if (article.getQuantitestock() > 0) {
+                stockStyle += "-fx-text-fill: #ff8c00; -fx-background-color: #fff3e0;";
+            } else {
+                stockStyle += "-fx-text-fill: #e74c3c; -fx-background-color: #ffebee;";
+            }
+            stockLabel.setStyle(stockStyle);
+
+            // Conteneur d'informations avec largeur ajustée
+            VBox infoBox = new VBox(15, categoryLabel, descriptionLabel, priceLabel, stockLabel);
+            infoBox.setStyle(
+                    "-fx-spacing: 15px; " +
+                            "-fx-alignment: top-left; " +
+                            "-fx-pref-width: 320px; " + // Largeur ajustée
+                            "-fx-padding: 20px; " +
+                            "-fx-background-color: white; " +
+                            "-fx-border-color: #e0e0e0; " +
+                            "-fx-border-width: 1px; " +
+                            "-fx-border-radius: 8px;");
+
+            // Conteneur principal
+            HBox content = new HBox(20, imageContainer, infoBox); // Espacement réduit entre l'image et les infos
+            content.setStyle(
+                    "-fx-alignment: center; " +
+                            "-fx-padding: 20px; " + // Padding réduit
+                            "-fx-background-color: #f5f5f5; " +
+                            "-fx-border-radius: 10px;");
+
+            return content;
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Erreur lors de la création du contenu", e);
+            AlertUtils.showErrorAlert("Erreur", "Création du contenu", e.getMessage());
+            return new HBox();
         }
-        imageView.setFitWidth(250);
-        imageView.setFitHeight(250);
-        imageView.setPreserveRatio(true);
-        imageView.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 0);");
+    }
 
-        StackPane imageContainer = new StackPane(imageView);
-        imageContainer.setPadding(new Insets(15));
-        imageContainer.setStyle("-fx-background-color: #f9f9f9; -fx-border-radius: 5;");
-
-        VBox infoBox = new VBox(15);
-        infoBox.setPadding(new Insets(20));
-        infoBox.setStyle("-fx-background-color: #ffffff; -fx-border-radius: 5; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);");
-
-        Label categoryLabel = createStyledLabel("Catégorie", article.getCategory());
-        Label descriptionLabel = createStyledLabel("Description", article.getDescription());
-        descriptionLabel.setWrapText(true);
-        descriptionLabel.setMaxWidth(350);
-
-        Label priceLabel = createStyledLabel("Prix", String.format("%.2f DT", article.getPrix()));
-        priceLabel.setStyle("-fx-text-fill: #2e8b57; -fx-font-weight: bold; -fx-font-size: 16px;");
-
-        Label stockLabel = createStyledLabel("Stock disponible", String.valueOf(article.getQuantitestock()));
-
-        infoBox.getChildren().addAll(categoryLabel, descriptionLabel, priceLabel, stockLabel);
-
-        HBox content = new HBox(30, imageContainer, infoBox);
-        content.setAlignment(Pos.CENTER);
-        content.setPadding(new Insets(25));
-        content.setStyle("-fx-background-color: #f5f5f5; -fx-border-radius: 10;");
-
-        return content;
+    private Label createTranslatedLabel(String frenchLabel, String englishLabel, String value, boolean isEnglish) {
+        Label label = new Label();
+        label.setText(String.format("%s: %s", isEnglish ? englishLabel : frenchLabel, value));
+        label.setStyle("-fx-font-size: 14px; -fx-text-fill: #333;");
+        label.setPadding(new Insets(0, 0, 5, 0));
+        return label;
     }
 
     private Label createStyledLabel(String title, String value) {
