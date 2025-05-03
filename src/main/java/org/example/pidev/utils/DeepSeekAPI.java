@@ -3,13 +3,12 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-
 import com.google.gson.*;
 
 
 public class DeepSeekAPI {
 
-    private static final String API_URL = "";
+    private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
     private static final String API_KEY = ""; // À remplir avec votre clé
     private final Gson gson = new Gson();
 
@@ -19,15 +18,16 @@ public class DeepSeekAPI {
                     "- Expliquant nos services de recyclage et de vente de pièces reconditionnées\n" +
                     "- Mentionnant systématiquement la garantie de 6 mois offerte\n" +
                     "- Proposant des évaluations et diagnostics gratuits pour les pièces usagées\n" +
-                    //"- Demandant les spécifications nécessaires pour établir des devis précis\n" +
-                    //"- Mettant en avant les économies possibles par rapport aux pièces neuves\n\n" +
-                    // "Domaines d'expertise :\n" +
+                    "- Demandant les spécifications nécessaires pour établir des devis précis\n" +
+                    "- Mettant en avant les économies possibles par rapport aux pièces neuves\n\n" +
+                     "Domaines d'expertise :\n" +
                     "1. Vente de pièces automobiles recyclées (pneus, pare-chocs, jantes, réservoirs, etc.)\n" +
                     "2. Collecte de matériaux recyclables (plastique, verre, caoutchouc)\n" +
                     "3. Reconditionnement et transformation de pièces automobiles\n" +
                     "4. Engagements environnementaux et certifications de recyclage\n\n" +
                     "Répondez toujours de manière chaleureuse et accueillante. Par exemple, si un utilisateur dit 'salut' ou 'bonjour', répondez par :\n" +
-                    "'Salut et bienvenue chez Autlink ! Comment puis-je vous aider aujourd'hui ?'";
+                    "'Salut et bienvenue chez Autlink ! Comment puis-je vous aider aujourd'hui ?"
+            +"Si la question posée est en dehors de ces domaines, répondez uniquement par : 'Désolé, je ne peux pas répondre à cette question.";
 
 
     public String getResponseFromDeepSeek(String userInput) {
@@ -65,17 +65,25 @@ public class DeepSeekAPI {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-
             if (response.statusCode() >= 400) {
                 return "[Erreur] Problème de connexion au service (Code " + response.statusCode() + ")";
             }
 
-            return parseApiResponse(response.body());
+            String reply = parseApiResponse(response.body());
+
+            // Si la réponse contient un message de refus, retourne-le tel quel
+            if (reply.toLowerCase().contains("désolé, je ne peux pas répondre")) {
+                return reply;
+            }
+
+            // Optionnel : tu peux aussi ajouter ici une vérification par mots-clés
+            return reply;
 
         } catch (Exception e) {
             return "[Erreur] Service temporairement indisponible";
         }
     }
+
 
     private String parseApiResponse(String jsonResponse) {
         try {

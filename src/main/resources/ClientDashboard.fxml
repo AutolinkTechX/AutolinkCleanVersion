@@ -32,7 +32,7 @@
 
             <!-- Navigation Menu -->
             <HBox alignment="CENTER" spacing="30.0" HBox.hgrow="ALWAYS">
-                <Button fx:id="homeBtn" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #ca8a62; -fx-font-weight: bold;" text="HOME">
+                <Button fx:id="homeBtn" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #ca8a62; -fx-font-weight: bold;" text="HOME" onAction="#showHome">
                     <cursor>
                         <Cursor fx:constant="HAND" />
                     </cursor>
@@ -62,11 +62,11 @@
                         <Cursor fx:constant="HAND" />
                     </cursor>
                 </Button>
-                <Button fx:id="businessBtn" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #1c1c1c;" text="BUSINESS PRO">
+                <!--<Button fx:id="businessBtn" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #1c1c1c;" text="BUSINESS PRO">
                     <cursor>
                         <Cursor fx:constant="HAND" />
                     </cursor>
-                </Button>
+                </Button>-->
             </HBox>
 
             <HBox alignment="CENTER_RIGHT" spacing="15" style="-fx-padding: 0 20;" translateX="-15.0">

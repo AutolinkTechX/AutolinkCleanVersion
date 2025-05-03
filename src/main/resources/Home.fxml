@@ -18,87 +18,91 @@
             hbarPolicy="NEVER" vbarPolicy="NEVER" fitToWidth="true">
 
     <content>
-        <VBox fx:id="mainContainer" alignment="TOP_CENTER" spacing="0" style="-fx-background-color: #f5f5f5;" prefWidth="1300" maxWidth="1300">
+        <!-- Conteneur principal aligné à droite -->
+        <HBox alignment="CENTER" style="-fx-background-color: #f5f5f5;">
+            <VBox fx:id="mainContainer" alignment="TOP_CENTER" spacing="0"
+                  style="-fx-background-color: #f5f5f5;"
+                  prefWidth="1300" maxWidth="1300">
 
-            <!-- Hero Section -->
-            <StackPane style="-fx-background-color: #ffffff;" prefWidth="1300">
-                <ImageView fitWidth="1300.0" fitHeight="450.0" preserveRatio="false">
-                    <image>
-                        <Image url="@images/carousel-2.jpg" />
-                    </image>
-                </ImageView>
-                <VBox alignment="CENTER" spacing="20.0" style="-fx-background-color: rgba(0, 0, 0, 0.5); -fx-padding: 60;">
-                    <Label text="Bienvenue sur AutoLink" styleClass="hero-title"/>
-                    <Label text="Recyclage et vente de pièces auto" styleClass="hero-subtitle"/>
-                    <HBox spacing="20.0" alignment="CENTER">
-                        <Button fx:id="buyProductBtn" text="Acheter Produit" styleClass="primary-btn"/>
-                        <Button fx:id="addProductBtn" text="Ajouter Produit" styleClass="secondary-btn"/>
+                <!-- Hero Section -->
+                <StackPane style="-fx-background-color: #ffffff;" prefWidth="1300">
+                    <ImageView fitWidth="1300.0" fitHeight="450.0" preserveRatio="false">
+                        <image>
+                            <Image url="@images/carousel-2.jpg" />
+                        </image>
+                    </ImageView>
+                    <VBox alignment="CENTER" spacing="20.0" style="-fx-background-color: rgba(0, 0, 0, 0.5); -fx-padding: 60;">
+                        <Label text="Bienvenue sur AutoLink" styleClass="hero-title"/>
+                        <Label text="Recyclage et vente de pièces auto" styleClass="hero-subtitle"/>
+                        <HBox spacing="20.0" alignment="CENTER">
+                            <Button fx:id="buyProductBtn" text="Acheter Produit" styleClass="primary-btn"/>
+                            <Button fx:id="addProductBtn" text="Ajouter Produit" styleClass="secondary-btn"/>
+                        </HBox>
+                    </VBox>
+                </StackPane>
+
+                <!-- Dynamic Categories Section avec Pagination -->
+                <VBox style="-fx-background-color: #ffffff; -fx-padding: 50;" spacing="30.0"
+                      alignment="CENTER" prefWidth="1300" maxWidth="1300">
+                    <Label text="Nos catégories" styleClass="section-title"/>
+
+                    <HBox fx:id="navigationContainer" alignment="CENTER" spacing="20">
+                        <Button fx:id="prevButton" styleClass="nav-arrow-button" text="‹" />
+                        <HBox fx:id="categoriesContainer" spacing="15" alignment="CENTER"/>
+                        <Button fx:id="nextButton" styleClass="nav-arrow-button" text="›" />
                     </HBox>
                 </VBox>
-            </StackPane>
 
-            <!-- Dynamic Categories Section avec Pagination -->
-            <VBox style="-fx-background-color: #ffffff; -fx-padding: 50;" spacing="30.0"
-                  alignment="CENTER" prefWidth="1300" maxWidth="1300">
-                <Label text="Nos catégories" styleClass="section-title"/>
+                <!-- Services Section -->
+                <VBox style="-fx-background-color: #f9f9f9; -fx-padding: 50;" spacing="30.0"
+                      alignment="CENTER" prefWidth="1300" maxWidth="1300">
+                    <Label text="Nos Services" styleClass="section-title"/>
 
-                <!-- Conteneur de navigation avec boutons fléchés stylisés -->
-                <HBox fx:id="navigationContainer" alignment="CENTER" spacing="20">
-                    <Button fx:id="prevButton" styleClass="nav-arrow-button" text="‹" />
-                    <HBox fx:id="categoriesContainer" spacing="15" alignment="CENTER"/>
-                    <Button fx:id="nextButton" styleClass="nav-arrow-button" text="›" />
-                </HBox>
+                    <Label styleClass="section-description" wrapText="true" maxWidth="800" textAlignment="CENTER">
+                        Découvrez nos services dédiés à l'achat de véhicules recyclés, au recyclage de matériaux,
+                        aux ateliers et aux partenariats entre entreprises.
+                    </Label>
+
+                    <HBox spacing="30.0" alignment="TOP_CENTER" style="-fx-padding: 0 50;">
+                        <VBox spacing="15.0" styleClass="service-card" prefWidth="300">
+                            <ImageView fitWidth="60.0" fitHeight="60.0" preserveRatio="true" styleClass="service-icon">
+                                <image>
+                                    <Image url="@images/icon-parts.png" />
+                                </image>
+                            </ImageView>
+                            <Label text="Achat de Pièces Automobiles Recyclées" styleClass="service-title"/>
+                            <Label text="Parcourez notre sélection de pièces autos recyclées et passez votre commande en ligne."
+                                   styleClass="service-description"/>
+                            <Button text="En savoir plus" styleClass="service-btn"/>
+                        </VBox>
+
+                        <VBox spacing="15.0" styleClass="service-card" prefWidth="300">
+                            <ImageView fitWidth="60.0" fitHeight="60.0" preserveRatio="true" styleClass="service-icon">
+                                <image>
+                                    <Image url="@images/icon-recycle.png" />
+                                </image>
+                            </ImageView>
+                            <Label text="Recyclage de Matériaux" styleClass="service-title"/>
+                            <Label text="Recyclez n'importe quel matériau en suivant notre processus simple et efficace."
+                                   styleClass="service-description"/>
+                            <Button text="En savoir plus" styleClass="service-btn"/>
+                        </VBox>
+
+                        <VBox spacing="15.0" styleClass="service-card" prefWidth="300">
+                            <ImageView fitWidth="60.0" fitHeight="60.0" preserveRatio="true" styleClass="service-icon">
+                                <image>
+                                    <Image url="@images/icon-partnership.png" />
+                                </image>
+                            </ImageView>
+                            <Label text="Partenariats Entreprises" styleClass="service-title"/>
+                            <Label text="Nous collaborons avec diverses entreprises pour un recyclage intelligent et responsable."
+                                   styleClass="service-description"/>
+                            <Button text="En savoir plus" styleClass="service-btn"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
             </VBox>
-
-            <!-- Services Section -->
-            <VBox style="-fx-background-color: #f9f9f9; -fx-padding: 50;" spacing="30.0"
-                  alignment="CENTER" prefWidth="1300" maxWidth="1300">
-                <Label text="Nos Services" styleClass="section-title"/>
-
-                <Label styleClass="section-description" wrapText="true" maxWidth="800" textAlignment="CENTER">
-                    Découvrez nos services dédiés à l'achat de véhicules recyclés, au recyclage de matériaux,
-                    aux ateliers et aux partenariats entre entreprises.
-                </Label>
-
-                <HBox spacing="30.0" alignment="TOP_CENTER" style="-fx-padding: 0 50;">
-                    <VBox spacing="15.0" styleClass="service-card" prefWidth="300">
-                        <ImageView fitWidth="60.0" fitHeight="60.0" preserveRatio="true" styleClass="service-icon">
-                            <image>
-                                <Image url="@images/icon-parts.png" />
-                            </image>
-                        </ImageView>
-                        <Label text="Achat de Pièces Automobiles Recyclées" styleClass="service-title"/>
-                        <Label text="Parcourez notre sélection de pièces autos recyclées et passez votre commande en ligne."
-                               styleClass="service-description"/>
-                        <Button text="En savoir plus" styleClass="service-btn"/>
-                    </VBox>
-
-                    <VBox spacing="15.0" styleClass="service-card" prefWidth="300">
-                        <ImageView fitWidth="60.0" fitHeight="60.0" preserveRatio="true" styleClass="service-icon">
-                            <image>
-                                <Image url="@images/icon-recycle.png" />
-                            </image>
-                        </ImageView>
-                        <Label text="Recyclage de Matériaux" styleClass="service-title"/>
-                        <Label text="Recyclez n'importe quel matériau en suivant notre processus simple et efficace."
-                               styleClass="service-description"/>
-                        <Button text="En savoir plus" styleClass="service-btn"/>
-                    </VBox>
-
-                    <VBox spacing="15.0" styleClass="service-card" prefWidth="300">
-                        <ImageView fitWidth="60.0" fitHeight="60.0" preserveRatio="true" styleClass="service-icon">
-                            <image>
-                                <Image url="@images/icon-partnership.png" />
-                            </image>
-                        </ImageView>
-                        <Label text="Partenariats Entreprises" styleClass="service-title"/>
-                        <Label text="Nous collaborons avec diverses entreprises pour un recyclage intelligent et responsable."
-                               styleClass="service-description"/>
-                        <Button text="En savoir plus" styleClass="service-btn"/>
-                    </VBox>
-                </HBox>
-            </VBox>
-
-        </VBox>
+        </HBox>
     </content>
 </ScrollPane>
