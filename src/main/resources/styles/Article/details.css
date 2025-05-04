@@ -61,6 +61,7 @@
 /* Style du conteneur des boutons */
 .form-buttons-container {
     -fx-padding: 20 0 0 0;
+    -fx-spacing: 15;
 }
 
 /* Style du bouton Retour */
@@ -68,16 +69,42 @@
     -fx-background-color: #e74c3c;
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-background-radius: 4;
+    -fx-background-radius: 20;
     -fx-padding: 8 20;
     -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
 }
 
 .form-cancel-button:hover {
     -fx-background-color: #c0392b;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);
 }
 
-/* Effet de survol général */
-.form-cancel-button:hover {
+/* Style du bouton Traduire */
+.form-translate-button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 20;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+}
+
+.form-translate-button:hover {
+    -fx-background-color: #2980b9;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);
+}
+
+/* Style cohérent pour tous les boutons */
+.button {
+    -fx-font-size: 14px;
+    -fx-min-width: 120px;
+}
+
+/* Effet de focus pour accessibilité */
+.button:focused {
+    -fx-border-color: #3498db;
+    -fx-border-width: 2;
+    -fx-border-radius: 20;
 }

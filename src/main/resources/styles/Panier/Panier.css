@@ -103,7 +103,7 @@
 .quantity-button:hover {
     -fx-background-color: #e0e0e0;
 }
-
+/*
 .quantity-label {
     -fx-font-size: 14px;
     -fx-font-weight: bold;
@@ -111,7 +111,7 @@
     -fx-min-width: 30px;
     -fx-alignment: center;
 }
-
+*/
 /* ===== ACTION BUTTONS ===== */
 .cart-item-actions {
     -fx-spacing: 10px;
@@ -368,4 +368,16 @@
 
 .category-list .scroll-bar:vertical .thumb:hover {
     -fx-background-color: #adb5bd;
+}
+
+.quantity-btn {
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-font-weight: bold;
+}
+
+.quantity-label {
+    -fx-min-width: 30px;
+    -fx-alignment: center;
+    -fx-font-weight: bold;
 }

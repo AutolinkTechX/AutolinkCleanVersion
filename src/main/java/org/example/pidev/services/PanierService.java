@@ -19,6 +19,7 @@ public class PanierService {
     }
 
     // Méthode pour récupérer le panier pour un utilisateur spécifique
+  /*
     public List<List_article> getPanierForUser(int userId) {
         List<List_article> articlesPanier = new ArrayList<>();
 
@@ -54,6 +55,56 @@ public class PanierService {
                 listArticle.setUser(user);
 
                 articlesPanier.add(listArticle);
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération du panier: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return articlesPanier;
+    }
+*/
+    public List<List_article> getPanierForUser(int userId) {
+        List<List_article> articlesPanier = new ArrayList<>();
+
+        String query = "SELECT la.id, la.quantite, la.prix_unitaire, "
+                + "a.id as article_id, a.nom, a.description, a.image, a.quantitestock, " // Added quantitestock
+                + "u.id as user_id, u.name, u.last_name "
+                + "FROM list_article la "
+                + "JOIN article a ON la.article_id = a.id "
+                + "JOIN user u ON la.user_id = u.id "
+                + "WHERE la.user_id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                List_article listArticle = new List_article();
+                listArticle.setId(rs.getInt("id"));
+                listArticle.setQuantite(rs.getInt("quantite"));
+                listArticle.setPrixUnitaire(rs.getDouble("prix_unitaire"));
+
+                Article article = new Article();
+                article.setId(rs.getInt("article_id"));
+                article.setNom(rs.getString("nom"));
+                article.setDescription(rs.getString("description"));
+                article.setImage(rs.getString("image"));
+                article.setQuantitestock(rs.getInt("quantitestock")); // Set stock quantity
+                listArticle.setArticle(article);
+
+                User user = new User();
+                user.setId(rs.getInt("user_id"));
+                user.setName(rs.getString("name"));
+                user.setLastName(rs.getString("last_name"));
+                listArticle.setUser(user);
+
+                articlesPanier.add(listArticle);
+
+                // Debug log
+                System.out.println("DEBUG - Loaded: " + article.getNom() +
+                        " | Qty: " + listArticle.getQuantite() +
+                        " | Stock: " + article.getQuantitestock());
             }
         } catch (SQLException e) {
             System.err.println("Erreur lors de la récupération du panier: " + e.getMessage());
@@ -263,5 +314,45 @@ public class PanierService {
         return 0;
     }
 
+
+    // Add this method to your PanierService class
+    public List_article getPanierItem(int listArticleId) throws SQLException {
+        String query = "SELECT la.id, la.quantite, la.prix_unitaire, "
+                + "a.id as article_id, a.nom, a.description, a.image, a.quantitestock, "
+                + "u.id as user_id, u.name, u.last_name "
+                + "FROM list_article la "
+                + "JOIN article a ON la.article_id = a.id "
+                + "JOIN user u ON la.user_id = u.id "
+                + "WHERE la.id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, listArticleId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                List_article listArticle = new List_article();
+                listArticle.setId(rs.getInt("id"));
+                listArticle.setQuantite(rs.getInt("quantite"));
+                listArticle.setPrixUnitaire(rs.getDouble("prix_unitaire"));
+
+                Article article = new Article();
+                article.setId(rs.getInt("article_id"));
+                article.setNom(rs.getString("nom"));
+                article.setDescription(rs.getString("description"));
+                article.setImage(rs.getString("image"));
+                article.setQuantitestock(rs.getInt("quantitestock"));
+                listArticle.setArticle(article);
+
+                User user = new User();
+                user.setId(rs.getInt("user_id"));
+                user.setName(rs.getString("name"));
+                user.setLastName(rs.getString("last_name"));
+                listArticle.setUser(user);
+
+                return listArticle;
+            }
+        }
+        return null;
+    }
 
 }

@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -123,14 +124,18 @@ public class Panier implements Initializable {
 
             panierItems = panierService.getPanierForUser(currentUser.getId());
 
-            if (panierItems == null) {
-                throw new Exception("Le service panier a retourné une valeur nulle");
+            // Debug: Afficher le contenu du panier
+            if (panierItems != null) {
+                System.out.println("DEBUG - Panier chargé:");
+                panierItems.forEach(item ->
+                        System.out.println(item.getArticle().getNom() +
+                                " - Qty: " + item.getQuantite() +
+                                " - Stock: " + item.getArticle().getQuantitestock()));
             }
 
             processCartItems();
-
         } catch (Exception e) {
-            showAlert("Erreur", "Échec du chargement du panier: " + e.getMessage(), Alert.AlertType.ERROR);
+            showAlert("Erreur", "Échec du chargement: " + e.getMessage(), Alert.AlertType.ERROR);
             e.printStackTrace();
             showEmptyCart();
         }
@@ -258,12 +263,17 @@ public class Panier implements Initializable {
         card.getChildren().addAll(imageContainer, details);
         return card;
     }
-    
+
     private Image loadItemImage(List_article item) {
         try {
             String imageUrl = item.getArticle().getImage();
             if (imageUrl != null && !imageUrl.isEmpty()) {
-                if (imageUrl.startsWith("http")) {
+                // Correction pour les chemins de fichiers Windows
+                if (imageUrl.startsWith("file:")) {
+                    // Supprime le préfixe "file:" s'il existe
+                    imageUrl = imageUrl.replaceFirst("file:", "");
+                    return new Image("file:" + imageUrl);
+                } else if (imageUrl.startsWith("http")) {
                     return new Image(imageUrl);
                 } else {
                     InputStream stream = getClass().getResourceAsStream(imageUrl);
@@ -292,17 +302,59 @@ public class Panier implements Initializable {
 
     private HBox createQuantityControls(List_article item) {
         HBox box = new HBox(10);
+        box.setAlignment(Pos.CENTER);
 
         Button minusBtn = new Button("-");
+        minusBtn.getStyleClass().add("quantity-btn");
         minusBtn.setOnAction(e -> adjustQuantity(item, -1));
 
         Label quantity = new Label(String.valueOf(item.getQuantite()));
+        quantity.getStyleClass().add("quantity-label");
 
         Button plusBtn = new Button("+");
+        plusBtn.getStyleClass().add("quantity-btn");
         plusBtn.setOnAction(e -> adjustQuantity(item, 1));
+
+        // Handle null stock
+        Integer stock = item.getArticle().getQuantitestock();
+        if (stock == null) {
+            plusBtn.setDisable(true);
+            plusBtn.setTooltip(new Tooltip("Stock indisponible"));
+        } else {
+            plusBtn.setDisable(item.getQuantite() >= stock);
+            if (item.getQuantite() >= stock) {
+                plusBtn.setTooltip(new Tooltip("Maximum: " + stock));
+            }
+        }
 
         box.getChildren().addAll(minusBtn, quantity, plusBtn);
         return box;
+    }
+
+    private void adjustQuantity(List_article item, int change) {
+        try {
+            int newQty = item.getQuantite() + change;
+            Integer stock = item.getArticle().getQuantitestock();
+
+            if (newQty < 1) {
+                showAlert("Erreur", "Quantité minimale: 1", Alert.AlertType.WARNING);
+                return;
+            }
+
+            if (stock != null && newQty > stock) {
+                showAlert("Stock", "Maximum: " + stock, Alert.AlertType.INFORMATION);
+                return;
+            }
+
+            if (panierService.updateArticleQuantity(item.getId(), newQty)) {
+                // Update local quantity
+                item.setQuantite(newQty);
+                refreshCart();
+            }
+        } catch (Exception e) {
+            showAlert("Erreur", "Modification impossible", Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
     }
 
     private Label createSubtotalLabel(List_article item) {
@@ -339,24 +391,37 @@ public class Panier implements Initializable {
     private void showNextPage() {
         showPage(currentPage + 1);
     }
-
+/*
     private void adjustQuantity(List_article item, int change) {
         try {
             int newQty = item.getQuantite() + change;
+
+            // Vérification de la quantité minimale
             if (newQty < 1) {
                 showAlert("Erreur", "Quantité minimale 1", Alert.AlertType.WARNING);
                 return;
             }
 
+            // Vérification du stock disponible
+            if (newQty > item.getArticle().getQuantitestock()) {
+                showAlert("Stock insuffisant",
+                        "La quantité demandée (" + newQty + ") dépasse le stock disponible (" +
+                                item.getArticle().getQuantitestock() + ") pour cet article",
+                        Alert.AlertType.WARNING);
+                return;
+            }
+
+            // Mise à jour de la quantité si tout est OK
             if (panierService.updateArticleQuantity(item.getId(), newQty)) {
                 item.setQuantite(newQty);
                 refreshCart();
             }
         } catch (Exception e) {
-            showAlert("Erreur", "Impossible de modifier la quantité", Alert.AlertType.ERROR);
+            showAlert("Erreur", "Impossible de modifier la quantité: " + e.getMessage(), Alert.AlertType.ERROR);
+            e.printStackTrace();
         }
     }
-
+*/
     private void removeItem(int itemId) {
         try {
             if (panierService.removeArticleFromPanier(itemId)) {
@@ -439,6 +504,8 @@ public class Panier implements Initializable {
             if (dashboardController != null) {
                 dashboardController.updateBadges();
             }
+            // Mettre à jour l'état des boutons +/-
+            showPage(currentPage);
         });
     }
 

@@ -67,7 +67,9 @@
     </GridPane>
 
     <!-- Bouton Retour seulement -->
+    <!-- Bouton Retour et Traduction -->
     <HBox spacing="20" alignment="CENTER" styleClass="form-buttons-container">
         <Button text="Retour" onAction="#handleReturn" styleClass="form-cancel-button"/>
+        <Button fx:id="translateButton" text="Traduire en anglais" onAction="#handleTranslate" styleClass="form-translate-button"/>
     </HBox>
 </VBox>
