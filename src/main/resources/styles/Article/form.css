@@ -361,3 +361,31 @@
     -fx-border-width: 2 !important;
     -fx-border-radius: 5 !important;
 }
+
+
+/* Bouton Générer par IA */
+.ai-generate-button {
+    -fx-background-color: #6e48aa;
+    -fx-text-fill: white;
+    -fx-padding: 5 10;
+    -fx-font-size: 12px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+}
+
+.ai-generate-button:hover {
+    -fx-background-color: #5d3a99;
+}
+
+.ai-generate-button:disabled {
+    -fx-opacity: 0.7;
+    -fx-cursor: default;
+}
+
+/* Indicateur de progression */
+.ai-progress {
+    -fx-pref-width: 20px;
+    -fx-pref-height: 20px;
+    -fx-progress-color: #6e48aa;
+}

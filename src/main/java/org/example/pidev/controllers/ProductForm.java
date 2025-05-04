@@ -1,5 +1,8 @@
 package org.example.pidev.controllers;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -7,12 +10,16 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.example.pidev.entities.Article;
+import org.example.pidev.services.AIGenerationService;
+import org.example.pidev.services.ApiKeyManager;
 import org.example.pidev.services.ArticleService;
 
 import java.io.File;
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.util.concurrent.TimeoutException;
 
 public class ProductForm {
 
@@ -32,11 +39,17 @@ public class ProductForm {
     @FXML private Label dateError;
     @FXML private Label descriptionError;
     @FXML private Label imageError;
+    // Ajoutez ces déclarations de champs
+    @FXML private Button generateAIButton;
+    @FXML private ProgressIndicator aiProgress;
+    //private final AIGenerationService aiService = new AIGenerationService();
 
     private final ArticleService articleService = new ArticleService();
     private Article article;
     private AjoutArticleController parentController;
     private String imagePath;
+    @FXML private Label apiKeyErrorLabel;
+    private final ApiKeyManager apiKeyManager = new ApiKeyManager();
 
 
     @FXML
@@ -44,6 +57,17 @@ public class ProductForm {
         configureFields();
         clearErrorMessages();
         setupFieldValidators();
+        checkApiKeyStatus();
+    }
+
+    private void checkApiKeyStatus() {
+        boolean isApiValid = apiKeyManager.isApiKeyValid();
+        apiKeyErrorLabel.setVisible(!isApiValid);
+
+        // Désactive les fonctionnalités IA si la clé est invalide
+        if (generateAIButton != null) {
+            generateAIButton.setDisable(!isApiValid);
+        }
     }
 
     private void configureFields() {
@@ -393,4 +417,122 @@ public class ProductForm {
         Stage stage = (Stage) nameField.getScene().getWindow();
         stage.close();
     }
+
+    /*
+
+    // Dans la classe ProductForm
+
+    private final ApiKeyManager apiKeyManager = new ApiKeyManager();
+    private final AIGenerationService aiService = new AIGenerationService(apiKeyManager);
+
+    @FXML
+    private void handleGenerateAI() {
+        String productName = nameField.getText().trim();
+
+        if (productName.isEmpty()) {
+            showAlert("Erreur", "Veuillez d'abord saisir un nom de produit", Alert.AlertType.WARNING);
+            return;
+        }
+
+        aiProgress.setVisible(true);
+        generateAIButton.setDisable(true);
+
+        // Timeout après 30 secondes
+        Timeline timeout = new Timeline(new KeyFrame(Duration.seconds(30), e -> {
+            handleAIError(new TimeoutException("La génération a pris trop de temps"));
+        }));
+        timeout.play();
+
+        aiService.generateDescriptionAsync(productName)
+                .whenComplete((description, error) -> {
+                    Platform.runLater(() -> {
+                        timeout.stop();
+                        aiProgress.setVisible(false);
+                        generateAIButton.setDisable(false);
+
+                        if (error != null) {
+                            handleAIError(error);
+                            descriptionField.setText(generateFallbackDescription(productName));
+                        } else {
+                            descriptionField.setText(description);
+                        }
+                    });
+                });
+    }
+
+    private void handleAIError(Throwable error) {
+        String errorMessage = "Erreur lors de la génération IA:\n";
+
+        if (error.getCause() instanceof IllegalStateException) {
+            errorMessage += "Problème de configuration API:\n";
+            errorMessage += "Veuillez vérifier votre clé API dans les paramètres.";
+        } else {
+            errorMessage += error.getMessage();
+        }
+
+        showAlert("Erreur IA", errorMessage, Alert.AlertType.ERROR);
+    }
+*/
+    // Dans la classe ProductForm
+
+    //private final ApiKeyManager apiKeyManager = new ApiKeyManager();
+    //private final AIGenerationService aiService = new AIGenerationService(apiKeyManager);
+
+    // Dans la classe ProductForm
+    private final AIGenerationService aiService = new AIGenerationService(apiKeyManager);
+
+    @FXML
+    private void handleGenerateAI() {
+        String productName = nameField.getText().trim();
+
+        if (productName.isEmpty()) {
+            showAlert("Erreur", "Veuillez d'abord saisir un nom de produit", Alert.AlertType.WARNING);
+            nameField.requestFocus();
+            return;
+        }
+
+        if (!apiKeyManager.isApiKeyValid()) {
+            showAlert("Configuration requise",
+                    "Veuillez d'abord configurer une clé API valide dans les paramètres",
+                    Alert.AlertType.ERROR);
+            return;
+        }
+
+        aiProgress.setVisible(true);
+        generateAIButton.setDisable(true);
+
+        // Utilisation d'un thread séparé pour éviter de bloquer l'UI
+        new Thread(() -> {
+            try {
+                String description = aiService.generateSimpleDescription(productName);
+
+                Platform.runLater(() -> {
+                    aiProgress.setVisible(false);
+                    generateAIButton.setDisable(false);
+                    descriptionField.setText(description);
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    aiProgress.setVisible(false);
+                    generateAIButton.setDisable(false);
+                    handleAIError(e);
+                    descriptionField.setText(generateFallbackDescription(productName));
+                });
+            }
+        }).start();
+    }
+
+    private void handleAIError(Throwable error) {
+        String errorMessage = "Erreur lors de la génération IA:\n" + error.getMessage();
+        showAlert("Erreur IA", errorMessage, Alert.AlertType.ERROR);
+    }
+
+    private String generateFallbackDescription(String productName) {
+        return String.format(
+                "Produit: %s\n\nDescription générée localement (l'IA n'a pas pu être contactée).",
+                productName
+        );
+    }
+
+
 }
