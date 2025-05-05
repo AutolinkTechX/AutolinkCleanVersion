@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.NumberFormat;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -92,10 +93,11 @@ public class ListeArticle {
     @FXML
     public void initialize() {
         try {
-            // Initialiser les sliders avec les prix min/max réels
+            // Récupérer les prix min/max réels depuis la base de données
             double minPrice = articleService.findMinPrice();
             double maxPrice = articleService.findMaxPrice();
 
+            // Configurer les sliders avec les valeurs réelles
             minPriceSlider.setMin(minPrice);
             minPriceSlider.setMax(maxPrice);
             minPriceSlider.setValue(minPrice);
@@ -104,35 +106,48 @@ public class ListeArticle {
             maxPriceSlider.setMax(maxPrice);
             maxPriceSlider.setValue(maxPrice);
 
-            // Formater les valeurs avec espace pour les milliers
-            minPriceLabel.setText(String.format("Min: %,.0f DT", minPriceSlider.getValue()));
-            maxPriceLabel.setText(String.format("Max: %,.0f DT", maxPriceSlider.getValue()));
+            // Configurer le pas des sliders
+            double increment = (maxPrice - minPrice) / 100;
+            minPriceSlider.setMajorTickUnit(increment * 10);
+            maxPriceSlider.setMajorTickUnit(increment * 10);
+            minPriceSlider.setMinorTickCount(0);
+            maxPriceSlider.setMinorTickCount(0);
+            minPriceSlider.setSnapToTicks(true);
+            maxPriceSlider.setSnapToTicks(true);
+
+            // Mise à jour initiale des labels
+            updatePriceLabels();
 
             // Écouteurs pour les sliders
             minPriceSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
                 if (newVal.doubleValue() > maxPriceSlider.getValue()) {
                     maxPriceSlider.setValue(newVal.doubleValue());
                 }
-                minPriceLabel.setText(String.format("Min: %,.0f DT", newVal.doubleValue()));
+                updatePriceLabels();
             });
 
             maxPriceSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
                 if (newVal.doubleValue() < minPriceSlider.getValue()) {
                     minPriceSlider.setValue(newVal.doubleValue());
                 }
-                maxPriceLabel.setText(String.format("Max: %,.0f DT", newVal.doubleValue()));
+                updatePriceLabels();
             });
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            AlertUtils.showErrorAlert("Erreur", "Initialisation des filtres de prix", e.getMessage());
+            logger.log(Level.SEVERE, "Erreur lors de l'initialisation des sliders", e);
+            AlertUtils.showErrorAlert("Erreur", "Initialisation des filtres", e.getMessage());
         }
 
         setupSearchListener();
     }
+
     private void updatePriceLabels() {
-        minPriceLabel.setText(String.format("Min: %.0f DT", minPriceSlider.getValue()));
-        maxPriceLabel.setText(String.format("Max: %.0f DT", maxPriceSlider.getValue()));
+        // Formater les valeurs avec séparateur de milliers
+        NumberFormat format = NumberFormat.getInstance();
+        format.setGroupingUsed(true);
+
+        minPriceLabel.setText(String.format("Min: %s DT", format.format(minPriceSlider.getValue())));
+        maxPriceLabel.setText(String.format("Max: %s DT", format.format(maxPriceSlider.getValue())));
     }
 
     @FXML
@@ -141,16 +156,27 @@ public class ListeArticle {
             double minPrice = minPriceSlider.getValue();
             double maxPrice = maxPriceSlider.getValue();
 
+            // Validation des prix
+            if (minPrice > maxPrice) {
+                AlertUtils.showErrorAlert("Erreur", "Valeurs invalides",
+                        "Le prix minimum ne peut pas être supérieur au prix maximum");
+                return;
+            }
+
             // Formater les valeurs pour l'affichage
             minPriceLabel.setText(String.format("Min: %,.0f DT", minPrice));
             maxPriceLabel.setText(String.format("Max: %,.0f DT", maxPrice));
 
+            // Filtrer les articles
             List<Article> filteredArticles = articleService.filterArticlesByPrice(minPrice, maxPrice);
+
+            // Mettre à jour l'affichage
             updateArticlesDisplay(filteredArticles);
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            AlertUtils.showErrorAlert("Erreur", "Erreur SQL", "Une erreur est survenue lors du filtrage.");
+            logger.log(Level.SEVERE, "Erreur lors du filtrage", e);
+            AlertUtils.showErrorAlert("Erreur", "Filtrage",
+                    "Une erreur est survenue lors du filtrage des articles");
         }
     }
 
