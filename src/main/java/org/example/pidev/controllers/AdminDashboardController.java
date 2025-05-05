@@ -323,8 +323,15 @@ public class AdminDashboardController {
 
     @FXML
     private void handleRecyclingProducts() {
-        System.out.println("Recycling Products clicked");
-        // TODO: Implement navigation to recycling products page
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AdminMaterielRecyclable.fxml"));
+            Parent materielView = loader.load();
+            contentArea.getChildren().clear();
+            contentArea.getChildren().add( materielView);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Failed to load Blog view", "An error occurred while trying to load the Blog view.");
+        }
     }
 
     @FXML
