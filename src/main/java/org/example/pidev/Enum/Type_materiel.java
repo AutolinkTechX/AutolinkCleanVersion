@@ -1,11 +1,11 @@
 package org.example.pidev.Enum;
 
 public enum Type_materiel {
-    Plastique,
-    Aliminium,
-    Cuivre,
-    Electronique,
-    Verre,
+    plastique,
+    aliminium,
+    cuivre,
+    electronique,
+    verre,
     Caoutchouc;
 
 }
