@@ -6,6 +6,6 @@ public enum Type_materiel {
     cuivre,
     electronique,
     verre,
-    Caoutchouc;
+    caoutchouc;
 
 }
