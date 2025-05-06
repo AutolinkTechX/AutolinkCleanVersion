@@ -3,6 +3,7 @@ package org.example.pidev.services;
 import org.example.pidev.entities.User;
 import org.example.pidev.utils.EmailUtil;
 import org.example.pidev.utils.MyDatabase;
+import org.example.pidev.utils.SessionManager;
 import org.mindrot.jbcrypt.BCrypt;
 
 
@@ -357,8 +358,10 @@ public class UserService implements IService<User> {
                 
                 System.out.println("Found admin: " + admin.getName() + " " + admin.getLastName() + 
                                  " (ID: " + admin.getId() + ", Email: " + admin.getEmail() + ")");
-                
-                admins.add(admin);
+
+                if(!SessionManager.getCurrentUser().getEmail().equals(admin.getEmail())){
+                    admins.add(admin);
+                }
             }
             
             System.out.println("Total admins found: " + admins.size());
@@ -522,7 +525,7 @@ public class UserService implements IService<User> {
             // Encrypt the password using BCrypt
             String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
             stmt.setString(5, hashedPassword);
-            stmt.setInt(6, 2);
+            stmt.setInt(6, getRoleIdByName("ROLE_CLIENT"));
             stmt.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
             stmt.setBoolean(8, false);
             stmt.setString(9, user.getImage_path());
@@ -534,6 +537,20 @@ public class UserService implements IService<User> {
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public int getRoleIdByName(String roleName) throws SQLException {
+        String query = "SELECT id FROM role WHERE name = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, roleName);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                } else {
+                    throw new SQLException("Role not found: " + roleName);
+                }
+            }
         }
     }
 

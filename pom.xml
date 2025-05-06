@@ -334,7 +334,7 @@
             <configuration>
                 <archive>
                     <manifest>
-                        <mainClass>org.example.pidev.test.MainFX</mainClass> <!-- Replace with your real main class -->
+                        <mainClass>org.example.pidev.test.MainFX</mainClass>
                     </manifest>
                 </archive>
                 <descriptorRefs>
