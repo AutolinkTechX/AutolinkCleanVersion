@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+
 <VBox spacing="20" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controllers.ClientsViewController">
     <padding>
         <Insets bottom="20" left="20" right="20" top="20" />
@@ -25,6 +27,8 @@
             <Cursor fx:constant="HAND" />
          </cursor>
         </ImageView>
+      <Label style="-fx-font-size: 15; -fx-font-weight: bold;" text="Search" textFill="#b47d4f" translateX="300.0" />
+      <TextField fx:id="searchField" prefHeight="27.0" prefWidth="300.0" style="-fx-background-color: white; -fx-border-color: rgb(202,138,98); -fx-border-radius: 10; -fx-border-width: 0.5;" translateX="300.0" />
     </HBox>
    <ScrollPane>
       <content>

@@ -13,6 +13,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
@@ -37,6 +38,9 @@ public class ClientsViewController implements Initializable {
     @FXML
     private ImageView addClientButton;
 
+    @FXML
+    private TextField searchField;
+
     private final UserService userService = new UserService();
     private ObservableList<User> clientsList;
 
@@ -56,106 +60,119 @@ public class ClientsViewController implements Initializable {
         } else {
             System.out.println("addClientButton is null");
         }
+
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filterClients(newValue.trim().toLowerCase());
+        });
     }
 
     private void loadClientsData() {
         try {
             System.out.println("Loading clients data...");
+            if (clientsContainer == null) {
+                System.out.println("Error: clientsContainer is null!");
+                return;
+            }
+
             clientsList = FXCollections.observableArrayList(userService.getAllClients());
             System.out.println("Number of clients loaded: " + clientsList.size());
-            createClientCards();
-        } catch (SQLException e) {
-            System.out.println("Error loading clients: " + e.getMessage());
+
+            if (clientsList.isEmpty()) {
+                System.out.println("No clients found to display");
+                // Show a message to the user
+                Label noClientsLabel = new Label("No clients found in the database");
+                noClientsLabel.setStyle("-fx-text-fill: gray; -fx-font-size: 16px;");
+                clientsContainer.getChildren().add(noClientsLabel);
+                return;
+            }
+
+            createClientCards(clientsList);
+        } catch (Exception e) {
+            System.out.println("Error loading clients data: " + e.getMessage());
             e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Failed to load clients");
-            alert.setContentText("An error occurred while loading clients: " + e.getMessage());
-            alert.showAndWait();
+
+            // Show error message to user
+            Label errorLabel = new Label("Error loading client data: " + e.getMessage());
+            errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 16px;");
+            clientsContainer.getChildren().add(errorLabel);
         }
     }
 
-    private void createClientCards() {
+    private void createClientCards(ObservableList<User> list) {
         clientsContainer.getChildren().clear();
-        
-        if (clientsList.isEmpty()) {
-            Label noClientsLabel = new Label("No clients found");
-            noClientsLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: gray;");
-            clientsContainer.getChildren().add(noClientsLabel);
+
+        if (list.isEmpty()) {
+            Label noResults = new Label("No matching clients found.");
+            noResults.setStyle("-fx-text-fill: gray; -fx-font-size: 16px;");
+            clientsContainer.getChildren().add(noResults);
             return;
         }
 
-        for (User client : clientsList) {
-            VBox card = createClientCard(client);
-            clientsContainer.getChildren().add(card);
-        }
-    }
+        for (User client : list) {
+            if (client == null) continue;
 
-    private VBox createClientCard(User client) {
-        VBox card = new VBox(10);
-        card.setStyle("-fx-background-color: white; -fx-padding: 15px; -fx-background-radius: 10px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);");
-        card.setPrefWidth(300);
-        card.setPrefHeight(250);
-        card.setAlignment(Pos.TOP_CENTER);
-        card.setUserData(client);
+            VBox card = new VBox(10);
+            card.setStyle("-fx-background-color: white; -fx-padding: 15px; -fx-background-radius: 10px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);");
+            card.setPadding(new Insets(15));
+            card.setPrefWidth(300);
+            card.setPrefHeight(250);
+            card.setUserData(client);
+            card.setAlignment(Pos.CENTER);
 
-        // Image container
-        HBox imageContainer = new HBox();
-        imageContainer.setAlignment(Pos.CENTER);
-        imageContainer.setPrefHeight(100);
+            VBox imageContainer = new VBox();
+            imageContainer.setAlignment(Pos.CENTER);
 
-        ImageView userImageView = new ImageView();
-        userImageView.setFitWidth(100);
-        userImageView.setFitHeight(100);
-        userImageView.setPreserveRatio(true);
-        
-        try {
-            String image_path = client.getImage_path();
-            if (image_path != null && !image_path.isEmpty()) {
-                Image image = new Image("file:" + image_path);
-                userImageView.setImage(image);
-            } else {
-                // Load default image if no image path is provided
+            ImageView userImageView = new ImageView();
+            userImageView.setFitWidth(100);
+            userImageView.setFitHeight(100);
+            userImageView.setPreserveRatio(true);
+
+            try {
+                String image_path = client.getImage_path();
+                if (image_path != null && !image_path.isEmpty()) {
+                    Image image = new Image("file:" + image_path);
+                    userImageView.setImage(image);
+                } else {
+                    Image defaultImage = new Image(getClass().getResourceAsStream("/images/logo.jpg"));
+                    userImageView.setImage(defaultImage);
+                }
+            } catch (Exception e) {
                 Image defaultImage = new Image(getClass().getResourceAsStream("/images/logo.jpg"));
                 userImageView.setImage(defaultImage);
             }
-        } catch (Exception e) {
-            System.out.println("Error loading image for client: " + client.getName());
-            // Load default image in case of error
-            Image defaultImage = new Image(getClass().getResourceAsStream("/images/logo.jpg"));
-            userImageView.setImage(defaultImage);
+
+            imageContainer.getChildren().add(userImageView);
+
+            Label nameLabel = new Label(client.getName() + " " + client.getLastName());
+            nameLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
+            nameLabel.setAlignment(Pos.CENTER);
+
+            Label emailLabel = new Label(client.getEmail());
+            emailLabel.setFont(Font.font("System", 14));
+            emailLabel.setAlignment(Pos.CENTER);
+
+            Label phoneLabel = new Label("Phone: " + client.getPhone());
+            phoneLabel.setFont(Font.font("System", 14));
+            phoneLabel.setTextFill(Color.GRAY);
+            phoneLabel.setAlignment(Pos.CENTER);
+
+            HBox buttonContainer = new HBox(10);
+            buttonContainer.setPadding(new Insets(10, 0, 0, 0));
+            buttonContainer.setAlignment(Pos.CENTER);
+
+            Button modifyButton = new Button("Modify");
+            modifyButton.setStyle("-fx-background-color: rgb(202,138,98); -fx-text-fill: white; -fx-background-radius: 5px;");
+            modifyButton.setOnAction(e -> handleModifyClient(client));
+
+            Button deleteButton = new Button("Delete");
+            deleteButton.setStyle("-fx-background-color: #ff4444; -fx-text-fill: white; -fx-background-radius: 5px;");
+            deleteButton.setOnAction(e -> handleDeleteClient(card));
+
+            buttonContainer.getChildren().addAll(modifyButton, deleteButton);
+
+            card.getChildren().addAll(imageContainer, nameLabel, emailLabel, phoneLabel, buttonContainer);
+            clientsContainer.getChildren().add(card);
         }
-        
-        imageContainer.getChildren().add(userImageView);
-
-        // Client information
-        Label nameLabel = new Label(client.getName() + " " + client.getLastName());
-        nameLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
-        
-        Label emailLabel = new Label(client.getEmail());
-        emailLabel.setFont(Font.font("System", 14));
-        
-        Label phoneLabel = new Label("Phone: " + client.getPhone());
-        phoneLabel.setFont(Font.font("System", 14));
-        phoneLabel.setTextFill(Color.GRAY);
-
-        // Action buttons
-        HBox buttonContainer = new HBox(10);
-        buttonContainer.setPadding(new Insets(10, 0, 0, 0));
-
-        Button modifyButton = new Button("Modify");
-        modifyButton.setStyle("-fx-background-color: rgb(202,138,98); -fx-text-fill: white; -fx-background-radius: 5px;");
-        modifyButton.setOnAction(e -> handleModifyClient(client));
-
-        Button deleteButton = new Button("Delete");
-        deleteButton.setStyle("-fx-background-color: #ff4444; -fx-text-fill: white; -fx-background-radius: 5px;");
-        deleteButton.setOnAction(e -> handleDeleteClient(card));
-
-        buttonContainer.getChildren().addAll(modifyButton, deleteButton);
-        buttonContainer.setAlignment(Pos.CENTER);
-
-        card.getChildren().addAll(imageContainer, nameLabel, emailLabel, phoneLabel, buttonContainer);
-        return card;
     }
 
     private void openAddClientWindow() {
@@ -242,5 +259,27 @@ public class ClientsViewController implements Initializable {
                 System.out.println("User cancelled deletion");
             }
         });
+    }
+
+    private void filterClients(String keyword) {
+        if (keyword == null || keyword.isEmpty()) {
+            createClientCards(clientsList);
+            return;
+        }
+
+        ObservableList<User> filteredList = FXCollections.observableArrayList();
+
+        for (User client : clientsList) {
+            if (client != null) {
+                String fullName = (client.getName() + " " + client.getLastName()).toLowerCase();
+                if (fullName.contains(keyword) ||
+                    client.getEmail().toLowerCase().contains(keyword) ||
+                    String.valueOf(client.getPhone()).contains(keyword)) {
+                    filteredList.add(client);
+                }
+            }
+        }
+
+        createClientCards(filteredList);
     }
 } 

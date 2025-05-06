@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+
 <VBox spacing="20" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controllers.AdminsViewController">
     <padding>
         <Insets bottom="20" left="20" right="20" top="20" />
@@ -21,16 +23,21 @@
             <image>
                 <Image url="@icons/plus.png" />
             </image>
-         <cursor>
-            <Cursor fx:constant="HAND" />
-         </cursor>
+            <cursor>
+                <Cursor fx:constant="HAND" />
+            </cursor>
         </ImageView>
+        <Label style="-fx-font-size: 15; -fx-font-weight: bold;" text="Search" textFill="#b47d4f" translateX="300.0" />
+        <TextField fx:id="searchField" prefHeight="27.0" prefWidth="300.0" style="-fx-background-color: white; -fx-border-color: rgb(202,138,98); -fx-border-radius: 10; -fx-border-width: 0.5;" translateX="300.0" />
     </HBox>
-   <ScrollPane>
-      <content>
-      
-          <!-- Admins container -->
-          <FlowPane fx:id="adminsContainer" hgap="20" prefWrapLength="1000" vgap="20" />
-      </content>
-   </ScrollPane>
+
+    <!-- Scrollable content area -->
+    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-padding: 0;">
+        <content>
+            <FlowPane fx:id="adminsContainer" hgap="20" prefWrapLength="1000" vgap="20" />
+        </content>
+    </ScrollPane>
+
+    <!-- Pagination controls (added below ScrollPane) -->
+    <HBox fx:id="paginationContainer" alignment="BOTTOM_CENTER" maxHeight="1.7976931348623157E308" minHeight="-Infinity" style="-fx-background-color: #f5f5f5; -fx-padding: 15;" />
 </VBox>

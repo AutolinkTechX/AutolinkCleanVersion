@@ -9,15 +9,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -37,115 +32,182 @@ public class AdminsViewController implements Initializable {
     @FXML
     private ImageView addAdminButton;
 
+    @FXML
+    private TextField searchField;
+
+    @FXML
+    private HBox paginationContainer;
+
     private final UserService userService = new UserService();
-    private ObservableList<User> adminsList;
+    private ObservableList<User> fullAdminsList = FXCollections.observableArrayList();
+
+    private int currentPage = 0;
+    private final int itemsPerPage = 6;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        System.out.println("AdminsViewController initialized");
-        if (adminsContainer == null) {
-            System.out.println("adminsContainer is null");
-            return;
-        }
-        System.out.println("adminsContainer is not null");
         loadAdminsData();
 
-        // Set up add admin button
         if (addAdminButton != null) {
             addAdminButton.setOnMouseClicked(event -> openAddAdminWindow());
-        } else {
-            System.out.println("addAdminButton is null");
         }
+
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filterAdmins(newValue.trim().toLowerCase());
+        });
     }
 
     private void loadAdminsData() {
         try {
-            System.out.println("Loading admins data...");
-            if (adminsContainer == null) {
-                System.out.println("Error: adminsContainer is null!");
-                return;
-            }
+            fullAdminsList = FXCollections.observableArrayList(userService.getAllAdmins());
 
-            adminsList = FXCollections.observableArrayList(userService.getAllAdmins());
-            System.out.println("Number of admins loaded: " + adminsList.size());
-
-            if (adminsList.isEmpty()) {
-                System.out.println("No admins found to display");
-                // Show a message to the user
+            if (fullAdminsList.isEmpty()) {
+                adminsContainer.getChildren().clear();
                 Label noAdminsLabel = new Label("No admins found in the database");
                 noAdminsLabel.setStyle("-fx-text-fill: gray; -fx-font-size: 16px;");
                 adminsContainer.getChildren().add(noAdminsLabel);
+                paginationContainer.getChildren().clear();
                 return;
             }
 
-            createAdminCards();
-        } catch (Exception e) {
-            System.out.println("Error loading admins data: " + e.getMessage());
-            e.printStackTrace();
+            currentPage = 0;
+            updatePaginatedAdmins();
 
-            // Show error message to user
+        } catch (Exception e) {
+            e.printStackTrace();
             Label errorLabel = new Label("Error loading admin data: " + e.getMessage());
             errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 16px;");
             adminsContainer.getChildren().add(errorLabel);
+            paginationContainer.getChildren().clear();
         }
     }
 
-    private void createAdminCards() {
-        System.out.println("Creating admin cards...");
-        adminsContainer.getChildren().clear(); // Clear any existing content
+    private void updatePaginatedAdmins() {
+        adminsContainer.getChildren().clear();
+        paginationContainer.getChildren().clear();
 
-        for (User admin : adminsList) {
-            if (admin == null) {
-                System.out.println("Warning: Found null admin in list");
-                continue;
+        int fromIndex = currentPage * itemsPerPage;
+        int toIndex = Math.min(fromIndex + itemsPerPage, fullAdminsList.size());
+
+        ObservableList<User> pageList = FXCollections.observableArrayList(fullAdminsList.subList(fromIndex, toIndex));
+        createAdminCards(pageList);
+
+        addPaginationControls();
+    }
+
+    private void addPaginationControls() {
+        int totalItems = fullAdminsList.size();
+        int totalPages = (int) Math.ceil((double) totalItems / itemsPerPage);
+
+        if (totalPages <= 1) {
+            return; // Don't show pagination if there's only one page
+        }
+
+        HBox paginationControls = new HBox(5);
+        paginationControls.setAlignment(Pos.CENTER);
+        paginationControls.setPadding(new Insets(5));
+
+        Button prevButton = new Button("Previous");
+        prevButton.setDisable(currentPage == 0);
+        prevButton.setOnAction(e -> {
+            currentPage--;
+            updatePaginatedAdmins();
+        });
+
+        paginationControls.getChildren().add(prevButton);
+
+        int maxPageButtons = 7;
+        int startPage = Math.max(0, currentPage - 3);
+        int endPage = Math.min(totalPages, currentPage + 4);
+
+        if (startPage > 0) {
+            addPageButton(paginationControls, 0);
+            if (startPage > 1) {
+                paginationControls.getChildren().add(new Label("..."));
             }
+        }
 
-            System.out.println("Creating card for: " + admin.getName());
+        for (int i = startPage; i < endPage; i++) {
+            addPageButton(paginationControls, i);
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                paginationControls.getChildren().add(new Label("..."));
+            }
+            addPageButton(paginationControls, totalPages - 1);
+        }
+
+        Button nextButton = new Button("Next");
+        nextButton.setDisable(currentPage >= totalPages - 1);
+        nextButton.setOnAction(e -> {
+            currentPage++;
+            updatePaginatedAdmins();
+        });
+
+        paginationControls.getChildren().add(nextButton);
+        paginationContainer.getChildren().add(paginationControls);
+    }
+
+    private void addPageButton(HBox container, int pageIndex) {
+        Button pageButton = new Button(String.valueOf(pageIndex + 1));
+        pageButton.setStyle(pageIndex == currentPage
+                ? "-fx-background-color: #2a9d8f; -fx-text-fill: white; -fx-font-weight: bold;"
+                : "-fx-background-color: lightgray; -fx-text-fill: black;");
+        pageButton.setOnAction(e -> {
+            currentPage = pageIndex;
+            updatePaginatedAdmins();
+        });
+        container.getChildren().add(pageButton);
+    }
+
+    private void createAdminCards(ObservableList<User> list) {
+        if (list.isEmpty()) {
+            Label noResults = new Label("No matching admins found.");
+            noResults.setStyle("-fx-text-fill: gray; -fx-font-size: 16px;");
+            adminsContainer.getChildren().add(noResults);
+            return;
+        }
+
+        for (User admin : list) {
+            if (admin == null) continue;
+
             VBox card = new VBox(10);
             card.setStyle("-fx-background-color: white; -fx-padding: 15px; -fx-background-radius: 10px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);");
             card.setPadding(new Insets(15));
             card.setPrefWidth(300);
             card.setPrefHeight(250);
-
-            // Store the admin object in the card's user data
             card.setUserData(admin);
             card.setAlignment(Pos.CENTER);
 
-            // Create image container
             VBox imageContainer = new VBox();
             imageContainer.setAlignment(Pos.CENTER);
 
-            // Create and configure ImageView
             ImageView userImageView = new ImageView();
             userImageView.setFitWidth(100);
             userImageView.setFitHeight(100);
             userImageView.setPreserveRatio(true);
 
-            // Try to load the user's image
             try {
                 String image_path = admin.getImage_path();
                 if (image_path != null && !image_path.isEmpty()) {
                     Image image = new Image("file:" + image_path);
                     userImageView.setImage(image);
                 } else {
-                    // Load logo.jpg as default image if no image path is provided
                     Image defaultImage = new Image(getClass().getResourceAsStream("/images/logo.jpg"));
                     userImageView.setImage(defaultImage);
                 }
             } catch (Exception e) {
-                System.out.println("Error loading image for user: " + admin.getName());
-                // Load logo.jpg as default image in case of error
                 Image defaultImage = new Image(getClass().getResourceAsStream("/images/logo.jpg"));
                 userImageView.setImage(defaultImage);
             }
 
             imageContainer.getChildren().add(userImageView);
-            imageContainer.setAlignment(Pos.CENTER);
 
-            // Admin information
             Label nameLabel = new Label(admin.getName() + " " + admin.getLastName());
             nameLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
             nameLabel.setAlignment(Pos.CENTER);
+
             Label emailLabel = new Label(admin.getEmail());
             emailLabel.setFont(Font.font("System", 14));
             emailLabel.setAlignment(Pos.CENTER);
@@ -155,7 +217,6 @@ public class AdminsViewController implements Initializable {
             phoneLabel.setTextFill(Color.GRAY);
             phoneLabel.setAlignment(Pos.CENTER);
 
-            // Action buttons
             HBox buttonContainer = new HBox(10);
             buttonContainer.setPadding(new Insets(10, 0, 0, 0));
             buttonContainer.setAlignment(Pos.CENTER);
@@ -172,11 +233,8 @@ public class AdminsViewController implements Initializable {
 
             card.getChildren().addAll(imageContainer, nameLabel, emailLabel, phoneLabel, buttonContainer);
             adminsContainer.getChildren().add(card);
-            System.out.println("Card added to container");
         }
-        System.out.println("All cards created");
     }
-
 
     @FXML
     private void handleModifyAdmin(User admin) {
@@ -193,7 +251,6 @@ public class AdminsViewController implements Initializable {
             stage.setScene(new Scene(root));
             stage.showAndWait();
 
-            // Refresh the admin list after modification
             loadAdminsData();
         } catch (Exception e) {
             e.printStackTrace();
@@ -205,38 +262,27 @@ public class AdminsViewController implements Initializable {
         }
     }
 
-
     private void handleDeleteAdmin(VBox card) {
-        System.out.println("Delete admin clicked");
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete Admin");
-        alert.setHeaderText(null);
         alert.setContentText("Are you sure you want to delete this admin?");
 
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 try {
-                    // Get the admin's ID from the card's user data
                     User admin = (User) card.getUserData();
                     if (admin != null) {
-                        // Delete from database
                         userService.supprimer(admin.getId());
-                        // Remove from UI
-                        adminsContainer.getChildren().remove(card);
-                        System.out.println("Admin deleted successfully");
+                        loadAdminsData();
                     }
                 } catch (SQLException e) {
-                    System.out.println("Error deleting admin: " + e.getMessage());
                     e.printStackTrace();
-                    // Show error alert
                     Alert errorAlert = new Alert(Alert.AlertType.ERROR);
                     errorAlert.setTitle("Error");
                     errorAlert.setHeaderText("Failed to delete admin");
                     errorAlert.setContentText("An error occurred while deleting the admin. Please try again.");
                     errorAlert.showAndWait();
                 }
-            } else {
-                System.out.println("User cancelled deletion");
             }
         });
     }
@@ -255,11 +301,40 @@ public class AdminsViewController implements Initializable {
             controller.setStage(stage);
             stage.showAndWait();
 
-            // Refresh the admin list after adding a new admin
             loadAdminsData();
         } catch (Exception e) {
-            System.out.println("Error opening add admin window: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private void filterAdmins(String keyword) {
+        if (keyword == null || keyword.isEmpty()) {
+            try {
+                fullAdminsList = FXCollections.observableArrayList(userService.getAllAdmins());
+            } catch (SQLException e) {
+                System.out.println("Error extracting admins data list :" + e.getMessage());
+                e.printStackTrace();
+            }
+            currentPage = 0;
+            updatePaginatedAdmins();
+            return;
+        }
+
+        ObservableList<User> filteredList = FXCollections.observableArrayList();
+
+        for (User admin : fullAdminsList) {
+            if (admin != null) {
+                String fullName = (admin.getName() + " " + admin.getLastName()).toLowerCase();
+                if (fullName.contains(keyword) ||
+                        admin.getEmail().toLowerCase().contains(keyword) ||
+                        String.valueOf(admin.getPhone()).contains(keyword)) {
+                    filteredList.add(admin);
+                }
+            }
+        }
+
+        fullAdminsList = filteredList;
+        currentPage = 0;
+        updatePaginatedAdmins();
     }
 }
