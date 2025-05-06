@@ -47,10 +47,6 @@ public class Payement implements Initializable {
     @FXML private VBox onlineForm;
     @FXML private VBox cashForm;
     @FXML private Label totalAmountLabel;
-    @FXML private TextField cardNumberField;
-    @FXML private ComboBox<String> expiryMonthCombo;
-    @FXML private ComboBox<String> expiryYearCombo;
-    @FXML private TextField cvvField;
     @FXML private TextField fullNameField;
     @FXML private TextArea addressField;
     @FXML private TextField phoneField;
@@ -113,12 +109,6 @@ public class Payement implements Initializable {
                 return;
             }
 
-            // Initialize UI components after checking FXML injection
-            if (expiryMonthCombo != null && expiryYearCombo != null) {
-                setupExpiryDateComboBoxes();
-            } else {
-                System.err.println("Warning: ComboBoxes not initialized from FXML");
-            }
 
             initializeUIComponents();
 
@@ -132,6 +122,7 @@ public class Payement implements Initializable {
         return user != null && user.getId() > 0;
     }
 
+    /*
     private void initializeUIComponents() {
         setupPaymentMethods();
         setupExpiryDateComboBoxes();
@@ -141,6 +132,28 @@ public class Payement implements Initializable {
         setupCartItemsList();
 
         // Initialisation supplémentaire si nécessaire
+        if (totalAmountLabel != null) {
+            totalAmountLabel.setText("0.00 DT");
+        }
+    }
+*/
+    private void initializeUIComponents() {
+        // Vérification des éléments critiques
+        if (onlineRadio == null || cashRadio == null || onlineForm == null || cashForm == null) {
+            throw new IllegalStateException("Éléments UI critiques non initialisés");
+        }
+
+        setupPaymentMethods();
+        setupFormValidation();  // Removed setupExpiryDateComboBoxes()
+
+        // Vérification avant de mettre à jour les badges
+        if (favoriteBadge != null && cartBadge != null) {
+            updateBadges();
+        }
+
+        setupNavbarActions();
+        setupCartItemsList();
+
         if (totalAmountLabel != null) {
             totalAmountLabel.setText("0.00 DT");
         }
@@ -393,12 +406,12 @@ public class Payement implements Initializable {
         validateForm();
         updateBadges();
     }
-/*
-    private void updateTotalAmountLabel() {
-        double amount = totalAmount != null ? totalAmount : 0.0;
-        totalAmountLabel.setText(String.format("Montant total: %.2f DT", amount));
-    }
-*/
+    /*
+        private void updateTotalAmountLabel() {
+            double amount = totalAmount != null ? totalAmount : 0.0;
+            totalAmountLabel.setText(String.format("Montant total: %.2f DT", amount));
+        }
+    */
     private void setupPaymentMethods() {
         paymentMethodGroup = new ToggleGroup();
         onlineRadio.setToggleGroup(paymentMethodGroup);
@@ -419,42 +432,11 @@ public class Payement implements Initializable {
         });
     }
 
-    private void setupExpiryDateComboBoxes() {
-        expiryMonthCombo.getItems().addAll("01", "02", "03", "04", "05", "06",
-                "07", "08", "09", "10", "11", "12");
-
-        int currentYear = LocalDateTime.now().getYear();
-        for (int i = 0; i < 10; i++) {
-            expiryYearCombo.getItems().add(String.valueOf(currentYear + i));
-        }
-    }
 
     private void setupFormValidation() {
-        cardNumberField.textProperty().addListener((observable, oldValue, newValue) -> {
-            String filteredValue = newValue.replaceAll("[^0-9]", "");
-            if (!newValue.equals(filteredValue)) {
-                cardNumberField.setText(filteredValue);
-            }
-            if (filteredValue.length() > 16) {
-                cardNumberField.setText(oldValue);
-            }
-            validateForm();
-        });
+        // Remove all card validation listeners
 
-        cvvField.textProperty().addListener((observable, oldValue, newValue) -> {
-            String filteredValue = newValue.replaceAll("[^0-9]", "");
-            if (!newValue.equals(filteredValue)) {
-                cvvField.setText(filteredValue);
-            }
-            if (filteredValue.length() > 3) {
-                cvvField.setText(oldValue);
-            }
-            validateForm();
-        });
-
-        expiryMonthCombo.valueProperty().addListener((obs, oldVal, newVal) -> validateForm());
-        expiryYearCombo.valueProperty().addListener((obs, oldVal, newVal) -> validateForm());
-
+        // Keep only cash payment validation
         fullNameField.textProperty().addListener((obs, oldVal, newVal) -> validateForm());
         addressField.textProperty().addListener((obs, oldVal, newVal) -> validateForm());
         phoneField.textProperty().addListener((obs, oldVal, newVal) -> validateForm());
@@ -463,18 +445,12 @@ public class Payement implements Initializable {
     private void validateForm() {
         boolean isValid;
         if (onlineRadio.isSelected()) {
-            isValid = validateOnlinePaymentForm();
+            // Online payment is always valid since we only have Stripe button
+            isValid = true;
         } else {
             isValid = validateCashPaymentForm();
         }
         confirmPaymentButton.setDisable(!isValid);
-    }
-
-    private boolean validateOnlinePaymentForm() {
-        return cardNumberField.getText().length() == 16 &&
-                expiryMonthCombo.getValue() != null &&
-                expiryYearCombo.getValue() != null &&
-                cvvField.getText().length() == 3;
     }
 
     private boolean checkUIComponents() {
@@ -496,9 +472,8 @@ public class Payement implements Initializable {
     @FXML
     private void handleConfirmPayment() {
         if (onlineRadio.isSelected()) {
-            processOnlinePayment();
+            handleStripePayment();  // Directly call Stripe payment
         } else {
-            // Supprimer handleShowCashForm() et traiter directement le paiement cash
             if (validateCashPaymentForm()) {
                 processCashPayment();
             } else {
@@ -807,39 +782,7 @@ public class Payement implements Initializable {
             }
         }
     }
-/*
-    private void processOnlinePayment() {
-        try {
-            double tva = totalAmount * 0.20;
-            double grandTotal = totalAmount + tva;
 
-            String clientSecret = stripeService.createPaymentIntent(
-                    grandTotal, // Utilisez le grand total pour le paiement
-                    "eur",
-                    "Payment for order from " + currentUser.getName()
-            );
-            showStripePaymentForm(clientSecret);
-        } catch (StripeException e) {
-            AlertUtils.showErrorAlert("Erreur Stripe", "Échec du paiement", e.getMessage());
-        }
-    }
-*/
-
-    private void processOnlinePayment() {
-        try {
-            double tva = totalAmount * 0.20;
-            double grandTotal = totalAmount + tva;
-
-            String clientSecret = stripeService.createPaymentIntent(
-                    grandTotal, // Utilisez le grand total pour le paiement
-                    "eur",
-                    "Payment for order from " + currentUser.getName()
-            );
-            showStripePaymentForm(clientSecret);
-        } catch (StripeException e) {
-            AlertUtils.showErrorAlert("Erreur Stripe", "Échec du paiement", e.getMessage());
-        }
-    }
 
     private void processCashPayment() {
         Connection connection = null;
@@ -1154,25 +1097,6 @@ public class Payement implements Initializable {
         cashForm.setVisible(!isOnline);
     }
 
-
-/*
-
-    @FXML
-    private void handleStripePayment() {
-        try {
-            String clientSecret = stripeService.createPaymentIntent(
-                    totalAmount,
-                    "eur",
-                    "Payment for order from " + currentUser.getName()
-            );
-            showStripePaymentForm(clientSecret);
-        } catch (StripeException e) {
-            AlertUtils.showErrorAlert("Erreur Stripe", "Échec du paiement", e.getMessage());
-        }
-    }
-
-*/
-
     @FXML
     private void handleStripePayment() {
         try {
@@ -1190,42 +1114,6 @@ public class Payement implements Initializable {
             AlertUtils.showErrorAlert("Erreur Stripe", "Échec du paiement", e.getMessage());
         }
     }
-    /*
-
-    private void showStripePaymentForm(String clientSecret) {
-        stripePopup.setVisible(true);
-        WebEngine webEngine = stripeWebView.getEngine();
-
-
-        // Utilisez des URLs locales pour gérer le résultat
-        String successUrl = "http://localhost/success?session_id={CHECKOUT_SESSION_ID}";
-        String cancelUrl = "http://localhost/cancel";
-
-        String url = stripeService.createCheckoutSession(totalAmount, successUrl, cancelUrl);
-        stripeWebView.getEngine().load(url);
-
-        webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
-            if (newState == Worker.State.SUCCEEDED) {
-                // Surveiller les changements d'URL pour détecter la complétion
-                webEngine.locationProperty().addListener((obs2, oldLocation, newLocation) -> {
-                    if (newLocation.contains("success")) {
-                        // Extraire l'ID de session de l'URL
-                        String sessionId = newLocation.split("session_id=")[1];
-                        handleSuccessfulPayment(sessionId);
-                    } else if (newLocation.contains("cancel")) {
-                        Platform.runLater(() -> {
-                            closeStripePopup();
-                            AlertUtils.showInformationAlert(
-                                    "Paiement annulé",
-                                    "Vous avez annulé le processus de paiement"
-                            );
-                        });
-                    }
-                });
-            }
-        });
-    }
-*/
 
     private void showStripePaymentForm(String clientSecret) {
         stripePopup.setVisible(true);

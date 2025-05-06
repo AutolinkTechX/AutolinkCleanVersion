@@ -35,6 +35,7 @@ public class StripeService {
         Stripe.apiKey = STRIPE_SECRET_KEY;
     }
 
+    /*
     public String createPaymentIntent(double amount, String currency, String description) throws StripeException {
         PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                 .setAmount((long) (amount * 100)) // Stripe uses cents
@@ -49,6 +50,27 @@ public class StripeService {
 
         PaymentIntent paymentIntent = PaymentIntent.create(params);
         return paymentIntent.getClientSecret();
+    }
+*/
+    public String createPaymentIntent(double amount, String currency, String description) throws StripeException {
+        try {
+            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                    .setAmount((long) (amount * 100))
+                    .setCurrency(currency)
+                    .setDescription(description)
+                    .setAutomaticPaymentMethods(
+                            PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
+                                    .setEnabled(true)
+                                    .build()
+                    )
+                    .build();
+
+            PaymentIntent paymentIntent = PaymentIntent.create(params);
+            return paymentIntent.getClientSecret();
+        } catch (StripeException e) {
+            System.err.println("Erreur Stripe: " + e.getMessage());
+            throw e; // Relancer l'exception pour la gérer dans le contrôleur
+        }
     }
 
     public boolean confirmPayment(String paymentIntentId) throws StripeException {
