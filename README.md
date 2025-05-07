@@ -3,83 +3,105 @@
 Autolink is a desktop application built with Java 17+ that offers an eco-friendly platform for buying and managing recycled car parts. It connects users with trusted recycling suppliers and promotes sustainable automotive maintenance.
 
 ## Table of Contents
-
-- [Features](#features)  
-- [Installation](#installation)  
-- [Usage](#usage)  
-- [Contributing](#contributing)  
-- [License](#license)  
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
 - [Contact](#contact)
 
 ## Features
-
-- **Advanced Search**: Find parts by name, type, vehicle model, or supplier.  
-- **Shopping Cart & Checkout**: Add parts to your cart and manage your purchases with ease.  
-- **Order History**: Track your past orders and check order status.  
-- **Supplier Management**: Admins can manage suppliers and their inventory.  
-- **Secure Authentication**: User accounts are protected with secure login mechanisms.  
+- **Advanced Search**: Find parts by name, type, vehicle model, or supplier
+- **Shopping Cart & Checkout**: Add parts to cart and complete purchases
+- **Order History**: Track past orders and current status
+- **Supplier Management**: Admin portal for inventory management
+- **Secure Authentication**: Protected user accounts with encryption
 
 ## Installation
 
 ### Prerequisites
+- Java 17 or later
+- Maven 3.6+
+- MySQL Database (via XAMPP/WAMP recommended)
 
-- Java 17 or higher  
-- Maven  
+### Step-by-Step Setup
 
-### Steps
+1. **Clone and enter project directory**:
+    ```bash
+    git clone https://github.com/AutolinkTechX/AutolinkCleanVersion.git
+    cd AutolinkCleanVersion
+    ```
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/AutolinkTechX/AutolinkCleanVersion.git
-   ```
+2. **Build with Maven**:
+    ```bash
+    mvn clean install
+    ```
 
-2. Navigate to the project directory:
-   ```bash
-   cd AutolinkCleanVersion
-   ```
+3. **Database Setup**:
 
-3. Build the project using Maven:
-   ```bash
-   mvn clean install
-   ```
+    - Install XAMPP or WAMP
+    - Start MySQL and Apache services
+    - Access PHPMyAdmin at `http://localhost/phpmyadmin`
+    
+    **Create Database**:
+    - Click "New" in PHPMyAdmin
+    - Name: `autolinkdb`
+    - Click "Create"
+    
+    **Import SQL (if available)**:
+    - Select `autolinkdb`
+    - Navigate to the "Import" tab
+    - Upload `autolinkdb.sql`
+    - Click "Execute"
 
-4. Run the application:
-   ```bash
-   java -jar target/AutolinkCleanVersion.jar
-   ```
+4. **Configure Database Connection**:
+    - Edit the configuration file: `src/main/java/org/example/pidev/utils/MyDatabase.java`
+    - Set the database connection details:
+    ```java
+    String url = "jdbc:mysql://localhost:3306/autolinkdb";
+    String user = "root";
+    String password = ""; // Default for XAMPP/WAMP
+    ```
+
+5. **Launch Application**:
+    ```bash
+    java -jar target/AutolinkCleanVersion.jar
+    ```
 
 ## Usage
 
-Upon launching the application:
+### For Buyers
+- Browse parts using search filters
+- Add items to shopping cart
+- Secure checkout process
+- Track order history
 
-- **Browse Parts**: Use the search functionality to find specific car parts.  
-- **Manage Cart**: Add desired parts to your shopping cart and proceed to checkout.  
-- **Order Tracking**: View your order history and track current orders.  
-- **Admin Panel**: If you have admin privileges, manage suppliers and their inventories.  
+### For Administrators
+- Manage supplier accounts
+- Monitor inventory levels
+- Process orders and shipments
+- Generate sales reports
 
 ## Contributing
-
-We welcome contributions!
-
-1. Fork the repository.  
-2. Create a new branch:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-3. Make your changes and commit them:
-   ```bash
-   git commit -m "Add your message here"
-   ```
-4. Push to the branch:
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-5. Open a pull request detailing your changes.
+1. Fork the repository
+2. Create a feature branch:
+    ```bash
+    git checkout -b feature/your-feature
+    ```
+3. Commit changes:
+    ```bash
+    git commit -m "Description of changes"
+    ```
+4. Push to branch:
+    ```bash
+    git push origin feature/your-feature
+    ```
+5. Open pull request with detailed description
 
 ## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+MIT License - See LICENSE file for full details.
 
 ## Contact
-
-For questions or feedback, please open an issue on the [GitHub repository](https://github.com/AutolinkTechX/AutolinkCleanVersion/issues).
+- Issue Tracker: GitHub Issues
+- Support Email: support@autolink.example.com
+- Developer Team: dev-team@autolink.example.com
