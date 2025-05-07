@@ -21,7 +21,7 @@ Autolink is a desktop application built with Java 17+ that offers an eco-friendl
 
 ### Prerequisites
 - Java 17 or later
-- Maven 3.6+
+- Maven
 - MySQL Database (via XAMPP/WAMP recommended)
 
 ### Step-by-Step Setup
@@ -43,12 +43,12 @@ Autolink is a desktop application built with Java 17+ that offers an eco-friendl
     - Start MySQL and Apache services
     - Access PHPMyAdmin at `http://localhost/phpmyadmin`
     
-    **Create Database**:
+    **1. Create Database**:
     - Click "New" in PHPMyAdmin
     - Name: `autolinkdb`
     - Click "Create"
     
-    **Import SQL (if available)**:
+    **2. Import SQL (autolinkdb.sql File)**:
     - Select `autolinkdb`
     - Navigate to the "Import" tab
     - Upload `autolinkdb.sql`
@@ -83,25 +83,28 @@ Autolink is a desktop application built with Java 17+ that offers an eco-friendl
 - Generate sales reports
 
 ## Contributing
-1. Fork the repository
-2. Create a feature branch:
-    ```bash
-    git checkout -b feature/your-feature
-    ```
-3. Commit changes:
-    ```bash
-    git commit -m "Description of changes"
-    ```
-4. Push to branch:
-    ```bash
-    git push origin feature/your-feature
-    ```
-5. Open pull request with detailed description
+
+We welcome contributions!
+
+1. Fork the repository.  
+2. Create a new branch:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+3. Make your changes and commit them:
+   ```bash
+   git commit -m "Add your message here"
+   ```
+4. Push to the branch:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+5. Open a pull request detailing your changes.
 
 ## License
-MIT License - See LICENSE file for full details.
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Contact
-- Issue Tracker: GitHub Issues
-- Support Email: support@autolink.example.com
-- Developer Team: dev-team@autolink.example.com
+
+For questions or feedback, please open an issue on the [GitHub repository](https://github.com/AutolinkTechX/AutolinkCleanVersion/issues).
