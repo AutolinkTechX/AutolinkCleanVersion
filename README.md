@@ -2,6 +2,8 @@
 
 Autolink is a desktop application built with Java 17+ that offers an eco-friendly platform for buying and managing recycled car parts. It connects users with trusted recycling suppliers and promotes sustainable automotive maintenance.
 
+👉 **Also available as a Web App**: [Autolink Symfony Web Application](https://github.com/AutolinkTechX/AutolinkSymfony)
+
 ## Table of Contents
 - [Features](#features)
 - [Installation](#installation)
