@@ -1,99 +1,85 @@
-Autolink – Recycled Car Parts Desktop App
+# Autolink – Recycled Car Parts Desktop App
+
 Autolink is a desktop application built with Java 17+ that offers an eco-friendly platform for buying and managing recycled car parts. It connects users with trusted recycling suppliers and promotes sustainable automotive maintenance.
 
-Table of Contents
-Features
+## Table of Contents
 
-Installation
+- [Features](#features)  
+- [Installation](#installation)  
+- [Usage](#usage)  
+- [Contributing](#contributing)  
+- [License](#license)  
+- [Contact](#contact)
 
-Usage
+## Features
 
-Contributing
+- **Advanced Search**: Find parts by name, type, vehicle model, or supplier.  
+- **Shopping Cart & Checkout**: Add parts to your cart and manage your purchases with ease.  
+- **Order History**: Track your past orders and check order status.  
+- **Supplier Management**: Admins can manage suppliers and their inventory.  
+- **Secure Authentication**: User accounts are protected with secure login mechanisms.  
 
-License
+## Installation
 
-Contact
+### Prerequisites
 
-Features
-Advanced Search: Find parts by name, type, vehicle model, or supplier.
+- Java 17 or higher  
+- Maven  
 
-Shopping Cart & Checkout: Add parts to your cart and manage your purchases with ease.
+### Steps
 
-Order History: Track your past orders and check order status.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/AutolinkTechX/AutolinkCleanVersion.git
+   ```
 
-Supplier Management: Admins can manage suppliers and their inventory.
+2. Navigate to the project directory:
+   ```bash
+   cd AutolinkCleanVersion
+   ```
 
-Secure Authentication: User accounts are protected with secure login mechanisms.
+3. Build the project using Maven:
+   ```bash
+   mvn clean install
+   ```
 
-Installation
-Prerequisites
-Java 17 or higher
+4. Run the application:
+   ```bash
+   java -jar target/AutolinkCleanVersion.jar
+   ```
 
-Maven
+## Usage
 
-Steps
-Clone the repository:
-
-bash
-Copy
-Edit
-git clone https://github.com/AutolinkTechX/AutolinkCleanVersion.git
-Navigate to the project directory:
-
-bash
-Copy
-Edit
-cd AutolinkCleanVersion
-Build the project using Maven:
-
-bash
-Copy
-Edit
-mvn clean install
-Run the application:
-
-bash
-Copy
-Edit
-java -jar target/AutolinkCleanVersion.jar
-Usage
 Upon launching the application:
 
-Browse Parts: Use the search functionality to find specific car parts.
+- **Browse Parts**: Use the search functionality to find specific car parts.  
+- **Manage Cart**: Add desired parts to your shopping cart and proceed to checkout.  
+- **Order Tracking**: View your order history and track current orders.  
+- **Admin Panel**: If you have admin privileges, manage suppliers and their inventories.  
 
-Manage Cart: Add desired parts to your shopping cart and proceed to checkout.
+## Contributing
 
-Order Tracking: View your order history and track current orders.
-
-Admin Panel: If you have admin privileges, manage suppliers and their inventories.
-
-Contributing
 We welcome contributions!
 
-Fork the repository.
+1. Fork the repository.  
+2. Create a new branch:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+3. Make your changes and commit them:
+   ```bash
+   git commit -m "Add your message here"
+   ```
+4. Push to the branch:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+5. Open a pull request detailing your changes.
 
-Create a new branch:
+## License
 
-bash
-Copy
-Edit
-git checkout -b feature/your-feature-name
-Make your changes and commit them:
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-bash
-Copy
-Edit
-git commit -m "Add your message here"
-Push to the branch:
+## Contact
 
-bash
-Copy
-Edit
-git push origin feature/your-feature-name
-Open a pull request detailing your changes.
-
-License
-This project is licensed under the MIT License. See the LICENSE file for details.
-
-Contact
-For questions or feedback, please open an issue on the GitHub repository.
+For questions or feedback, please open an issue on the [GitHub repository](https://github.com/AutolinkTechX/AutolinkCleanVersion/issues).
