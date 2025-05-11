@@ -259,8 +259,8 @@ public class ShowMaterielRecyclable implements Initializable {
         try {
             String imagePath = materiel.getImage();
             if (imagePath != null && !imagePath.isEmpty()) {
-                // Option 1: Chargement d'image statique avec options de cache et de qualité réduites
-                Image image = new Image("file:src/main/resources/img/materiels/" + imagePath);
+                // Load the image using the full path
+                Image image = new Image("file:" + imagePath);
                 imageView.setImage(image);
             } else {
                 createDefaultImageView(imageView);
@@ -305,46 +305,64 @@ public class ShowMaterielRecyclable implements Initializable {
 
         // Statut avec style amélioré
         Label statutLabel = new Label("Statut : " + materiel.getStatut());
-        statutLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-font-family: 'Segoe UI';");
+        statutLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-font-family: 'Segoe UI';");
         statutLabel.setAlignment(Pos.CENTER);
 
-        // Boutons avec style amélioré (sans fond marron)
-        Button modifierButton = new Button();
-        modifierButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #a05a2c; -fx-font-weight: bold;");
-        modifierButton.setPrefWidth(100);
-        modifierButton.setPrefHeight(30);
-
-        try {
-            ImageView modifierIconView = new ImageView(new Image("file:src/main/resources/icons/modif.png"));
-            modifierIconView.setFitWidth(30);
-            modifierIconView.setFitHeight(30);
-            modifierButton.setGraphic(modifierIconView);
-            modifierButton.setTooltip(new Tooltip("Modifier"));
-        } catch (Exception e) {
-            System.err.println("❌ Erreur lors du chargement de l'icône modifier : " + e.getMessage());
-            modifierButton.setText("M");
+        // Set badge color based on status
+        switch (materiel.getStatut()) {
+            case valide:
+                statutLabel.setStyle(statutLabel.getStyle() + " -fx-background-color: green; -fx-background-radius: 5px; -fx-padding: 5px;");
+                break;
+            case refuse:
+                statutLabel.setStyle(statutLabel.getStyle() + " -fx-background-color: red; -fx-background-radius: 5px; -fx-padding: 5px;");
+                break;
+            case en_attente:
+                statutLabel.setStyle(statutLabel.getStyle() + " -fx-background-color: #FFA500; -fx-background-radius: 5px; -fx-padding: 5px;");
+                break;
         }
-        modifierButton.setOnAction(e -> handleModifier(materiel));
 
-        Button supprimerButton = new Button();
-        supprimerButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #a05a2c; -fx-font-weight: bold;");
-        supprimerButton.setPrefWidth(100);
-        supprimerButton.setPrefHeight(30);
-
-        try {
-            ImageView supprimerIconView = new ImageView(new Image("file:src/main/resources/icons/supp2.png"));
-            supprimerIconView.setFitWidth(30);
-            supprimerIconView.setFitHeight(30);
-            supprimerButton.setGraphic(supprimerIconView);
-            supprimerButton.setTooltip(new Tooltip("Supprimer"));
-        } catch (Exception e) {
-            System.err.println("❌ Erreur lors du chargement de l'icône supprimer : " + e.getMessage());
-            supprimerButton.setText("S");
-        }
-        supprimerButton.setOnAction(e -> handleSupprimer(materiel));
-
-        HBox buttonContainer = new HBox(16, modifierButton, supprimerButton);
+        // Container for buttons
+        HBox buttonContainer = new HBox(16);
         buttonContainer.setStyle("-fx-alignment: center;");
+
+        // Add buttons only if the status is 'en_attente'
+        if (materiel.getStatut() == StatutEnum.en_attente) {
+            Button modifierButton = new Button();
+            modifierButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #a05a2c; -fx-font-weight: bold;");
+            modifierButton.setPrefWidth(100);
+            modifierButton.setPrefHeight(30);
+
+            try {
+                ImageView modifierIconView = new ImageView(new Image("file:src/main/resources/icons/modif.png"));
+                modifierIconView.setFitWidth(30);
+                modifierIconView.setFitHeight(30);
+                modifierButton.setGraphic(modifierIconView);
+                modifierButton.setTooltip(new Tooltip("Modifier"));
+            } catch (Exception e) {
+                System.err.println("❌ Erreur lors du chargement de l'icône modifier : " + e.getMessage());
+                modifierButton.setText("M");
+            }
+            modifierButton.setOnAction(e -> handleModifier(materiel));
+
+            Button supprimerButton = new Button();
+            supprimerButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #a05a2c; -fx-font-weight: bold;");
+            supprimerButton.setPrefWidth(100);
+            supprimerButton.setPrefHeight(30);
+
+            try {
+                ImageView supprimerIconView = new ImageView(new Image("file:src/main/resources/icons/supp2.png"));
+                supprimerIconView.setFitWidth(30);
+                supprimerIconView.setFitHeight(30);
+                supprimerButton.setGraphic(supprimerIconView);
+                supprimerButton.setTooltip(new Tooltip("Supprimer"));
+            } catch (Exception e) {
+                System.err.println("❌ Erreur lors du chargement de l'icône supprimer : " + e.getMessage());
+                supprimerButton.setText("S");
+            }
+            supprimerButton.setOnAction(e -> handleSupprimer(materiel));
+
+            buttonContainer.getChildren().addAll(modifierButton, supprimerButton);
+        }
 
         VBox card = new VBox(10, imageView, titleLabel, descriptionLabel, dateCreationLabel, typeLabel,
                 entrepriseLabel, statutLabel, buttonContainer);
