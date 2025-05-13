@@ -9,7 +9,7 @@ import com.google.gson.*;
 public class DeepSeekAPI {
 
     private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
-    private static final String API_KEY = "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"; // À remplir avec votre clé
+    private static final String API_KEY = "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"; // À remplir avec votre clé
     private final Gson gson = new Gson();
 
     private final String SYSTEM_PROMPT =
