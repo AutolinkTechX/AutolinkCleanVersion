@@ -230,12 +230,12 @@ public class AjouterMaterielRecyclable implements Initializable {
                 }
 
                 try {
-                    String fileExtension = selectedImageFile.getName().substring(selectedImageFile.getName().lastIndexOf("."));
-                    String uniqueFileName = "img_" + UUID.randomUUID() + fileExtension;
-                    File destinationFile = new File(destinationDir, uniqueFileName);
+                    // Use the original file name
+                    String originalFileName = selectedImageFile.getName();
+                    File destinationFile = new File(destinationDir, originalFileName);
 
                     Files.copy(selectedImageFile.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    imagePath = uniqueFileName;
+                    imagePath = destinationFile.getAbsolutePath(); // Store the full path
 
                 } catch (IOException e) {
                     System.out.println("Erreur lors de la copie du fichier : " + e.getMessage());

@@ -315,8 +315,23 @@ public class ShowAccords implements Initializable, WebSocketNotifier.ConnectionS
                     // Style des labels avec taille augmentée
                     nameLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;"); // Police augmentée
                     dateLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;"); // Police augmentée
-                    statusLabel.setStyle("-fx-font-size: 14px; -fx-background-color: #e9ecef; " +
-                            "-fx-padding: 4 12; -fx-background-radius: 12;"); // Padding augmenté
+
+                    // Create a status badge
+                    statusLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #ffffff; -fx-font-family: 'Segoe UI';");
+                    statusLabel.setAlignment(Pos.CENTER);
+
+                    // Set badge color based on status
+                    switch (accord.getMaterielRecyclable().getStatut()) {
+                        case valide:
+                            statusLabel.setStyle(statusLabel.getStyle() + " -fx-background-color: green; -fx-background-radius: 5px; -fx-padding: 5px;");
+                            break;
+                        case refuse:
+                            statusLabel.setStyle(statusLabel.getStyle() + " -fx-background-color: red; -fx-background-radius: 5px; -fx-padding: 5px;");
+                            break;
+                        case en_attente:
+                            statusLabel.setStyle(statusLabel.getStyle() + " -fx-background-color: #FFA500; -fx-background-radius: 5px; -fx-padding: 5px;");
+                            break;
+                    }
 
                     // Conteneur pour le statut
                     HBox statusContainer = new HBox(8);
@@ -533,7 +548,8 @@ public class ShowAccords implements Initializable, WebSocketNotifier.ConnectionS
         try {
             String imagePath = accord.getMaterielRecyclable().getImage();
             if (imagePath != null && !imagePath.isEmpty()) {
-                Image image = new Image("file:src/main/resources/img/materiels/" + imagePath);
+                // Use the full path for the image
+                Image image = new Image("file:" + imagePath);
                 materielImageView.setImage(image);
             }
         } catch (Exception e) {
@@ -542,87 +558,92 @@ public class ShowAccords implements Initializable, WebSocketNotifier.ConnectionS
 
         // Création des labels pour afficher les informations
         Label materielLabel = new Label(accord.getMaterielRecyclable().getName());
-        materielLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #a05a2c;");
+        materielLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #a05a2c;");
 
         Label dateCreationLabel = new Label("Date de création : " + dateCreation);
-        dateCreationLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #333;");
+        dateCreationLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333;");
 
         Label dateReceptionLabel = new Label("Date de réception : " + dateReception);
-        dateReceptionLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #333;");
+        dateReceptionLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333;");
 
-        Label statutLabel = new Label("Statut : " + accord.getMaterielRecyclable().getStatut());
-        statutLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #333;");
+        // Create a status badge
+        Label statutLabel = new Label(accord.getMaterielRecyclable().getStatut().toString());
+        statutLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-font-family: 'Segoe UI';");
+        statutLabel.setAlignment(Pos.CENTER);
+
+        // Set badge color based on status
+        switch (accord.getMaterielRecyclable().getStatut()) {
+            case valide:
+                statutLabel.setStyle(statutLabel.getStyle() + " -fx-background-color: green; -fx-background-radius: 5px; -fx-padding: 5px;");
+                break;
+            case refuse:
+                statutLabel.setStyle(statutLabel.getStyle() + " -fx-background-color: red; -fx-background-radius: 5px; -fx-padding: 5px;");
+                break;
+            case en_attente:
+                statutLabel.setStyle(statutLabel.getStyle() + " -fx-background-color: #FFA500; -fx-background-radius: 5px; -fx-padding: 5px;");
+                break;
+        }
 
         Label entrepriseLabel = new Label("Entreprise : " + accord.getEntreprise().getCompanyName());
-        entrepriseLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #333;");
+        entrepriseLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333;");
 
-        // Bouton Modifier avec icône
-        Button modifierButton = new Button();
-        modifierButton.setStyle("-fx-background-color: transparent;");
-        try {
-            ImageView modifierIconView = new ImageView(new Image("file:src/main/resources/icons/modif.png"));
-            modifierIconView.setFitWidth(30);
-            modifierIconView.setFitHeight(30);
-            modifierIconView.setPreserveRatio(true);
-            modifierButton.setGraphic(modifierIconView);
-            modifierButton.setTooltip(new Tooltip("Modifier"));
-        } catch (Exception e) {
-            System.err.println("❌ Erreur lors du chargement de l'icône modifier : " + e.getMessage());
-            modifierButton.setText("M");
-        }
-        modifierButton.setOnAction(e -> showModifyDialog(accord));
-
-        // Bouton Supprimer avec icône
-        Button supprimerButton = new Button();
-        supprimerButton.setStyle("-fx-background-color: transparent;");
-        try {
-            ImageView supprimerIconView = new ImageView(new Image("file:src/main/resources/icons/supp2.png"));
-            supprimerIconView.setFitWidth(30);
-            supprimerIconView.setFitHeight(30);
-            supprimerIconView.setPreserveRatio(true);
-            supprimerButton.setGraphic(supprimerIconView);
-            supprimerButton.setTooltip(new Tooltip("Supprimer"));
-        } catch (Exception e) {
-            System.err.println("❌ Erreur lors du chargement de l'icône supprimer : " + e.getMessage());
-            supprimerButton.setText("S");
-        }
-        supprimerButton.setOnAction(e -> handleSupprimer(accord));
-
-        // Bouton Accepter avec icône
-        Button accepterButton = new Button();
-        accepterButton.setStyle("-fx-background-color: transparent;");
-        try {
-            ImageView accepterIconView = new ImageView(new Image("file:src/main/resources/icons/accept.png", 23, 23, true, true));
-            accepterButton.setGraphic(accepterIconView);
-            accepterButton.setTooltip(new Tooltip("Accepter"));
-        } catch (Exception e) {
-            System.err.println("❌ Erreur lors du chargement de l'icône accepter : " + e.getMessage());
-            accepterButton.setText("A");
-        }
-        accepterButton.setOnAction(e -> handleAccepter(accord));
-
-        // Bouton Refuser avec icône
-        Button refuserButton = new Button();
-        refuserButton.setStyle("-fx-background-color: transparent;");
-        try {
-            ImageView refuserIconView = new ImageView(new Image("file:src/main/resources/icons/refuse.png", 23, 23, true, true));
-            refuserButton.setGraphic(refuserIconView);
-            refuserButton.setTooltip(new Tooltip("Refuser"));
-        } catch (Exception e) {
-            System.err.println("❌ Erreur lors du chargement de l'icône refuser : " + e.getMessage());
-            refuserButton.setText("R");
-        }
-        refuserButton.setOnAction(e -> handleRefuser(accord));
-
-        HBox buttonContainer = new HBox(15, modifierButton, supprimerButton, accepterButton, refuserButton);
+        // Container for buttons
+        HBox buttonContainer = new HBox(15);
         buttonContainer.setStyle("-fx-alignment: center;");
+
+        // Add buttons based on status
+        if (accord.getMaterielRecyclable().getStatut() == StatutEnum.refuse) {
+            // Add only the delete button for refused accords
+            Button supprimerButton = new Button();
+            supprimerButton.setStyle("-fx-background-color: transparent;");
+            try {
+                ImageView supprimerIconView = new ImageView(new Image("file:src/main/resources/icons/supp2.png"));
+                supprimerIconView.setFitWidth(30);
+                supprimerIconView.setFitHeight(30);
+                supprimerIconView.setPreserveRatio(true);
+                supprimerButton.setGraphic(supprimerIconView);
+                supprimerButton.setTooltip(new Tooltip("Supprimer"));
+            } catch (Exception e) {
+                System.err.println("❌ Erreur lors du chargement de l'icône supprimer : " + e.getMessage());
+                supprimerButton.setText("S");
+            }
+            supprimerButton.setOnAction(e -> handleSupprimer(accord));
+            buttonContainer.getChildren().add(supprimerButton);
+        } else if (accord.getMaterielRecyclable().getStatut() == StatutEnum.en_attente) {
+            // Add accept and refuse buttons for pending accords
+            Button accepterButton = new Button();
+            accepterButton.setStyle("-fx-background-color: transparent;");
+            try {
+                ImageView accepterIconView = new ImageView(new Image("file:src/main/resources/icons/accept.png", 23, 23, true, true));
+                accepterButton.setGraphic(accepterIconView);
+                accepterButton.setTooltip(new Tooltip("Accepter"));
+            } catch (Exception e) {
+                System.err.println("❌ Erreur lors du chargement de l'icône accepter : " + e.getMessage());
+                accepterButton.setText("A");
+            }
+            accepterButton.setOnAction(e -> handleAccepter(accord));
+
+            Button refuserButton = new Button();
+            refuserButton.setStyle("-fx-background-color: transparent;");
+            try {
+                ImageView refuserIconView = new ImageView(new Image("file:src/main/resources/icons/refuse.png", 23, 23, true, true));
+                refuserButton.setGraphic(refuserIconView);
+                refuserButton.setTooltip(new Tooltip("Refuser"));
+            } catch (Exception e) {
+                System.err.println("❌ Erreur lors du chargement de l'icône refuser : " + e.getMessage());
+                refuserButton.setText("R");
+            }
+            refuserButton.setOnAction(e -> handleRefuser(accord));
+
+            buttonContainer.getChildren().addAll(accepterButton, refuserButton);
+        }
 
         VBox card = new VBox(8, materielImageView, materielLabel, dateCreationLabel, dateReceptionLabel,
                 statutLabel, entrepriseLabel, buttonContainer);
         card.setStyle("-fx-padding: 12; -fx-background-color: white; -fx-border-color: #a05a2c; "
                 + "-fx-border-width: 2; -fx-border-radius: 8; -fx-background-radius: 8; -fx-alignment: center;");
-        card.setPrefWidth(220);
-        card.setMinHeight(350);
+        card.setPrefWidth(260);
+        card.setMinHeight(370);
 
         return card;
     }
